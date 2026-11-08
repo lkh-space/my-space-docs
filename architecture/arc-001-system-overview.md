@@ -77,6 +77,7 @@ flowchart LR
     ai["ai<br/>[AI 워크스페이스 서버: NestJS]"]
     db[("PostgreSQL<br/>[관계형 DB]")]
     rustfs[("RustFS<br/>[오브젝트 스토리지]")]
+    opensearch[("OpenSearch<br/>[전문 검색 엔진]")]
     qdrant[("Qdrant<br/>[벡터 DB]")]
     rmq["RabbitMQ<br/>[메시지 브로커]"]
   end
@@ -93,6 +94,7 @@ flowchart LR
   web -->|"AI 스트리밍·검색 요청 [HTTPS/SSE]"| ai
   api -->|"메타데이터·일정·피드 읽기/쓰기 [SQL]"| db
   api -->|"마크다운 본문 객체 저장/조회 [S3 API]"| rustfs
+  api -->|"문서 풀텍스트 색인 및 검색 [HTTPS/REST]"| opensearch
   api -->|"문서 변경 인덱싱 이벤트 발행 [AMQP]"| rmq
   api -->|"RSS 수집 및 원문 HTML 요청 [HTTPS]"| rss
   api -->|"만료·결제 알림 발송 [HTTPS]"| slack
@@ -107,7 +109,7 @@ flowchart LR
   classDef container fill:#ffffff,stroke:#333333
   classDef external fill:#eeeeee,stroke:#666666,stroke-dasharray:5 5
   class user person
-  class web,api,ai,db,rustfs,qdrant,rmq container
+  class web,api,ai,db,rustfs,opensearch,qdrant,rmq container
   class auth,llm,rss,slack,holiday external
 ```
 
@@ -121,7 +123,7 @@ flowchart LR
 | 화살표 | 요청 방향. 레이블은 "목적 [방식]" |
 
 - **목적**: `my-space` v2를 이루는 실행 컨테이너, 데이터 저장소, 외부 연동 시스템을 한 장에 보여준다.
-- **설명**: 모든 외부 요청은 리버스 프록시와 `Authelia SSO`를 거쳐 인증 헤더가 주입된 상태로 들어온다. 순수 클라이언트 도구(이미지 WASM 변환, EXIF, 개발 파서, 계산기)는 `web` 브라우저 내부에서 완결되며, 공간 데이터(노트, 피드, 관리)와 암호화 PDF 처리(`qpdf`), Catch-up 스케줄러는 `api`가 맡는다. 노트가 저장되면 `RabbitMQ`를 통해 `ai`가 비동기로 문서를 청킹·임베딩해 `Qdrant`에 색인하고, 실시간 음성·텍스트 스트리밍 대화를 처리한다.
+- **설명**: 모든 외부 요청은 리버스 프록시와 `Authelia SSO`를 거쳐 인증 헤더가 주입된 상태로 들어온다. 순수 클라이언트 도구(이미지 WASM 변환, EXIF, 개발 파서, 계산기)는 `web` 브라우저 내부에서 완결되며, 공간 데이터(노트, 피드, 관리)와 암호화 PDF 처리(`qpdf`), Catch-up 스케줄러, `OpenSearch` 기반 문서 풀텍스트 전문 검색은 `api`가 맡는다. 노트가 저장되면 `RabbitMQ`를 통해 `ai`가 비동기로 문서를 청킹·임베딩해 `Qdrant`에 색인하고, 실시간 음성·텍스트 스트리밍 대화를 처리한다.
 - **관련 문서**: [ARC-003](arc-003-system-context.md), [ARC-004](arc-004-containers-components.md) (기준: ARC-004)
 
 | 구성 요소 | 역할 | 기술 | 상세 문서 |
@@ -131,6 +133,7 @@ flowchart LR
 | `ai` | 실시간 음성·텍스트 AI 어시스턴트(SSE 스트리밍·즉시 중단), RabbitMQ 기반 비동기 문서 인덱싱 워커, Qdrant 시맨틱 검색을 담당하는 AI 전용 서버 | NestJS 12, TypeScript, `@google/genai` | [ARC-004](arc-004-containers-components.md#ai-ai-워크스페이스-서버) |
 | `PostgreSQL` | 폴더·노트 메타데이터/리비전, 피드 구독원·아티클·키워드, 관리 일정(공통 날짜 모델 3유형), 인앱 알림, 공휴일 캐시를 저장하는 주 관계형 데이터베이스 | PostgreSQL 18 | [ARC-004](arc-004-containers-components.md#컨테이너-목록-필수) |
 | `RustFS` | 마크다운 노트의 버전별 원문(`.md`) 본문 객체를 저장하는 S3 호환 오브젝트 스토리지 | RustFS (S3 API) | [ARC-004](arc-004-containers-components.md#컨테이너-목록-필수) |
+| `OpenSearch` | 마크다운 문서 본문·제목·태그의 키워드 전문(Full-text) 색인 및 빠른 검색을 수행하는 검색 엔진 | OpenSearch 2.11 | [ARC-004](arc-004-containers-components.md#컨테이너-목록-필수) |
 | `Qdrant` | 마크다운 문서 청크의 벡터 임베딩을 저장하고 시맨틱 유사도 검색을 수행하는 벡터 데이터베이스 | Qdrant | [ARC-004](arc-004-containers-components.md#컨테이너-목록-필수) |
 | `RabbitMQ` | 노트 생성·수정·삭제 시 벡터 인덱싱 작업을 `api`에서 `ai` 워커로 비동기 전달하는 메시지 브로커 | RabbitMQ 3.12 (AMQP 0-9-1) | [ARC-004](arc-004-containers-components.md#컨테이너-목록-필수) |
 
@@ -154,7 +157,7 @@ flowchart LR
 | [ARC-001 시스템 개요](arc-001-system-overview.md) | 작성 | 시스템 목적, 구성 요약 다이어그램, 주요 ADR 목록 |
 | [ARC-002 아키텍처 원칙과 제약](arc-002-principles-constraints.md) | 작성 | 홈랩 환경 제약(`CON-`) 및 설계 원칙(`AP-`), 가정(`ASM-`) |
 | [ARC-003 시스템 컨텍스트와 외부 시스템](arc-003-system-context.md) | 작성 | 주 사용자·외부 방문자와 5대 외부 연동 시스템 경계 |
-| [ARC-004 컨테이너와 주요 컴포넌트](arc-004-containers-components.md) | 작성 | 7개 컨테이너(`web`, `api`, `ai`, `PostgreSQL`, `RustFS`, `Qdrant`, `RabbitMQ`)와 내부 모듈 책임 |
+| [ARC-004 컨테이너와 주요 컴포넌트](arc-004-containers-components.md) | 작성 | 8개 컨테이너(`web`, `api`, `ai`, `PostgreSQL`, `RustFS`, `OpenSearch`, `Qdrant`, `RabbitMQ`)와 내부 모듈 책임 |
 | [ARC-005 데이터 흐름](arc-005-data-flow.md) | 작성 | 공간 영속 흐름, 로컬 격리 흐름, 하이브리드 PDF 흐름, 테스트 계정 샌드박스 흐름 |
 | [ARC-006 아키텍처 의사결정 기록(ADR)](arc-006-adr.md) | 작성 | ADR 색인 및 `ADR-0001`~`ADR-0006` 개별 기록 |
 | [ARC-007 보안 아키텍처](arc-007-security-architecture.md) | 작성 | 신뢰 경계, ForwardAuth·테스트 계정 인가 위치, 임시 파일 및 시크릿 보호 |

@@ -21,7 +21,7 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008,
 - **목적**: `my-space` v2 시스템을 실행 단위(컨테이너)와 그 안의 주요 컴포넌트(모듈)로 나누고, 서로 어떻게 통신하는지 정의한다. C4 model의 컨테이너(2단계)와 컴포넌트(3단계)에 해당하며, 구성 요소 이름과 책임의 **기준 문서**다. [ARC-001](arc-001-system-overview.md)의 구성 그림은 이 문서를 요약한 것이다.
 - **대상 독자**: 프론트엔드·백엔드·인프라 개발자, AI 에이전트
 - **작성 시점**: 시스템 개요([ARC-001](arc-001-system-overview.md))와 컨텍스트([ARC-003](arc-003-system-context.md)) 작성 직후, 프론트엔드·백엔드·인프라 세부 설계 전.
-- **등급**: 조건부 — 다중 백엔드 앱(`api`, `ai`)과 다중 데이터 저장소(`PostgreSQL`, `RustFS`, `Qdrant`, `RabbitMQ`), 클라이언트 워커(`Web Worker/WASM`)를 조합하는 프로젝트
+- **등급**: 조건부 — 다중 백엔드 앱(`api`, `ai`)과 다중 데이터 저장소(`PostgreSQL`, `RustFS`, `OpenSearch`, `Qdrant`, `RabbitMQ`), 클라이언트 워커(`Web Worker/WASM`)를 조합하는 프로젝트
 
 ## 선행 문서와 관련 문서
 
@@ -52,6 +52,7 @@ flowchart LR
     ai["ai<br/>[컨테이너: NestJS 12]<br/>실시간 음성·텍스트 AI 비서(SSE), 비동기 문서 인덱싱, RAG 검색"]
     db[("PostgreSQL<br/>[컨테이너: PostgreSQL 18]<br/>노트 메타·리비전, 피드, 관리 일정, 알림, 공휴일 캐시")]
     rustfs[("RustFS<br/>[컨테이너: RustFS S3]<br/>마크다운 노트 버전별 원문(.md) 객체")]
+    opensearch[("OpenSearch<br/>[컨테이너: OpenSearch 2.11]<br/>마크다운 본문·제목·태그 풀텍스트 색인")]
     qdrant[("Qdrant<br/>[컨테이너: Qdrant]<br/>문서 청크 벡터 임베딩 및 시맨틱 인덱스")]
     rmq["RabbitMQ<br/>[컨테이너: RabbitMQ 3.12]<br/>노트 변경 이벤트 비동기 인덱싱 큐"]
   end
@@ -72,6 +73,7 @@ flowchart LR
 
   api -->|"공간 데이터·스케줄 상태 읽기/쓰기 [SQL/Prisma]"| db
   api -->|"마크다운 본문 업로드·다운로드 [S3 API/HTTP]"| rustfs
+  api -->|"문서 풀텍스트 색인 및 검색 [HTTPS/REST]"| opensearch
   api -->|"문서 인덱싱 작업 발행 [AMQP 0-9-1]"| rmq
   api -->|"RSS XML 및 아티클 원문 HTML 수집 [HTTPS]"| rss
   api -->|"만료·결제 도래 알림 발송 [HTTPS/JSON]"| slack
@@ -87,7 +89,7 @@ flowchart LR
   classDef container fill:#ffffff,stroke:#333333
   classDef external fill:#eeeeee,stroke:#666666,stroke-dasharray:5 5
   class owner,visitor person
-  class web,api,ai,db,rustfs,qdrant,rmq container
+  class web,api,ai,db,rustfs,opensearch,qdrant,rmq container
   class auth,llm,rss,slack,holiday external
 ```
 
@@ -103,7 +105,7 @@ flowchart LR
 - **목적**: 사용자 요청과 백그라운드 작업이 어느 컨테이너를 거쳐 처리되고 저장되는지 보여준다.
 - **설명**:
   - **클라이언트 완결 경로**: 순수 로컬 도구(이미지 압축·변환, EXIF, 스키마, cron, 정규식, JWT, 계산기)는 `web` 컨테이너 내부(메인 스레드 및 Web Worker/WASM)에서만 실행되며 `api`나 외부로 네트워크 요청을 보내지 않는다([ADR-0001](adr/adr-0001-hybrid-client-server-processing.md)).
-  - **동기 API 경로**: 공간(노트·피드·관리·알림) 조회·저장과 암호화 PDF 처리(`qpdf`)는 `web`에서 `api`로 호출하며, `api`가 `PostgreSQL`과 `RustFS`에 기록한다.
+  - **동기 API 경로**: 공간(노트·피드·관리·알림) 조회·저장과 암호화 PDF 처리(`qpdf`), OpenSearch 전문 검색은 `web`에서 `api`로 호출하며, `api`가 `PostgreSQL`과 `RustFS`에 기록하고 `OpenSearch`에 전문 색인을 갱신한다.
   - **비동기 인덱싱 및 AI 스트리밍 경로**: `api`에서 노트가 저장되면 `RabbitMQ`에 이벤트를 발행하고 즉시 응답한다. `ai`가 큐에서 이벤트를 소비해 `RustFS`의 본문을 읽고 청킹·임베딩하여 `Qdrant`에 적재한다([ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md)).
 - **관련 문서**: [ARC-003](arc-003-system-context.md) (사람·외부 시스템의 기준)
 
@@ -115,7 +117,8 @@ flowchart LR
 | `api` | 메인 API 서버 & 스케줄러 | 공간(노트·피드·관리·알림) REST API, `qpdf` 기반 암호화/대용량 PDF 처리, 기동 시 누락 스케줄 Catch-up 및 주기적 수집·만료 판별, 외부 방문자 테스트 계정 인메모리 샌드박스 격리를 담당한다 | NestJS 12, TypeScript, Prisma 6, `qpdf` CLI (`my-space-backend/apps/api`) | `@bob` | [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md), [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md), [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md), [ADR-0005](adr/adr-0005-notification-channel-abstraction.md) | `REQ-002`~`REQ-010`, `REQ-012`, `REQ-025`, `REQ-026`, `REQ-028`, `REQ-030` |
 | `ai` | AI 워크스페이스 서버 & 인덱싱 워커 | 실시간 음성(PTT)·텍스트 AI 스트리밍 대화(SSE) 및 즉시 중단(`AbortController`), RAG 도구 호출(`search_my_documents`, `read_document`, `save_to_markdown`), `RabbitMQ` 문서 인덱싱 워커를 담당한다 | NestJS 12, TypeScript, `@google/genai`, Ollama/STT/TTS 어댑터 (`my-space-backend/apps/ai`) | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | `REQ-003`, `REQ-011`, `REQ-026` |
 | `PostgreSQL` | 관계형 데이터베이스 | 주 사용자의 폴더·노트 메타데이터/리비전, 피드 구독원·아티클·키워드 규칙, 관리 일정(공통 날짜 모델 3유형)과 스케줄 실행 이력(`lastRunAt`), 인앱 알림함, 연도별 공휴일 캐시를 영속 저장한다 | PostgreSQL 18 | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md) | `REQ-002`~`REQ-010`, `REQ-025`, `REQ-028` |
-| `RustFS` | 오브젝트 스토리지 | 마크다운 노트의 현재 본문과 버전별 리비전 스냅샷(`.md` 파일 객체)을 저장한다 | RustFS (S3 호환 API) | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | `REQ-003`, `REQ-028` |
+| `RustFS` | 오브젝트 스토리지 | 마크다운 노트의 현재 본문과 버전별 리비전 스냅샷(`.md` 파일 객체)을 저장한다 | RustFS (S3 호환 API) | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [ADR-0006](adr/adr-0006-object-storage-migration-to-rustfs.md) | `REQ-003`, `REQ-028` |
+| `OpenSearch` | 검색 엔진 | 마크다운 문서 본문·제목·태그의 키워드 전문(Full-text) 색인, 형태소 분석 및 빠른 검색·하이라이트를 수행한다 | OpenSearch 2.11 | `@bob` | - | `REQ-003` |
 | `Qdrant` | 벡터 데이터베이스 | 마크다운 노트를 청킹·임베딩한 고차원 벡터와 문서 메타데이터 페이로드를 저장하고 시맨틱 유사도 검색을 수행한다 | Qdrant | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | `REQ-003`, `REQ-011` |
 | `RabbitMQ` | 메시지 브로커 | `api`에서 발생한 마크다운 문서 생성·수정·삭제 이벤트를 `ai` 인덱싱 워커로 비동기 전달한다 (Dead Letter Queue 포함) | RabbitMQ 3.12 | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | `REQ-003`, `REQ-011` |
 
@@ -123,11 +126,12 @@ flowchart LR
 
 | 호출하는 쪽 | 호출받는 쪽 | 목적 | 프로토콜·형식 | 동기/비동기 | 관련 기능 명세 |
 |---|---|---|---|---|---|
-| `web` | `api` | 홈 브리핑, 노트·폴더·태그·리비전, 피드·키워드, 관리 일정(3유형), 인앱 알림, 공휴일 캐시 조회 및 변경 | HTTPS / JSON (`REST API`) | 동기 | [PRD-005 FN-001~FN-009, FN-024, FN-025](../product/prd-005-functional-spec.md) |
+| `web` | `api` | 홈 브리핑, 노트·폴더·태그·리비전, 피드·키워드, 관리 일정(3유형), 인앱 알림, 공휴일 캐시 조회 및 변경, 전문 검색 | HTTPS / JSON (`REST API`) | 동기 | [PRD-005 FN-001~FN-009, FN-024, FN-025](../product/prd-005-functional-spec.md) |
 | `web` | `api` | 암호화 PDF 해제 및 서버 위임 PDF 병합·분할 요청과 결과 파일 다운로드 | HTTPS / `multipart/form-data` → `application/pdf` (또는 `application/zip`) | 동기 | [PRD-005 FN-011](../product/prd-005-functional-spec.md) |
 | `web` | `ai` | 텍스트·음성(PTT 오디오 Blob) AI 대화 시작 및 토큰·전사·벤치마크·오디오 완료 이벤트 수신, 발화 즉시 중단 요청 | HTTPS / `multipart/form-data` & `text/event-stream` (`SSE`), JSON | 동기 스트리밍 | [PRD-005 FN-010](../product/prd-005-functional-spec.md) |
 | `api` | `PostgreSQL` | 공간 엔티티 트랜잭션 처리, Catch-up 스케줄러 상태(`lastRunAt`) 조회·갱신 | TCP / SQL (Prisma Client) | 동기 | [PRD-005 FN-002~FN-009](../product/prd-005-functional-spec.md) |
 | `api` | `RustFS` | 마크다운 노트 원문 및 리비전 스냅샷 객체 업로드·다운로드·삭제 | HTTP / AWS S3 SDK v3 | 동기 | [PRD-005 FN-003](../product/prd-005-functional-spec.md) |
+| `api` | `OpenSearch` | 문서 생성·수정·삭제 시 전문 색인 동기화 및 본문·제목·태그 키워드 검색 | HTTPS / REST JSON (`@opensearch-project/opensearch`) | 동기 | [PRD-005 FN-003](../product/prd-005-functional-spec.md) |
 | `api` | `RabbitMQ` | 문서 생성·수정(`DOCUMENT_UPSERT`) 및 삭제(`DOCUMENT_DELETE`) 인덱싱 메시지 발행 | TCP / AMQP 0-9-1 (JSON Payload) | 비동기 | [PRD-005 FN-003](../product/prd-005-functional-spec.md) |
 | `RabbitMQ` | `ai` | 인덱싱 큐 메시지 소비 및 문서 벡터화 워커 실행 | TCP / AMQP 0-9-1 | 비동기 | [PRD-005 FN-003, FN-010](../product/prd-005-functional-spec.md) |
 | `ai` | `PostgreSQL` / `RustFS` | 인덱싱 대상 문서 본문 조회 및 AI 대화 결과의 신규 마크다운 노트 저장(`save_to_markdown`) | TCP / SQL & HTTP / S3 API | 동기 | [PRD-005 FN-010](../product/prd-005-functional-spec.md) |
@@ -151,7 +155,7 @@ flowchart LR
 | 컴포넌트 | 책임 | 의존하는 컴포넌트·컨테이너 | 관련 요구사항 |
 |---|---|---|---|
 | 인증 & 테스트 계정 격리 계층 (`Auth & Sandbox`) | Authelia ForwardAuth 헤더를 검증하고, 요청자가 외부 방문자(`visitor`)일 경우 주 사용자 DB 대신 세션별 인메모리 샌드박스 저장소로 요청을 라우팅한다 | Authelia SSO, 인메모리 샌드박스 스토어 | `REQ-026`, `REQ-030` |
-| 노트 모듈 (`MarkdownModule`) | 폴더·태그·노트 메타데이터 및 리비전 이력 CRUD, 버전 간 Diff 및 복원, 마크다운 ZIP 내보내기, 문서 변경 시 인덱싱 이벤트 발행을 담당한다 | `PostgreSQL`, `RustFS`, `RabbitMQ` | `REQ-003` |
+| 노트 모듈 (`MarkdownModule`) | 폴더·태그·노트 메타데이터 및 리비전 이력 CRUD, 버전 간 Diff 및 복원, 마크다운 ZIP 내보내기, OpenSearch 전문 색인 동기화, 문서 변경 시 인덱싱 이벤트 발행을 담당한다 | `PostgreSQL`, `RustFS`, `OpenSearch`, `RabbitMQ` | `REQ-003` |
 | 피드 모듈 (`FeedModule`) | RSS/Atom 구독원 등록·삭제, 피드 XML 파싱 및 중복 제거, Mozilla Readability 기반 원문 본문 추출, 관심·제외 키워드 규칙 적용을 담당한다 | `PostgreSQL`, 외부 RSS/웹서버 | `REQ-004`, `REQ-005` |
 | 관리 & 일정 모듈 (`ManagementModule`) | 공통 날짜 모델 3유형(`RECURRING_PAYMENT`, `EXPIRATION`, `SINGLE_DATE`) CRUD, 월 구독 합계 환산, 만료 연장(갱신) 처리를 담당한다 | `PostgreSQL` | `REQ-006`, `REQ-007`, `REQ-008` |
 | Catch-up 스케줄러 & 알림 모듈 (`Catchup & NotificationModule`) | 서버 기동 시 및 주기적 루프에서 `lastRunAt`을 대조해 누락된 정기 결제일 갱신·만료 판별·RSS 수집을 멱등 실행하고, 인앱 알림함 저장 및 `NotificationChannel`(Slack Webhook) 발송을 수행한다 | `FeedModule`, `ManagementModule`, `PostgreSQL`, `Slack Incoming Webhook` | `REQ-002`, `REQ-009`, `REQ-010`, `REQ-028` |

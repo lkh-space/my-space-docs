@@ -73,7 +73,7 @@ traces: [REQ-003, REQ-028, NFR-006]
 
 **대안 A**를 채택한다. `my-space`의 모든 오브젝트 스토리지를 **`RustFS` (`rustfs/rustfs:latest`)**로 전환한다.
 - 인프라 네임스페이스(`infra`)의 `rustfs-service`(`:9000` S3 API, `:9001` Web Console)와 `rustfs-pvc`를 사용한다.
-- 백엔드(`api`, `ai`)는 표준 S3 호환 엔드포인트를 유지하므로 코드 변경 없이 환경변수(`RUSTFS_*` / `S3_*`) 연결만으로 즉시 연동한다.
+- 백엔드(`api`, `ai`)는 표준 S3 호환 엔드포인트를 유지하므로 코드 변경 없이 즉시 연동한다. 기존 백엔드 코드 및 Kubernetes Secret(`api-secret`)의 환경변수 접두사(`MINIO_ENDPOINT` 등)는 SDK 호환성을 위해 그대로 유지하며, 주소만 `http://rustfs-service.infra.svc.cluster.local:9000`으로 전환한다.
 
 ## 결과 [필수]
 
