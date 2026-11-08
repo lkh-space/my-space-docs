@@ -8,7 +8,7 @@ version: 1.1.0
 owner: "@bob (Keunhyeok Lim)"
 last_reviewed: 2026-11-05
 depends_on: []
-related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005]
+related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006]
 superseded_by: null
 traces: []
 ---
@@ -33,7 +33,7 @@ traces: []
 
 ## 문서 목록 [필수]
 
-현재 **1단계: 기획(PRD) 및 공통 기반(OPS)** 문서 9종(`approved`), **2단계: 디자인(DSN)** 문서 9종(`review`), **3단계: 공통 아키텍처(ARC/ADR)** 문서 13종(`review`)이 번호 건너뜀 없이 순차 작성되어 있다. 후속 단계(백엔드 `BE`·프론트엔드 `FE` → 테스트/검증 `QA` → 운영관리 `OPS`) 진행 시 해당 파트 문서를 이 표에 순차 추가한다.
+현재 **1단계: 기획(PRD) 및 공통 기반(OPS)** 문서 9종(`approved`), **2단계: 디자인(DSN)** 문서 9종(`review`), **3단계: 공통 아키텍처(ARC/ADR)** 문서 14종(`review`)이 번호 건너뜀 없이 순차 작성되어 있다. 후속 단계(백엔드 `BE`·프론트엔드 `FE` → 테스트/검증 `QA` → 운영관리 `OPS`) 진행 시 해당 파트 문서를 이 표에 순차 추가한다.
 
 | ID | 문서 | 한 줄 설명 | 등급 | 상태 | owner | last_reviewed |
 |---|---|---|---|---|---|---|
@@ -66,8 +66,9 @@ traces: []
 | ADR-0003 | [홈랩 비-상시 구동 환경을 위한 DB 영속화 기반 누락 스케줄 보정(Catch-up)](../architecture/adr/adr-0003-homelab-catchup-scheduler.md) | `SystemJobState` 기반 기동 즉시 Catch-up 및 일 단위 멱등 키 중복 방지 아키텍처 결정 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
 | ADR-0004 | [Authelia ForwardAuth 게이트웨이 인증 위임 및 외부 방문자 샌드박스 격리](../architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md) | Traefik ForwardAuth 헤더 신뢰와 방문자 모드 브라우저 인메모리 샌드박스·읽기 전용 가드 결정 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
 | ADR-0005 | [인앱 알림함 우선 저장 및 외부 알림 채널 어댑터 추상화](../architecture/adr/adr-0005-notification-channel-abstraction.md) | 인앱 알림함 영구 기록 우선 보장 및 `NotificationChannelPort` 기반 Slack Webhook 어댑터 분리 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
+| ADR-0006 | [오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환](../architecture/adr/adr-0006-object-storage-migration-to-rustfs.md) | MinIO CVE 보안 패치 중단 대응 및 완전 오픈소스 RustFS(S3 호환) 전환 결정 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-08 |
 | OPS-001 | [용어집](ops-001-glossary.md) | 공간·도구, 공통 날짜 모델 3유형, Catch-up, 테스트 계정 격리 등 표준 용어와 코드 식별자 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
-| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-05 |
+| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-08 |
 
 ## 작성하지 않는 문서 [필수]
 
@@ -91,13 +92,14 @@ traces: []
 
 - [x] 현재 저장소에 있는 모든 문서 파일이 문서 목록 표에 있고, 표의 링크가 모두 열린다
 - [x] 표의 상태·owner·last_reviewed가 각 문서의 메타데이터와 일치한다
-- [x] 번호 건너뜀 없이 순차 번호(`PRD-001`~`PRD-007`, `DSN-001`~`DSN-009`, `ARC-001`~`ARC-008`, `ADR-0001`~`ADR-0005`, `OPS-001`~`OPS-002`)가 부여되어 있다
+- [x] 번호 건너뜀 없이 순차 번호(`PRD-001`~`PRD-007`, `DSN-001`~`DSN-009`, `ARC-001`~`ARC-008`, `ADR-0001`~`ADR-0006`, `OPS-001`~`OPS-002`)가 부여되어 있다
 - [x] owner가 빈 칸 없이 명시되어 있다
 
 ## 변경 이력
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-08 | 1.2.0 | 오브젝트 스토리지 RustFS 전환에 따른 ADR-0006 추가 등록 | Antigravity (사용자 검토 대기) |
 | 2026-11-05 | 1.1.0 | 디자인(`DSN-001`~`DSN-009`) 및 공통 아키텍처(`ARC-001`~`ARC-008`, `ADR-0001`~`ADR-0005`) 문서 목록 등록 | Antigravity (사용자 검토 대기) |
 | 2026-11-01 | 1.0.0 | 사용자 검토 완료에 따라 approved(승인) 상태로 확정 | Antigravity (사용자 승인 완료) |
 | 2026-10-31 | 0.1.0 | my-space v2 문서 인덱스 최초 작성 (PRD 7종 + OPS 2종 등록) | Antigravity (사용자 검토 대기) |
