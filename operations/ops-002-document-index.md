@@ -84,7 +84,7 @@ traces: []
 | v1 프론트엔드 디자인 시스템 (`DESIGN.md`) | `my-space-front/DESIGN.md` | 색상 토큰, 타이포그래피, 반응형 브레이크포인트 기준 | PRD-006, DSN-005 |
 | v1 프론트엔드 SDD 명세 및 ADR | `my-space-front/docs/` | v1에서 구현 완료된 마크다운 노트, AI, PDF, DBML 프론트엔드 사양 | PRD-002, PRD-005, ARC-004 |
 | v1 백엔드 SDD 명세 및 ADR | `my-space-backend/docs/` | v1에서 구현 완료된 백엔드 API 및 `qpdf`·AI 파이프라인 사양 | PRD-002, PRD-005, ARC-004, ARC-006 |
-| 홈랩 쿠버네티스 인프라 매니페스트 | `homelab-infra/` | k3s 클러스터, Traefik, Authelia, PostgreSQL, MinIO, Qdrant, RabbitMQ 구성 | ARC-001, ARC-003, ARC-004, ARC-007 |
+| 홈랩 쿠버네티스 인프라 매니페스트 | `homelab-infra/` | k3s 클러스터, Traefik, Authelia, PostgreSQL, RustFS, Qdrant, RabbitMQ 구성 | ARC-001, ARC-003, ARC-004, ARC-007 |
 | v2 초기 기능 기획 메모 | `solution-docs-guide-main/temp-space.md` | 사용자 대화 기반 초기 아이디어 및 결정 스냅샷 | PRD-001, PRD-002, PRD-007 |
 
 ## 검토 체크리스트

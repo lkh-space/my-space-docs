@@ -41,9 +41,9 @@ traces: [REQ-003, REQ-004, REQ-006, REQ-009, REQ-010, REQ-011, REQ-012, REQ-014,
 |---|---|---|---|---|
 | DF-01 | 로컬 전용 도구 처리 (이미지·EXIF·JWT·개발·계산) | 사용자 브라우저(`web`) 내부 메모리/Worker → 브라우저 다운로드 (네트워크 전송 없음) | 있음 (원본 사진·GPS EXIF, JWT 토큰, 스키마) | `REQ-014`~`REQ-024`, `REQ-030`, `NFR-006` |
 | DF-02 | 하이브리드 암호화 PDF 서버 처리 (`qpdf`) | 사용자 브라우저(`web`) → `api` 임시 파일(`/tmp`) → 복호화 스트림 반환 후 즉시 삭제 | 있음 (암호화 PDF 원본 및 비밀번호) | `REQ-012`, `REQ-030`, `NFR-006` |
-| DF-03 | 마크다운 노트 저장·버전 스냅샷 및 비동기 RAG 인덱싱 | 사용자(`web`) → `api` → `PostgreSQL` & `MinIO` → `RabbitMQ` → `ai` → `LLM/임베딩` → `Qdrant` | 있음 (주 사용자 개인 노트 원문) | `REQ-003`, `REQ-011`, `REQ-028` |
+| DF-03 | 마크다운 노트 저장·버전 스냅샷 및 비동기 RAG 인덱싱 | 사용자(`web`) → `api` → `PostgreSQL` & `RustFS` → `RabbitMQ` → `ai` → `LLM/임베딩` → `Qdrant` | 있음 (주 사용자 개인 노트 원문) | `REQ-003`, `REQ-011`, `REQ-028` |
 | DF-04 | 홈랩 Catch-up 스케줄링 (피드 수집·만료 판별·알림 발송) | `api` 스케줄러 → 외부 RSS / `PostgreSQL` → 인앱 알림함(`PostgreSQL`) & `Slack Incoming Webhook` | 있음 (정기 결제·만료 일정 내역) | `REQ-004`, `REQ-006`~`REQ-010`, `REQ-028`, `NFR-004` |
-| DF-05 | AI 음성·텍스트 실시간 스트리밍 대화 및 노트 저장 | 사용자(`web`) → `ai` → `Qdrant`(RAG 조회) & `LLM/음성 엔진` → `web`(SSE) / `PostgreSQL`·`MinIO`(저장 시) | 있음 (음성 오디오 버퍼, 대화 프롬프트) | `REQ-011` |
+| DF-05 | AI 음성·텍스트 실시간 스트리밍 대화 및 노트 저장 | 사용자(`web`) → `ai` → `Qdrant`(RAG 조회) & `LLM/음성 엔진` → `web`(SSE) / `PostgreSQL`·`RustFS`(저장 시) | 있음 (음성 오디오 버퍼, 대화 프롬프트) | `REQ-011` |
 | DF-06 | 외부 방문자 테스트 계정 인메모리 샌드박스 격리 | 외부 방문자(`web`) → `api` / `ai` (테스트 계정 가드) → 세션별 인메모리 샌드박스 (TTL 만료 시 소멸) | 있음 (주 사용자 영속 저장소 접근 차단) | `REQ-026`, `REQ-030`, `NFR-006` |
 
 ## 데이터 흐름도 [필수]
@@ -72,7 +72,7 @@ flowchart LR
     rmq("RabbitMQ<br/>[처리/큐]")
     ai("ai (AI 비서 & 인덱싱 워커)<br/>[처리]")
     db[("PostgreSQL<br/>[저장소]")]
-    minio[("MinIO<br/>[저장소]")]
+    rustfs[("RustFS<br/>[저장소]")]
     qdrant[("Qdrant<br/>[저장소]")]
   end
 
@@ -90,14 +90,14 @@ flowchart LR
 
   api ==>|"DF-02 암호화 PDF 임시 기록 후 60초 내 삭제"| tmp_fs
   api ==>|"DF-03, DF-04 주 사용자 메타·일정·피드 영속화"| db
-  api ==>|"DF-03 마크다운 본문(.md) 영속화"| minio
+  api ==>|"DF-03 마크다운 본문(.md) 영속화"| rustfs
   api -->|"DF-03 문서 인덱싱 이벤트"| rmq
   api -->|"DF-06 테스트 계정 읽기·쓰기 격리"| sandbox
   api -->|"DF-04 RSS·원문 HTML 수집"| ext_rss
   api ==>|"DF-04 만료·결제 알림 발송"| ext_slack
 
   rmq -->|"DF-03 비동기 인덱싱 전달"| ai
-  ai ==>|"DF-03, DF-05 본문 읽기 및 노트 저장"| minio
+  ai ==>|"DF-03, DF-05 본문 읽기 및 노트 저장"| rustfs
   ai ==>|"DF-03, DF-05 메타 조회·저장"| db
   ai ==>|"DF-03, DF-05 임베딩 업서트·시맨틱 검색"| qdrant
   ai ==>|"DF-03, DF-05 추론·임베딩·STT/TTS"| ext_llm
@@ -107,7 +107,7 @@ flowchart LR
   classDef store fill:#ffffff,stroke:#333333
   class owner,visitor,auth,ext_rss,ext_slack,ext_llm entity
   class local_worker,web_ui,api,rmq,ai process
-  class sandbox,tmp_fs,db,minio,qdrant store
+  class sandbox,tmp_fs,db,rustfs,qdrant store
 ```
 
 | 모양 | 요소 종류 |
@@ -123,7 +123,7 @@ flowchart LR
 - **설명**:
   - `신뢰 경계 1(클라이언트 브라우저)` 내부의 `DF-01`은 네트워크 경계를 전혀 넘지 않는다.
   - `신뢰 경계 2(홈랩 게이트웨이)`에서 `Authelia`가 신원을 검증하고 `Remote-User`를 주입한다.
-  - `신뢰 경계 3(홈랩 내부망)` 안의 `api`는 요청자의 계정이 `visitor`(테스트 계정)이면 `PostgreSQL`이나 `MinIO`에 접근하지 않고 `테스트 계정 인메모리 샌드박스`로만 흐름을 제한한다(`DF-06`).
+  - `신뢰 경계 3(홈랩 내부망)` 안의 `api`는 요청자의 계정이 `visitor`(테스트 계정)이면 `PostgreSQL`이나 `RustFS`에 접근하지 않고 `테스트 계정 인메모리 샌드박스`로만 흐름을 제한한다(`DF-06`).
 - **관련 문서**: [ARC-004](arc-004-containers-components.md) (구성 요소의 기준), [ARC-007](arc-007-security-architecture.md) (경계별 통제)
 
 ## 흐름 상세 [필수]
@@ -133,7 +133,7 @@ flowchart LR
 | DF-01 | 1 | `사용자` → `로컬 파서 · Web Worker / WASM` | 이미지 원본(EXIF 포함), JWT 문자열, DBML/NoSQL 스키마, 정규식·cron·계산 입력값 | 브라우저 메모리(`ArrayBuffer`, Worker `Transferable`) — 네트워크 전송 없음 | 아니요 (`신뢰 경계 1` 내부 완결) |
 | DF-02 | 1 | `공간·도구 UI 클라이언트` → `api` (게이트웨이 경유) | 암호화 PDF 파일 바이너리(최대 50MB) 및 해제 비밀번호 | HTTPS `multipart/form-data` (외부 TLS → 내부 ForwardAuth 헤더 검증) | 예 (`신뢰 경계 1` → `2` → `3`) |
 | DF-02 | 2 | `api` → `로컬 임시 디스크 (/tmp)` | 임시 입력 PDF 및 `qpdf` 처리 결과 PDF (비밀번호는 `stdin` 파이프로 전달) | 로컬 파일시스템 쓰기·스트림 읽기 후 `finally` 블록에서 즉시 `unlink` 삭제 (`60초` 이하 보장) | 아니요 (`신뢰 경계 3` 내부) |
-| DF-03 | 1 | `공간·도구 UI 클라이언트` → `api` → `PostgreSQL` & `MinIO` | 마크다운 노트 제목·폴더·태그 메타데이터 및 `.md` 원문 본문 | HTTPS JSON → 내부 SQL 및 S3 API | 예 (`신뢰 경계 1` → `2` → `3`) |
+| DF-03 | 1 | `공간·도구 UI 클라이언트` → `api` → `PostgreSQL` & `RustFS` | 마크다운 노트 제목·폴더·태그 메타데이터 및 `.md` 원문 본문 | HTTPS JSON → 내부 SQL 및 S3 API | 예 (`신뢰 경계 1` → `2` → `3`) |
 | DF-03 | 2 | `api` → `RabbitMQ` → `ai` → `Qdrant` | 문서 ID·소유자 ID 이벤트 → 마크다운 청크 텍스트 → 벡터 임베딩 배열 | 내부 AMQP 메시지 및 HTTP REST | 아니요 (`신뢰 경계 3` 내부, 외부 LLM 임베딩 사용 시에만 HTTPS 외부 전송) |
 | DF-04 | 1 | `api` → `외부 기술 블로그 RSS/웹서버` → `PostgreSQL` | 구독 피드 URL 요청 → RSS XML 및 아티클 원문 본문 HTML → 정제된 본문 저장 | HTTPS GET (타임아웃 및 HTML Sanitize 적용) | 예 (`신뢰 경계 3` → 외부 웹서버) |
 | DF-04 | 2 | `api` → `PostgreSQL` & `Slack Incoming Webhook` | 도래한 정기 결제·만료일·D-day 알림 메시지 | 내부 SQL 저장 후 HTTPS POST 웹훅 발송 | 예 (`신뢰 경계 3` → 외부 Slack) |
@@ -149,15 +149,15 @@ flowchart LR
 | 주 사용자 인증 프로필 (`username`, `email`) | `Authelia` 로그인 게이트웨이 | DF-02~DF-05 | `PostgreSQL` (`ownerId` 식별자) 및 감사 로그 | 없음 | 워크스페이스 운영 기간 동안 유지 |
 | 민감 로컬 도구 입력 (사진 EXIF GPS, JWT 토큰) | 이미지·EXIF 도구, JWT 디코더 화면 | DF-01 | 저장 안 함 (브라우저 휘발성 메모리) | **없음 (`NFR-006` 외부 전송 0건)** | 탭 닫기 또는 초기화 시 브라우저 메모리에서 즉시 소멸 |
 | 암호화 PDF 파일 및 비밀번호 | PDF 도구 화면 | DF-02 | `api` 컨테이너 `/tmp` 임시 디스크 (비밀번호는 디스크 미기록, `stdin` 전달) | 없음 | 응답 스트림 종료·오류 즉시 삭제 (최대 잔존 `60초` 이하, `NFR-006`) |
-| 외부 방문자 체험 입력 데이터 | 테스트 계정 세션의 모든 공간 화면 | DF-06 | `테스트 계정 인메모리 샌드박스` (`PostgreSQL`·`MinIO` 미기록) | 없음 (테스트 계정은 외부 Slack 웹훅 발송 차단) | 세션 종료·초기화 또는 유휴 TTL 만료 시 메모리에서 즉시 파기 |
+| 외부 방문자 체험 입력 데이터 | 테스트 계정 세션의 모든 공간 화면 | DF-06 | `테스트 계정 인메모리 샌드박스` (`PostgreSQL`·`RustFS` 미기록) | 없음 (테스트 계정은 외부 Slack 웹훅 발송 차단) | 세션 종료·초기화 또는 유휴 TTL 만료 시 메모리에서 즉시 파기 |
 
 ## 데이터 저장소 [선택]
 
 | 저장소 | 담는 데이터 | 주요 도메인 대상 | 민감·개인 자산 여부 | 백업 및 복구 목표 |
 |---|---|---|---|---|
 | `PostgreSQL` | 폴더, 노트 메타데이터, 리비전 이력, RSS 피드 구독원·아티클·키워드, 관리 일정(공통 날짜 모델 3유형), 스케줄 실행 상태(`lastRunAt`), 인앱 알림, 공휴일 캐시 | 공간 전체 메타데이터 및 일정·피드 | 있음 (주 사용자 개인 기록·일정) | 호스트 디스크 볼륨(`postgres-pvc`) 영속화, RPO `0건` / RTO `5분` 이내 ([PRD-006 복구 목표](../product/prd-006-nfr.md#복구-목표-선택)) |
-| `MinIO` | 마크다운 노트 버전별 원문(`.md`) 객체 | `공간 › 노트` 본문 및 리비전 파일 | 있음 (주 사용자 기술·일상 노트 원문) | 호스트 디스크 볼륨(`minio-pvc`) 영속화 |
-| `Qdrant` | 마크다운 노트 청크의 임베딩 벡터 및 문서 참조 페이로드 | `공간 › AI` 시맨틱 검색 인덱스 | 있음 (노트 파생 벡터) | 유실 시 `PostgreSQL`·`MinIO` 원본으로부터 전체 재인덱싱 가능 |
+| `RustFS` | 마크다운 노트 버전별 원문(`.md`) 객체 | `공간 › 노트` 본문 및 리비전 파일 | 있음 (주 사용자 기술·일상 노트 원문) | 호스트 디스크 볼륨(`rustfs-pvc`) 영속화 |
+| `Qdrant` | 마크다운 노트 청크의 임베딩 벡터 및 문서 참조 페이로드 | `공간 › AI` 시맨틱 검색 인덱스 | 있음 (노트 파생 벡터) | 유실 시 `PostgreSQL`·`RustFS` 원본으로부터 전체 재인덱싱 가능 |
 | `테스트 계정 인메모리 샌드박스` | 초기 샘플 시드 복제본 및 외부 방문자 세션의 임시 변경분 | 테스트 계정 전용 공간 데이터 | 없음 (공개 샘플 및 임시 체험 데이터) | 영속화·백업 하지 않음 (휘발성) |
 
 ## 검토 체크리스트

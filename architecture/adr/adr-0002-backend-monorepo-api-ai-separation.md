@@ -46,7 +46,7 @@ traces: [REQ-003, REQ-011, REQ-027, NFR-003]
 
 `my-space` 백엔드는 마크다운 노트, RSS 피드, 관리 일정(공통 날짜 모델 3유형), 인앱 알림, `qpdf` PDF 조작 같은 빠른 응답(`NFR-003`)이 필수적인 트랜잭션 API와, 실시간 음성(STT/TTS)·텍스트 SSE 스트리밍 및 마크다운 문서 청킹·벡터 임베딩 인덱싱을 수행하는 `공간 › AI` 워크로드를 함께 다루어야 한다.
 
-AI 스트리밍과 문서 임베딩 워커는 외부 LLM/음성 엔진 대기 시간이 길고 오디오·벡터 버퍼로 인한 메모리/CPU 변동폭이 크다. 단일 프로세스로 묶으면 AI 작업 부하나 장애가 노트 저장·일정 관리 API까지 지연시킬 위험이 있고, 반대로 Git 저장소까지 쪼개면 Prisma DB 스키마, MinIO 스토리지 클라이언트, Authelia 인증 가드가 중복된다. 장애 격리와 코드 재사용을 어떻게 동시에 달성할 것인가?
+AI 스트리밍과 문서 임베딩 워커는 외부 LLM/음성 엔진 대기 시간이 길고 오디오·벡터 버퍼로 인한 메모리/CPU 변동폭이 크다. 단일 프로세스로 묶으면 AI 작업 부하나 장애가 노트 저장·일정 관리 API까지 지연시킬 위험이 있고, 반대로 Git 저장소까지 쪼개면 Prisma DB 스키마, RustFS 스토리지 클라이언트, Authelia 인증 가드가 중복된다. 장애 격리와 코드 재사용을 어떻게 동시에 달성할 것인가?
 
 ## 결정 동인 [필수]
 
@@ -54,7 +54,7 @@ AI 스트리밍과 문서 임베딩 워커는 외부 LLM/음성 엔진 대기 �
 |---|---|
 | AI 스트리밍·문서 인덱싱 부하와 무관하게 공간 CRUD API 응답 시간을 일관되게 보장해야 한다 | [ARC-002 AP-03](../arc-002-principles-constraints.md), [PRD-006 NFR-003](../../product/prd-006-nfr.md) |
 | 홈랩 k3s 환경에서 메인 API와 AI 서버의 리소스 한도와 기동 상태를 독립적으로 제어할 수 있어야 한다 | [ARC-002 CON-01](../arc-002-principles-constraints.md) |
-| Prisma 스키마, MinIO/Qdrant/RabbitMQ 클라이언트, Authelia 인증 가드를 중복 없이 단일 진실 공급원으로 공유해야 한다 | [ARC-002 AP-05](../arc-002-principles-constraints.md) |
+| Prisma 스키마, RustFS/Qdrant/RabbitMQ 클라이언트, Authelia 인증 가드를 중복 없이 단일 진실 공급원으로 공유해야 한다 | [ARC-002 AP-05](../arc-002-principles-constraints.md) |
 
 ## 고려한 대안 [필수]
 

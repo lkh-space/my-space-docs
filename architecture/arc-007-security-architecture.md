@@ -57,7 +57,7 @@ flowchart LR
     api["api (메인 API 서버)<br/>[컨테이너]"]
     ai["ai (AI 워크스페이스 서버)<br/>[컨테이너]"]
     sandbox[("테스트 계정 샌드박스<br/>[인메모리 저장소]")]
-    db[("PostgreSQL / MinIO / Qdrant<br/>[영속 데이터 저장소]")]
+    db[("PostgreSQL / RustFS / Qdrant<br/>[영속 데이터 저장소]")]
   end
 
   ext["외부 API (Gemini · RSS · Slack · 공공데이터)<br/>[외부 시스템]"]
@@ -93,14 +93,14 @@ flowchart LR
 - **설명**:
   - 가장 중요한 첫 번째 통제는 **민감 도구 데이터를 아예 네트워크에 태우지 않는 것**(`신뢰 경계 1` 내부 완결)이다.
   - 두 번째 통제는 `신뢰 경계 2`에서 `Traefik + Authelia`가 미인증 요청을 차단하고 `X-Forwarded-Auth-Secret`을 주입해 내부 포트 직접 우회 접근을 막는 것이다.
-  - 세 번째 통제는 `신뢰 경계 3`의 `api`·`ai` 진입점에서 `Remote-User`가 외부 방문자(`visitor`)인지 판별하여 주 사용자의 영속 저장소(`PostgreSQL`, `MinIO`, `Qdrant`) 접근을 원천 차단하는 것이다.
+  - 세 번째 통제는 `신뢰 경계 3`의 `api`·`ai` 진입점에서 `Remote-User`가 외부 방문자(`visitor`)인지 판별하여 주 사용자의 영속 저장소(`PostgreSQL`, `RustFS`, `Qdrant`) 접근을 원천 차단하는 것이다.
 - **관련 문서**: [ARC-005](arc-005-data-flow.md) (신뢰 경계 이름과 `DF-` 흐름의 기준)
 
 | 경계 | 안쪽 구성 요소 | 넘는 흐름 | 경계에서의 통제 | 관련 요구사항·NFR |
 |---|---|---|---|---|
 | `신뢰 경계 1: 클라이언트 브라우저 (web)` | `web` (UI 및 로컬 Web Worker/WASM) | `DF-01` (내부 완결), `DF-02`~`DF-06` (발신) | 로컬 전용 도구(`FN-013`, `FN-014`, `FN-018`) 실행 중 외부 네트워크 전송 `0건` 강제, RSS 추출 본문 렌더링 시 XSS 방지를 위한 HTML Sanitize 적용 | `REQ-014`, `REQ-015`, `REQ-019`, `REQ-030`, `NFR-006` |
 | `신뢰 경계 2: 홈랩 게이트웨이` | `Traefik` & `Authelia SSO` | `DF-02`~`DF-06` | HTTPS TLS 종료, SSO 세션 검증(Fail-Closed), `Remote-User` 등 신뢰 헤더 덮어쓰기(클라이언트 스푸핑 방지) 및 `X-Forwarded-Auth-Secret` 주입 | `REQ-026`, `REQ-030`, `NFR-006` |
-| `신뢰 경계 3: 홈랩 애플리케이션 내부망` | `api`, `ai`, `PostgreSQL`, `MinIO`, `Qdrant`, `RabbitMQ` | `DF-02`~`DF-06` | 프록시 공유 시크릿(`AUTH_FORWARDED_SECRET`) 검증, 사용자 식별자 정규식 검증, 주 사용자(`ownerId`) vs 테스트 계정(`visitor`) 저장소 라우팅 분리, PDF 업로드 `50MB` 상한 및 `qpdf` 비밀번호 `stdin` 전달 | `REQ-012`, `REQ-026`, `REQ-030`, `NFR-006` |
+| `신뢰 경계 3: 홈랩 애플리케이션 내부망` | `api`, `ai`, `PostgreSQL`, `RustFS`, `Qdrant`, `RabbitMQ` | `DF-02`~`DF-06` | 프록시 공유 시크릿(`AUTH_FORWARDED_SECRET`) 검증, 사용자 식별자 정규식 검증, 주 사용자(`ownerId`) vs 테스트 계정(`visitor`) 저장소 라우팅 분리, PDF 업로드 `50MB` 상한 및 `qpdf` 비밀번호 `stdin` 전달 | `REQ-012`, `REQ-026`, `REQ-030`, `NFR-006` |
 
 ## 인증·인가 위치 [필수]
 
@@ -118,7 +118,7 @@ flowchart LR
 |---|---|---|---|---|---|
 | 사진 원본·EXIF(GPS 포함), JWT 토큰 | 민감 로컬 도구 데이터 | 전송 안 함 (`신뢰 경계 1` 브라우저 메모리 내 처리) | 영속 저장 안 함 (메모리 휘발) | 서버 액세스 로그·애플리케이션 로그에 기록되지 않음 | `REQ-015`, `REQ-019`, `REQ-030`, [PRD-006 NFR-006](../product/prd-006-nfr.md) |
 | 암호화 PDF 파일 및 해제 비밀번호 | 민감 문서·인증 정보 | 클라이언트~게이트웨이 HTTPS TLS | PDF 파일은 `/tmp`에 일시 생성 후 처리 완료·오류 시 즉시 삭제(`60초` 이하). 비밀번호는 디스크에 쓰지 않고 `qpdf` 프로세스 `stdin`으로만 전달 | CLI 인자(`ps aux`) 및 Pino 로그에 비밀번호 평문 노출 금지(`0건`) | `REQ-012`, `REQ-030`, [PRD-006 NFR-006](../product/prd-006-nfr.md) |
-| 주 사용자 공간 데이터 (노트, 피드, 관리 일정, AI 대화) | 개인 워크스페이스 자산 | 클라이언트~게이트웨이 HTTPS TLS, 내부 k3s 클러스터 네트워크 격리 | 홈랩 호스트 로컬 스토리지 볼륨(`PostgreSQL`, `MinIO`, `Qdrant`)에 소유자(`ownerId`) 스코프로 격리 저장 | 감사 로그에 `[AUDIT] <user> <method> <url>`만 기록하고 노트 본문·일정 상세는 로그에서 제외 | `REQ-003`~`REQ-011`, `REQ-028`, `NFR-006` |
+| 주 사용자 공간 데이터 (노트, 피드, 관리 일정, AI 대화) | 개인 워크스페이스 자산 | 클라이언트~게이트웨이 HTTPS TLS, 내부 k3s 클러스터 네트워크 격리 | 홈랩 호스트 로컬 스토리지 볼륨(`PostgreSQL`, `RustFS`, `Qdrant`)에 소유자(`ownerId`) 스코프로 격리 저장 | 감사 로그에 `[AUDIT] <user> <method> <url>`만 기록하고 노트 본문·일정 상세는 로그에서 제외 | `REQ-003`~`REQ-011`, `REQ-028`, `NFR-006` |
 | 외부 방문자 테스트 계정 데이터 | 체험용 임시 데이터 | 클라이언트~게이트웨이 HTTPS TLS | 영속 디스크에 저장하지 않고 백엔드 인메모리 샌드박스에만 임시 보관 후 TTL 만료·초기화 시 파기 | 주 사용자 영역과 완전 분리 | `REQ-026`, `REQ-030`, `NFR-006` |
 
 ## 비밀 정보 위치 [필수]
@@ -128,7 +128,7 @@ flowchart LR
 | 비밀 정보 | 사용하는 구성 요소 | 보관 위치 | 접근 권한 | 비고 |
 |---|---|---|---|---|
 | 프록시 공유 시크릿 (`AUTH_FORWARDED_SECRET`) | `Traefik/Authelia`, `api`, `ai` | 홈랩 Kubernetes Secret 및 로컬 `.env` (Git 커밋 제외) | 인프라·백엔드 런타임 프로세스 | 게이트웨이를 우회한 직접 포트 호출 차단용 |
-| 데이터베이스 및 스토리지 접속 정보 (`DATABASE_URL`, `MINIO_*`, `RABBITMQ_URL`) | `api`, `ai` | 홈랩 Kubernetes Secret 및 로컬 `.env` | 백엔드 런타임 프로세스 | 코드 및 컨테이너 이미지에 하드코딩 금지 |
+| 데이터베이스 및 스토리지 접속 정보 (`DATABASE_URL`, `RUSTFS_*` / `S3_*`, `RABBITMQ_URL`) | `api`, `ai` | 홈랩 Kubernetes Secret 및 로컬 `.env` | 백엔드 런타임 프로세스 | 코드 및 컨테이너 이미지에 하드코딩 금지 |
 | 외부 LLM API 키 (`GEMINI_API_KEY`) | `ai` | 홈랩 Kubernetes Secret 및 로컬 `.env` | `ai` 컨테이너 런타임 | 프론트엔드(`web`) 번들에 절대 노출하지 않음 |
 | Slack Incoming Webhook URL (`SLACK_WEBHOOK_URL`) | `api` (`NotificationModule`) | 홈랩 Kubernetes Secret (또는 주 사용자 전용 암호화 설정) | `api` 컨테이너 런타임 | 테스트 계정(`visitor`) 세션에는 노출·발송하지 않음 |
 | 공공데이터포털 API 인증키 (`HOLIDAY_API_KEY`) | `api` (`HolidayModule`) | 홈랩 Kubernetes Secret 및 로컬 `.env` | `api` 컨테이너 런타임 | 프론트엔드가 직접 외부 API를 부르지 않고 `api`가 대리 조회·캐싱 |
