@@ -4,9 +4,9 @@ title: 문서 인덱스
 part: operations
 tier: required
 status: approved
-version: 1.1.0
+version: 1.3.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-05
+last_reviewed: 2026-11-12
 depends_on: []
 related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006]
 superseded_by: null
@@ -33,7 +33,7 @@ traces: []
 
 ## 문서 목록 [필수]
 
-현재 **1단계: 기획(PRD) 및 공통 기반(OPS)** 문서 9종(`approved`), **2단계: 디자인(DSN)** 문서 9종(`review`), **3단계: 공통 아키텍처(ARC/ADR)** 문서 14종(`review`)이 번호 건너뜀 없이 순차 작성되어 있다. 후속 단계(백엔드 `BE`·프론트엔드 `FE` → 테스트/검증 `QA` → 운영관리 `OPS`) 진행 시 해당 파트 문서를 이 표에 순차 추가한다.
+현재 **1단계: 기획(PRD) 및 공통 기반(OPS)** 문서 9종(`approved`), **2단계: 디자인(DSN)** 문서 9종(`approved`), **3단계: 공통 아키텍처(ARC/ADR)** 문서 14종(`approved`)이 번호 건너뜀 없이 모두 정식 검토 및 승인(`approved`) 완료되어 있다. 후속 단계(백엔드 `BE`·프론트엔드 `FE` → 테스트/검증 `QA` → 운영관리 `OPS`) 진행 시 해당 파트 문서를 이 표에 순차 추가한다.
 
 | ID | 문서 | 한 줄 설명 | 등급 | 상태 | owner | last_reviewed |
 |---|---|---|---|---|---|---|
@@ -44,31 +44,31 @@ traces: []
 | PRD-005 | [기능 명세](../product/prd-005-functional-spec.md) | 기능 `FN-001`~`FN-025`의 입력, 처리 순서, 결과, 예외 정의 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
 | PRD-006 | [비기능 요구사항](../product/prd-006-nfr.md) | 파서·WASM 성능, 홈랩 Catch-up 복구, PWA 오프라인, 보안·접근성 수치 `NFR-001`~`NFR-008` | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
 | PRD-007 | [릴리스 범위와 우선순위](../product/prd-007-release-scope-priority.md) | 플랫폼 기반·공간·도구·테스트 계정 구현 순서에 따른 `v2.1`~`v2.3`(세부 1~8단계) 마일스톤 배분 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
-| DSN-001 | [디자인 브리프](../design/dsn-001-design-brief.md) | Calm Studio Workspace 미학, 정보 밀도, 레이아웃·모션 원칙 정의 | 선택 | review | @bob (Keunhyeok Lim) | 2026-11-01 |
-| DSN-002 | [정보 구조와 사이트맵](../design/dsn-002-information-architecture.md) | 공간(5영역)·도구(15종) 2단 내비게이션과 전체 화면(`SCR-001`~`SCR-090`) 사이트맵 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-01 |
-| DSN-003 | [사용자 흐름](../design/dsn-003-user-flows.md) | 대시보드·노트·피드·PDF·테스트 계정 핵심 화면 전환 흐름 `UF-01`~`UF-05` | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-01 |
-| DSN-004 | [와이어프레임과 화면 명세](../design/dsn-004-wireframes-screen-spec.md) | `SCR-001`~`SCR-090` 전체 화면의 레이아웃 구역, 주요 요소, 상호작용 명세 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-01 |
-| DSN-005 | [디자인 시스템과 디자인 토큰](../design/dsn-005-design-system-tokens.md) | 색상(`--color-*`), 타이포그래피, 간격, 반경, 그림자 CSS 변수 토큰 정의 | 선택 | review | @bob (Keunhyeok Lim) | 2026-11-01 |
-| DSN-006 | [컴포넌트 가이드](../design/dsn-006-component-guide.md) | 공통 셸, 버튼, 입력, 뱃지, 토스트, 모달 등 재사용 UI 컴포넌트 규격 | 선택 | review | @bob (Keunhyeok Lim) | 2026-11-01 |
-| DSN-007 | [반응형 디자인](../design/dsn-007-responsive.md) | Desktop/Tablet/Mobile 브레이크포인트 및 모바일 전용 읽기·입력 레이아웃 적응 규칙 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-01 |
-| DSN-008 | [접근성 가이드](../design/dsn-008-accessibility.md) | WCAG 2.1 AA 명도 대비, 키보드 포커스 링, 스크린 리더 랜드마크 및 모션 축소 규칙 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-01 |
-| DSN-009 | [UI 상태와 오류 상태](../design/dsn-009-ui-states-errors.md) | 빈 화면, 로딩, 유효성 오류, 오프라인 배너, 테스트 계정 차단 등 상태 피드백 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-01 |
-| ARC-001 | [시스템 아키텍처 개요](../architecture/arc-001-system-overview.md) | 하이브리드 클라이언트-서버·홈랩 k3s 아키텍처 스타일과 구성요소 한눈에 보기 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ARC-002 | [아키텍처 원칙과 제약](../architecture/arc-002-principles-constraints.md) | 로컬-퍼스트 보안, Catch-up 복원력, 의존성 절제 등 6대 원칙과 기술·조직 제약 | 조건부(실무) | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ARC-003 | [시스템 컨텍스트](../architecture/arc-003-system-context.md) | C4 Level 1 컨텍스트와 Authelia·LLM·RSS·Slack·공공데이터포털 외부 인터페이스 | 조건부(연동) | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ARC-004 | [컨테이너와 컴포넌트 구조](../architecture/arc-004-containers-components.md) | C4 Level 2/3 컨테이너(`web`, `api`, `ai`, DB/스토리지) 및 내부 모듈 책임과 의존 규칙 | 조건부(실무) | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ARC-005 | [데이터 흐름](../architecture/arc-005-data-flow.md) | 핵심 시나리오 5종의 데이터 이동 경로, 저장소 매핑, 민감 데이터 로컬 격리·마스킹 규칙 | 조건부(개인정보) | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ARC-006 | [아키텍처 의사결정 기록(ADR)](../architecture/arc-006-adr.md) | 시스템 아키텍처 핵심 의사결정(`ADR-0001`~`ADR-0005`) 색인 및 운영 규칙 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ARC-007 | [보안 아키텍처](../architecture/arc-007-security-architecture.md) | 신뢰 경계 4영역, Authelia ForwardAuth·방문자 격리, STRIDE 위협 모델과 통제 수단 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ARC-008 | [품질 속성](../architecture/arc-008-quality-attributes.md) | `PRD-006` 비기능 요구사항을 달성하는 품질 속성 시나리오 `QA-01`~`QA-08`과 트레이드오프 | 조건부(실무) | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ADR-0001 | [민감 도구 연산의 브라우저 로컬 처리 및 백엔드 하이브리드 분리](../architecture/adr/adr-0001-hybrid-client-server-processing.md) | 민감 파일·원문 도구는 브라우저 Web Worker·WASM에서 처리하고 암호화 PDF만 `qpdf`로 분리 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ADR-0002 | [백엔드 메인 API와 AI 워크스페이스 서버 프로세스 분리](../architecture/adr/adr-0002-backend-monorepo-api-ai-separation.md) | NestJS 모노레포 내 `apps/api`와 `apps/ai` 독립 배포 및 저장소·스키마 공유 결정 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ADR-0003 | [홈랩 비-상시 구동 환경을 위한 DB 영속화 기반 누락 스케줄 보정(Catch-up)](../architecture/adr/adr-0003-homelab-catchup-scheduler.md) | `SystemJobState` 기반 기동 즉시 Catch-up 및 일 단위 멱등 키 중복 방지 아키텍처 결정 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ADR-0004 | [Authelia ForwardAuth 게이트웨이 인증 위임 및 외부 방문자 샌드박스 격리](../architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md) | Traefik ForwardAuth 헤더 신뢰와 방문자 모드 브라우저 인메모리 샌드박스·읽기 전용 가드 결정 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ADR-0005 | [인앱 알림함 우선 저장 및 외부 알림 채널 어댑터 추상화](../architecture/adr/adr-0005-notification-channel-abstraction.md) | 인앱 알림함 영구 기록 우선 보장 및 `NotificationChannelPort` 기반 Slack Webhook 어댑터 분리 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-05 |
-| ADR-0006 | [오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환](../architecture/adr/adr-0006-object-storage-migration-to-rustfs.md) | MinIO CVE 보안 패치 중단 대응 및 완전 오픈소스 RustFS(S3 호환) 전환 결정 | 필수 | review | @bob (Keunhyeok Lim) | 2026-11-08 |
+| DSN-001 | [디자인 브리프](../design/dsn-001-design-brief.md) | Calm Studio Workspace 미학, 정보 밀도, 레이아웃·모션 원칙 정의 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| DSN-002 | [정보 구조와 사이트맵](../design/dsn-002-information-architecture.md) | 공간(5영역)·도구(15종) 2단 내비게이션과 전체 화면(`SCR-001`~`SCR-090`) 사이트맵 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| DSN-003 | [사용자 흐름](../design/dsn-003-user-flows.md) | 대시보드·노트·피드·PDF·테스트 계정 핵심 화면 전환 흐름 `UF-01`~`UF-05` | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| DSN-004 | [와이어프레임과 화면 명세](../design/dsn-004-wireframes-screen-spec.md) | `SCR-001`~`SCR-090` 전체 화면의 레이아웃 구역, 주요 요소, 상호작용 명세 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| DSN-005 | [디자인 시스템과 디자인 토큰](../design/dsn-005-design-system-tokens.md) | 색상(`--color-*`), 타이포그래피, 간격, 반경, 그림자 CSS 변수 토큰 정의 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| DSN-006 | [컴포넌트 가이드](../design/dsn-006-component-guide.md) | 공통 셸, 버튼, 입력, 뱃지, 토스트, 모달 등 재사용 UI 컴포넌트 규격 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| DSN-007 | [반응형 디자인](../design/dsn-007-responsive.md) | Desktop/Tablet/Mobile 브레이크포인트 및 모바일 전용 읽기·입력 레이아웃 적응 규칙 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| DSN-008 | [접근성 가이드](../design/dsn-008-accessibility.md) | WCAG 2.1 AA 명도 대비, 키보드 포커스 링, 스크린 리더 랜드마크 및 모션 축소 규칙 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| DSN-009 | [UI 상태와 오류 상태](../design/dsn-009-ui-states-errors.md) | 빈 화면, 로딩, 유효성 오류, 오프라인 배너, 테스트 계정 차단 등 상태 피드백 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ARC-001 | [시스템 아키텍처 개요](../architecture/arc-001-system-overview.md) | 하이브리드 클라이언트-서버·홈랩 k3s 아키텍처 스타일과 구성요소 한눈에 보기 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ARC-002 | [아키텍처 원칙과 제약](../architecture/arc-002-principles-constraints.md) | 로컬-퍼스트 보안, Catch-up 복원력, 의존성 절제 등 6대 원칙과 기술·조직 제약 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ARC-003 | [시스템 컨텍스트](../architecture/arc-003-system-context.md) | C4 Level 1 컨텍스트와 Authelia·LLM·RSS·Slack·공공데이터포털 외부 인터페이스 | 조건부(연동) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ARC-004 | [컨테이너와 컴포넌트 구조](../architecture/arc-004-containers-components.md) | C4 Level 2/3 컨테이너(`web`, `api`, `ai`, DB/스토리지) 및 내부 모듈 책임과 의존 규칙 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ARC-005 | [데이터 흐름](../architecture/arc-005-data-flow.md) | 핵심 시나리오 5종의 데이터 이동 경로, 저장소 매핑, 민감 데이터 로컬 격리·마스킹 규칙 | 조건부(개인정보) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ARC-006 | [아키텍처 의사결정 기록(ADR)](../architecture/arc-006-adr.md) | 시스템 아키텍처 핵심 의사결정(`ADR-0001`~`ADR-0006`) 색인 및 운영 규칙 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ARC-007 | [보안 아키텍처](../architecture/arc-007-security-architecture.md) | 신뢰 경계 4영역, Authelia ForwardAuth·방문자 격리, STRIDE 위협 모델과 통제 수단 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ARC-008 | [품질 속성](../architecture/arc-008-quality-attributes.md) | `PRD-006` 비기능 요구사항을 달성하는 품질 속성 시나리오 `QA-01`~`QA-08`과 트레이드오프 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ADR-0001 | [민감 도구 연산의 브라우저 로컬 처리 및 백엔드 하이브리드 분리](../architecture/adr/adr-0001-hybrid-client-server-processing.md) | 민감 파일·원문 도구는 브라우저 Web Worker·WASM에서 처리하고 암호화 PDF만 `qpdf`로 분리 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ADR-0002 | [백엔드 메인 API와 AI 워크스페이스 서버 프로세스 분리](../architecture/adr/adr-0002-backend-monorepo-api-ai-separation.md) | NestJS 모노레포 내 `apps/api`와 `apps/ai` 독립 배포 및 저장소·스키마 공유 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ADR-0003 | [홈랩 비-상시 구동 환경을 위한 DB 영속화 기반 누락 스케줄 보정(Catch-up)](../architecture/adr/adr-0003-homelab-catchup-scheduler.md) | `SystemJobState` 기반 기동 즉시 Catch-up 및 일 단위 멱등 키 중복 방지 아키텍처 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ADR-0004 | [Authelia ForwardAuth 게이트웨이 인증 위임 및 외부 방문자 샌드박스 격리](../architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md) | Traefik ForwardAuth 헤더 신뢰와 방문자 모드 브라우저 인메모리 샌드박스·읽기 전용 가드 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ADR-0005 | [인앱 알림함 우선 저장 및 외부 알림 채널 어댑터 추상화](../architecture/adr/adr-0005-notification-channel-abstraction.md) | 인앱 알림함 영구 기록 우선 보장 및 `NotificationChannelPort` 기반 Slack Webhook 어댑터 분리 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| ADR-0006 | [오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환](../architecture/adr/adr-0006-object-storage-migration-to-rustfs.md) | MinIO CVE 보안 패치 중단 대응 및 완전 오픈소스 RustFS(S3 호환) 전환 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 | OPS-001 | [용어집](ops-001-glossary.md) | 공간·도구, 공통 날짜 모델 3유형, Catch-up, 테스트 계정 격리 등 표준 용어와 코드 식별자 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
-| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-08 |
+| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 
 ## 작성하지 않는 문서 [필수]
 
@@ -99,6 +99,7 @@ traces: []
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-12 | 1.3.0 | 디자인(DSN 9종) 및 아키텍처(ARC/ADR 14종) 정식 승인(approved) 상태 반영 | @bob (Keunhyeok Lim) |
 | 2026-11-08 | 1.2.0 | 오브젝트 스토리지 RustFS 전환에 따른 ADR-0006 추가 등록 | Antigravity (사용자 검토 대기) |
 | 2026-11-05 | 1.1.0 | 디자인(`DSN-001`~`DSN-009`) 및 공통 아키텍처(`ARC-001`~`ARC-008`, `ADR-0001`~`ADR-0005`) 문서 목록 등록 | Antigravity (사용자 검토 대기) |
 | 2026-11-01 | 1.0.0 | 사용자 검토 완료에 따라 approved(승인) 상태로 확정 | Antigravity (사용자 승인 완료) |

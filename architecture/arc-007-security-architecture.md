@@ -4,10 +4,10 @@ title: 보안 아키텍처
 part: architecture
 tier: conditional
 condition: 배포
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-05
+last_reviewed: 2026-11-12
 depends_on: [ARC-001, ARC-004, ARC-005]
 related: [ARC-002, ARC-003, ARC-006, PRD-006]
 superseded_by: null
@@ -163,3 +163,4 @@ flowchart LR
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | my-space v2 보안 아키텍처(ARC-007) 최초 작성 | Antigravity (사용자 검토 대기) |
+| 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |

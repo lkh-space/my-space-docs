@@ -4,10 +4,10 @@ title: 품질 속성
 part: architecture
 tier: conditional
 condition: 실무
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-05
+last_reviewed: 2026-11-12
 depends_on: [PRD-006, ARC-004]
 related: [ARC-002, ARC-006, ARC-007]
 superseded_by: null
@@ -103,3 +103,4 @@ traces: [REQ-001, REQ-009, REQ-012, REQ-014, REQ-015, REQ-019, REQ-024, REQ-026,
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | my-space v2 품질 속성(ARC-008) 최초 작성 | Antigravity (사용자 검토 대기) |
+| 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |

@@ -14,7 +14,7 @@ AI에게 기능 구현, 버그 수정, 아키텍처 질문 등 작업을 지시�
 | **기능 요구사항 & 스펙 구현**<br>(노트·피드·관리·도구 등) | [`PRD-002 요구사항과 범위`](product/prd-002-requirements-scope.md)<br>[`PRD-005 기능 명세`](product/prd-005-functional-spec.md) | [`PRD-003 사용자 스토리`](product/prd-003-user-stories.md)<br>[`PRD-004 여정과 업무흐름`](product/prd-004-user-journeys.md) | `REQ-001`~`031`, `FN-001`~`025` 입출력/처리 흐름, Acceptance Criteria |
 | **UI 화면 개발 & 사이트맵** | [`DSN-002 정보구조·사이트맵`](design/dsn-002-information-architecture.md)<br>[`DSN-004 와이어프레임·화면명세`](design/dsn-004-wireframes-screen-spec.md) | [`DSN-003 사용자 흐름`](design/dsn-003-user-flows.md)<br>[`DSN-009 UI/오류 상태`](design/dsn-009-ui-states-errors.md) | `SCR-001`~`SCR-090` 화면 레이아웃 구역, 요소 배치, 화면 전환 흐름 |
 | **디자인 시스템 & 컴포넌트 구현** | [`DSN-005 디자인 시스템·토큰`](design/dsn-005-design-system-tokens.md)<br>[`DSN-006 컴포넌트 가이드`](design/dsn-006-component-guide.md) | [`DSN-007 반응형 디자인`](design/dsn-007-responsive.md)<br>[`DSN-008 접근성 가이드`](design/dsn-008-accessibility.md) | `--color-*` CSS 변수 토큰, 버튼·입력·모달 재사용 컴포넌트, 3단 반응형 |
-| **백엔드 구조 & 통신 (api vs ai)** | [`ARC-004 컨테이너·컴포넌트`](architecture/arc-004-containers-components.md)<br>[`ADR-0002 api/ai 프로세스 분리`](architecture/adr/adr-0002-backend-monorepo-api-ai-separation.md) | [`ARC-005 데이터 흐름`](architecture/arc-005-data-flow.md) | 메인 API(`apps/api`)와 AI 비서(`apps/ai`) 분리, RabbitMQ 비동기 인덱싱 |
+| **백엔드 구조 & 통신 (api vs ai)** | [`ARC-004 컨테이너·컴포넌트`](architecture/arc-004-containers-components.md)<br>[`ADR-0002 api/ai 프로세스 분리`](architecture/adr/adr-0002-backend-monorepo-api-ai-separation.md)<br>[`BE-001 백엔드 아키텍처`](file:///Users/limkeunhyeok/workspace/my-space-backend/docs/be-001-architecture-modules.md) | [`ARC-005 데이터 흐름`](architecture/arc-005-data-flow.md)<br>[`BE-005 도메인 모델`](file:///Users/limkeunhyeok/workspace/my-space-backend/docs/be-005-domain-model-rules.md)<br>[`BE-006 DB 설계·ERD`](file:///Users/limkeunhyeok/workspace/my-space-backend/docs/be-006-database-erd.md) | 메인 API(`apps/api`)와 AI 비서(`apps/ai`) 분리, 도메인 모델, Prisma ERD, RabbitMQ 인덱싱 |
 | **오브젝트 스토리지 (RustFS) 연동** | [`ADR-0006 RustFS 전환`](architecture/adr/adr-0006-object-storage-migration-to-rustfs.md)<br>[`ARC-004 컨테이너·컴포넌트`](architecture/arc-004-containers-components.md) | [`ARC-005 데이터 흐름`](architecture/arc-005-data-flow.md)<br>[`homelab-infra 전환 가이드`](file:///Users/limkeunhyeok/workspace/homelab-infra/docs/rustfs-migration-guide.md) | MinIO CVE 패치 중단 대응, RustFS(Apache 2.0) S3 API 연동 및 `rustfs-pvc` |
 | **검색 엔진 (OpenSearch vs Qdrant)** | [`ARC-004 컨테이너·컴포넌트`](architecture/arc-004-containers-components.md)<br>[`PRD-005 기능 명세`](product/prd-005-functional-spec.md) | [`ARC-005 데이터 흐름 (DF-03)`](architecture/arc-005-data-flow.md)<br>[`PRD-003 사용자 스토리`](product/prd-003-user-stories.md) | OpenSearch 2.11 키워드 전문 검색 vs Qdrant 1.13 벡터 유사도 시맨틱 RAG 검색 |
 | **Catch-up 스케줄러 & 알림** | [`ADR-0003 Catch-up 스케줄러`](architecture/adr/adr-0003-homelab-catchup-scheduler.md)<br>[`ADR-0005 알림 채널 추상화`](architecture/adr/adr-0005-notification-channel-abstraction.md) | [`PRD-004 여정과 업무흐름`](product/prd-004-user-journeys.md)<br>[`ARC-004 컴포넌트`](architecture/arc-004-containers-components.md) | 비-상시 구동 홈랩 부팅 시 누락 스케줄 소급 실행, 인앱 알림 우선 저장 |
@@ -81,7 +81,7 @@ AI에게 기능 구현, 버그 수정, 아키텍처 질문 등 작업을 지시�
 
 ---
 
-## 🔗 연계 Repository와의 관계
+## 연계 Repository와의 관계
 
 `my-space` 프로젝트는 역할별로 독립된 Repository로 분리되어 있으며, 상위 기획과 세부 구현이 일관되게 연결됩니다.
 

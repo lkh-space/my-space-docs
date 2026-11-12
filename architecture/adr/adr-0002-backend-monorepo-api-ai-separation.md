@@ -3,10 +3,10 @@ id: ADR-0002
 title: 백엔드 메인 API(api)와 AI 워크스페이스 서버(ai) 프로세스 분리 및 저장소 공유
 part: architecture
 tier: required
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-05
+last_reviewed: 2026-11-12
 depends_on: [ARC-001, ARC-002]
 related: [ARC-004, ARC-005, ARC-006, ARC-008, PRD-006]
 superseded_by: null
@@ -36,8 +36,8 @@ traces: [REQ-003, REQ-011, REQ-027, NFR-003]
 
 | 항목 | 값 |
 |---|---|
-| 결정 상태 | 제안됨 |
-| 결정일 | 2026-11-05 (제안일) |
+| 결정 상태 | 승인됨 |
+| 결정일 | 2026-11-05 (제안) / 2026-11-12 (승인) |
 | 결정자 | `@bob (Keunhyeok Lim)` |
 | 자문한 사람 | AI 에이전트 |
 | 대체 관계 | 없음 (백엔드 저장소 `docs/adr/0001`, `0002`의 상위 시스템 수준 통합 기록) |
@@ -97,3 +97,4 @@ AI 스트리밍과 문서 임베딩 워커는 외부 LLM/음성 엔진 대기 �
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | ADR-0002 최초 작성 | Antigravity (사용자 검토 대기) |
+| 2026-11-12 | 1.0.0 | ADR 정식 검토 및 승인 완료 | @bob (Keunhyeok Lim) |

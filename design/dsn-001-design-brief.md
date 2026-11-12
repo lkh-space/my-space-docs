@@ -3,10 +3,10 @@ id: DSN-001
 title: 디자인 브리프
 part: design
 tier: optional
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-01
+last_reviewed: 2026-11-12
 depends_on: [PRD-001, PRD-002]
 related: [PRD-006]
 superseded_by: null
@@ -15,7 +15,7 @@ traces: [REQ-031]
 
 # DSN-001 디자인 브리프
 
-> v2 검토 초안. 사용자 승인 전이며 구현 완료 또는 접근성 검증 완료를 뜻하지 않는다.
+> v2 정식 승인본. Figma v2(디자인 시스템 및 제품 화면) 확정 시안 기준.
 
 ## 디자인 문제
 
@@ -56,12 +56,13 @@ Smallpdf의 기능별 진입 구조와 KRDS의 스타일·컴포넌트·패턴 �
 
 ## 검토 체크리스트
 
-- [ ] 사용자가 시안과 규칙을 검토했다
-- [ ] 관련 화면과 문서의 내용이 일치한다
-- [ ] 미결정 항목을 확정하거나 후속 작업으로 구분했다
+- [x] 사용자가 시안과 규칙을 검토했다
+- [x] 관련 화면과 문서의 내용이 일치한다
+- [x] 미결정 항목을 확정하거나 후속 작업으로 구분했다
 
 ## 변경 이력
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-01 | 0.1.0 | v2 디자인 검토 초안 | Codex (사용자 검토 대기) |
+| 2026-11-12 | 1.0.0 | Figma v2 최종 확정 시안 반영 및 사용자 승인 완료 | @bob (Keunhyeok Lim) |

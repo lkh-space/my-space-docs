@@ -3,10 +3,10 @@ id: ADR-0005
 title: 인앱 알림함 우선 저장 및 외부 알림 채널(Slack Webhook) 어댑터 추상화
 part: architecture
 tier: required
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-05
+last_reviewed: 2026-11-12
 depends_on: [ARC-001, ARC-002]
 related: [ARC-003, ARC-004, ARC-005, ARC-006, PRD-006]
 superseded_by: null
@@ -36,8 +36,8 @@ traces: [REQ-002, REQ-009, REQ-010, NFR-004]
 
 | 항목 | 값 |
 |---|---|
-| 결정 상태 | 제안됨 |
-| 결정일 | 2026-11-05 (제안일) |
+| 결정 상태 | 승인됨 |
+| 결정일 | 2026-11-05 (제안) / 2026-11-12 (승인) |
 | 결정자 | `@bob (Keunhyeok Lim)` |
 | 자문한 사람 | AI 에이전트 |
 | 대체 관계 | 없음 |
@@ -94,3 +94,4 @@ traces: [REQ-002, REQ-009, REQ-010, NFR-004]
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | ADR-0005 최초 작성 | Antigravity (사용자 검토 대기) |
+| 2026-11-12 | 1.0.0 | ADR 정식 검토 및 승인 완료 | @bob (Keunhyeok Lim) |

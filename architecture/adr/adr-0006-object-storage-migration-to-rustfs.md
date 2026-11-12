@@ -3,10 +3,10 @@ id: ADR-0006
 title: 오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환
 part: architecture
 tier: required
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-08
+last_reviewed: 2026-11-12
 depends_on: [ARC-001, ARC-002]
 related: [ARC-004, ARC-005, ARC-006, ARC-007, PRD-006]
 superseded_by: null
@@ -37,8 +37,8 @@ traces: [REQ-003, REQ-028, NFR-006]
 
 | 항목 | 값 |
 |---|---|
-| 결정 상태 | 제안됨 |
-| 결정일 | 2026-11-08 (제안일) |
+| 결정 상태 | 승인됨 |
+| 결정일 | 2026-11-08 (제안) / 2026-11-12 (승인) |
 | 결정자 | `@bob (Keunhyeok Lim)` |
 | 자문한 사람 | AI 에이전트 |
 | 대체 관계 | MinIO 스토리지 채택 결정을 대체 |
@@ -99,4 +99,5 @@ traces: [REQ-003, REQ-028, NFR-006]
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-08 | 0.1.0 | MinIO CVE 보안 패치 중단 및 라이선스 이슈 대응을 위한 RustFS 전환 ADR 신규 작성 | Antigravity (사용자 검토 대기) |
+| 2026-11-12 | 1.0.0 | ADR 정식 검토 및 승인 완료 | @bob (Keunhyeok Lim) |
 

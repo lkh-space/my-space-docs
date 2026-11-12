@@ -4,10 +4,10 @@ title: 컨테이너와 주요 컴포넌트
 part: architecture
 tier: conditional
 condition: 실무
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-05
+last_reviewed: 2026-11-12
 depends_on: [ARC-001, ARC-003]
 related: [ARC-002, ARC-005, ARC-006, ARC-007, ARC-008, OPS-001]
 superseded_by: null
@@ -189,3 +189,4 @@ flowchart LR
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | my-space v2 컨테이너와 주요 컴포넌트(ARC-004) 최초 작성 | Antigravity (사용자 검토 대기) |
+| 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |

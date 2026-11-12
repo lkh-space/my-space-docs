@@ -3,10 +3,10 @@ id: ADR-0001
 title: 민감 도구 연산의 브라우저 로컬 처리(Web Worker·WASM) 및 백엔드(qpdf) 하이브리드 분리
 part: architecture
 tier: required
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-05
+last_reviewed: 2026-11-12
 depends_on: [ARC-001, ARC-002]
 related: [ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, PRD-006]
 superseded_by: null
@@ -35,8 +35,8 @@ traces: [REQ-012, REQ-013, REQ-014, REQ-015, REQ-016, REQ-017, REQ-018, REQ-019,
 
 | 항목 | 값 |
 |---|---|
-| 결정 상태 | 제안됨 |
-| 결정일 | 2026-11-05 (제안일) |
+| 결정 상태 | 승인됨 |
+| 결정일 | 2026-11-05 (제안) / 2026-11-12 (승인) |
 | 결정자 | `@bob (Keunhyeok Lim)` |
 | 자문한 사람 | AI 에이전트 |
 | 대체 관계 | 없음 |
@@ -99,3 +99,4 @@ traces: [REQ-012, REQ-013, REQ-014, REQ-015, REQ-016, REQ-017, REQ-018, REQ-019,
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | ADR-0001 최초 작성 | Antigravity (사용자 검토 대기) |
+| 2026-11-12 | 1.0.0 | ADR 정식 검토 및 승인 완료 | @bob (Keunhyeok Lim) |

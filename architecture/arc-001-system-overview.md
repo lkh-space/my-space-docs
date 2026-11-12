@@ -3,10 +3,10 @@ id: ARC-001
 title: 시스템 개요
 part: architecture
 tier: required
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-05
+last_reviewed: 2026-11-12
 depends_on: [PRD-001, PRD-002]
 related: [ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, OPS-001]
 superseded_by: null
@@ -143,12 +143,12 @@ flowchart LR
 
 | ADR | 제목 | 결정 상태 | 한 줄 요약 |
 |---|---|---|---|
-| [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) | 민감 도구 연산의 브라우저 로컬 처리와 백엔드(`qpdf`) 하이브리드 분리 | 제안됨 | 민감 파일·토큰 유출 방지와 즉각 응답을 위해 파서·이미지·일반 PDF는 브라우저(Web Worker·WASM)에서 처리하고, 암호화 PDF 해제·대용량 PDF만 백엔드 `qpdf`로 처리한다 |
-| [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | 백엔드 메인 API(`api`)와 AI 워크스페이스 서버(`ai`) 프로세스 분리 | 제안됨 | Nest CLI 모노레포 안에서 `api`와 `ai`를 독립 프로세스로 분리해 LLM 스트리밍·인덱싱 부하를 격리하고 `libs/`로 저장소·인증 모듈을 공유한다 |
-| [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md) | 홈랩 비-상시 구동 환경을 위한 DB 기반 누락 스케줄 보정(Catch-up) | 제안됨 | 서버 종료 중 지나간 만료 판별·정기 결제 갱신·RSS 수집을 복구하기 위해 DB의 `lastRunAt`을 기준으로 기동 직후 멱등 Catch-up을 수행한다 |
-| [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) | Authelia ForwardAuth 인증 위임 및 외부 방문자 테스트 계정 샌드박스 격리 | 제안됨 | 인증은 리버스 프록시 앞단의 Authelia ForwardAuth 헤더에 위임하고, 테스트 계정은 세션별 인메모리 샌드박스 저장소로 라우팅해 주 사용자 DB 오염을 원천 차단한다 |
-| [ADR-0005](adr/adr-0005-notification-channel-abstraction.md) | 인앱 알림함과 외부 알림 채널(Slack Webhook) 추상화 구조 | 제안됨 | 모든 일정·만료 알림은 인앱 알림함(DB)에 우선 저장하고 `NotificationChannel` 어댑터를 통해 Slack Incoming Webhook 등 외부 채널로 비동기 발송한다 |
-| [ADR-0006](adr/adr-0006-object-storage-migration-to-rustfs.md) | 오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환 | 제안됨 | MinIO 커뮤니티 버전의 CVE 패치 중단 및 라이선스 리스크에 대응하여, 완전 무료 오픈소스이자 초경량인 RustFS(S3 API 호환)로 전면 교체한다 |
+| [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) | 민감 도구 연산의 브라우저 로컬 처리와 백엔드(`qpdf`) 하이브리드 분리 | 승인됨 | 민감 파일·토큰 유출 방지와 즉각 응답을 위해 파서·이미지·일반 PDF는 브라우저(Web Worker·WASM)에서 처리하고, 암호화 PDF 해제·대용량 PDF만 백엔드 `qpdf`로 처리한다 |
+| [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | 백엔드 메인 API(`api`)와 AI 워크스페이스 서버(`ai`) 프로세스 분리 | 승인됨 | Nest CLI 모노레포 안에서 `api`와 `ai`를 독립 프로세스로 분리해 LLM 스트리밍·인덱싱 부하를 격리하고 `libs/`로 저장소·인증 모듈을 공유한다 |
+| [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md) | 홈랩 비-상시 구동 환경을 위한 DB 기반 누락 스케줄 보정(Catch-up) | 승인됨 | 서버 종료 중 지나간 만료 판별·정기 결제 갱신·RSS 수집을 복구하기 위해 DB의 `lastRunAt`을 기준으로 기동 직후 멱등 Catch-up을 수행한다 |
+| [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) | Authelia ForwardAuth 인증 위임 및 외부 방문자 테스트 계정 샌드박스 격리 | 승인됨 | 인증은 리버스 프록시 앞단의 Authelia ForwardAuth 헤더에 위임하고, 테스트 계정은 세션별 인메모리 샌드박스 저장소로 라우팅해 주 사용자 DB 오염을 원천 차단한다 |
+| [ADR-0005](adr/adr-0005-notification-channel-abstraction.md) | 인앱 알림함과 외부 알림 채널(Slack Webhook) 추상화 구조 | 승인됨 | 모든 일정·만료 알림은 인앱 알림함(DB)에 우선 저장하고 `NotificationChannel` 어댑터를 통해 Slack Incoming Webhook 등 외부 채널로 비동기 발송한다 |
+| [ADR-0006](adr/adr-0006-object-storage-migration-to-rustfs.md) | 오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환 | 승인됨 | MinIO 커뮤니티 버전의 CVE 패치 중단 및 라이선스 리스크에 대응하여, 완전 무료 오픈소스이자 초경량인 RustFS(S3 API 호환)로 전면 교체한다 |
 
 ## 아키텍처 문서 지도 [선택]
 
@@ -181,3 +181,4 @@ flowchart LR
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | my-space v2 시스템 개요(ARC-001) 최초 작성 | Antigravity (사용자 검토 대기) |
+| 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |
