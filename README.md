@@ -73,11 +73,22 @@ AI에게 기능 구현, 버그 수정, 아키텍처 질문 등 작업을 지시�
 | [인앱 알림함 우선 저장 및 알림 채널 추상화](architecture/adr/adr-0005-notification-channel-abstraction.md) | `ADR-0005` | 인앱 알림함(DB)에 우선 저장 후 Slack Incoming Webhook 어댑터로 비동기 발송 |
 | [오브젝트 스토리지 RustFS(Apache 2.0) 전환](architecture/adr/adr-0006-object-storage-migration-to-rustfs.md) | `ADR-0006` | MinIO CVE 패치 중단 대응을 위해 완전 무료 오픈소스인 RustFS(S3 API 호환)로 전환 |
 
-### 5. 운영 및 공통 기반 (Operations - `operations/`)
+### 5. 프론트엔드 명세 (Frontend - `frontend/`)
+| 문서 | ID | 설명 |
+| :--- | :--- | :--- |
+| [프론트엔드 기술 구조](frontend/fe-001-tech-stack.md) | `FE-001` | React 19, TypeScript, Vite, Nx, PWA 오프라인, Web Worker/WASM 클라이언트 실행 구조 |
+| [디렉터리와 모듈 구조](frontend/fe-002-directory-modules.md) | `FE-002` | `apps/web/src` FSD 계층형 디렉터리 분리 및 단방향 의존성 규칙 |
+| [라우팅과 페이지 구성](frontend/fe-003-routing-pages.md) | `FE-003` | 전체 화면(`SCR-001`~`SCR-090`) 1:1 URL 매핑, 모달 쿼리 파라미터 및 레이아웃 구조 |
+| [상태 관리](frontend/fe-005-state-management.md) | `FE-005` | TanStack Query 서버 캐시, 인메모리 샌드박스 스토어, AI SSE 스트리밍 레지스트리 |
+| [공통 컴포넌트와 디자인 시스템 연계](frontend/fe-006-components-design-system.md) | `FE-006` | Figma v2 디자인 토큰 CSS 변수 바인딩, 버튼·입력·피드 4대 모달·결과 패널 규격 |
+| [인증·권한에 따른 UI](frontend/fe-008-auth-ui.md) | `FE-008` | Authelia ForwardAuth SSO 헤더 처리 및 주 사용자/방문자 체험 모드 UI 분기 |
+| [오류와 로딩 상태](frontend/fe-009-error-loading.md) | `FE-009` | 스켈레톤 로딩, 카드 단위 에러 바운더리 격리, PWA 오프라인 감지 배너 |
+
+### 6. 운영 및 공통 기반 (Operations - `operations/`)
 | 문서 | ID | 설명 |
 | :--- | :--- | :--- |
 | [용어집](operations/ops-001-glossary.md) | `OPS-001` | 공간·도구, 날짜 모델 3유형, Catch-up, ForwardAuth 등 공통 표준 용어 사전 |
-| [문서 인덱스](operations/ops-002-document-index.md) | `OPS-002` | `my-space-docs` 전체 33종 문서의 상태, 버전, 검토일, 메타데이터 총괄 |
+| [문서 인덱스](operations/ops-002-document-index.md) | `OPS-002` | `my-space-docs` 전체 40종 문서의 상태, 버전, 검토일, 메타데이터 총괄 |
 
 ---
 

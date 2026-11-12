@@ -4,11 +4,11 @@ title: 문서 인덱스
 part: operations
 tier: required
 status: approved
-version: 1.3.0
+version: 1.4.0
 owner: "@bob (Keunhyeok Lim)"
 last_reviewed: 2026-11-12
 depends_on: []
-related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006]
+related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, FE-001, FE-002, FE-003, FE-005, FE-006, FE-008, FE-009]
 superseded_by: null
 traces: []
 ---
@@ -33,7 +33,7 @@ traces: []
 
 ## 문서 목록 [필수]
 
-현재 **1단계: 기획(PRD) 및 공통 기반(OPS)** 문서 9종(`approved`), **2단계: 디자인(DSN)** 문서 9종(`approved`), **3단계: 공통 아키텍처(ARC/ADR)** 문서 14종(`approved`)이 번호 건너뜀 없이 모두 정식 검토 및 승인(`approved`) 완료되어 있다. 후속 단계(백엔드 `BE`·프론트엔드 `FE` → 테스트/검증 `QA` → 운영관리 `OPS`) 진행 시 해당 파트 문서를 이 표에 순차 추가한다.
+현재 **1단계: 기획(PRD) 및 공통 기반(OPS)** 문서 9종(`approved`), **2단계: 디자인(DSN)** 문서 9종(`approved`), **3단계: 공통 아키텍처(ARC/ADR)** 문서 14종(`approved`), **4단계: 프론트엔드 상세 명세(FE)** 문서 7종(`review`)이 번호 건너뜀 없이 순차 작성 및 등록되어 있다. 후속 단계(백엔드 `BE` → 테스트/검증 `QA` → 운영관리 `OPS`) 진행 시 해당 파트 문서를 이 표에 순차 추가한다.
 
 | ID | 문서 | 한 줄 설명 | 등급 | 상태 | owner | last_reviewed |
 |---|---|---|---|---|---|---|
@@ -67,6 +67,13 @@ traces: []
 | ADR-0004 | [Authelia ForwardAuth 게이트웨이 인증 위임 및 외부 방문자 샌드박스 격리](../architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md) | Traefik ForwardAuth 헤더 신뢰와 방문자 모드 브라우저 인메모리 샌드박스·읽기 전용 가드 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 | ADR-0005 | [인앱 알림함 우선 저장 및 외부 알림 채널 어댑터 추상화](../architecture/adr/adr-0005-notification-channel-abstraction.md) | 인앱 알림함 영구 기록 우선 보장 및 `NotificationChannelPort` 기반 Slack Webhook 어댑터 분리 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 | ADR-0006 | [오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환](../architecture/adr/adr-0006-object-storage-migration-to-rustfs.md) | MinIO CVE 보안 패치 중단 대응 및 완전 오픈소스 RustFS(S3 호환) 전환 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| FE-001 | [프론트엔드 기술 구조](../frontend/fe-001-tech-stack.md) | React 19, TypeScript, Vite, Nx, PWA 오프라인, Web Worker/WASM 클라이언트 실행 구조 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-12 |
+| FE-002 | [디렉터리와 모듈 구조](../frontend/fe-002-directory-modules.md) | `apps/web/src` FSD 계층형 디렉터리 분리 및 단방향 의존성 규칙 | 선택 | review | @bob (Keunhyeok Lim) | 2026-11-12 |
+| FE-003 | [라우팅과 페이지 구성](../frontend/fe-003-routing-pages.md) | 전체 화면(`SCR-001`~`SCR-090`) 1:1 URL 매핑, 모달 쿼리 파라미터 및 레이아웃 구조 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-12 |
+| FE-005 | [상태 관리](../frontend/fe-005-state-management.md) | TanStack Query 서버 캐시, 인메모리 샌드박스 스토어, AI SSE 스트리밍 레지스트리 | 선택 | review | @bob (Keunhyeok Lim) | 2026-11-12 |
+| FE-006 | [공통 컴포넌트와 디자인 시스템 연계](../frontend/fe-006-components-design-system.md) | Figma v2 디자인 토큰 CSS 변수 바인딩, 버튼·입력·피드 4대 모달·결과 패널 규격 | 선택 | review | @bob (Keunhyeok Lim) | 2026-11-12 |
+| FE-008 | [인증·권한에 따른 UI](../frontend/fe-008-auth-ui.md) | Authelia ForwardAuth SSO 헤더 처리 및 주 사용자/방문자 체험 모드 UI 분기 | 조건부(인증) | review | @bob (Keunhyeok Lim) | 2026-11-12 |
+| FE-009 | [오류와 로딩 상태](../frontend/fe-009-error-loading.md) | 스켈레톤 로딩, 카드 단위 에러 바운더리 격리, PWA 오프라인 감지 배너 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-12 |
 | OPS-001 | [용어집](ops-001-glossary.md) | 공간·도구, 공통 날짜 모델 3유형, Catch-up, 테스트 계정 격리 등 표준 용어와 코드 식별자 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
 | OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 
@@ -99,6 +106,7 @@ traces: []
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-12 | 1.4.0 | 프론트엔드 상세 명세(FE-001, 002, 003, 005, 006, 008, 009) 7종 신규 작성 및 등록 | @bob (Keunhyeok Lim) |
 | 2026-11-12 | 1.3.0 | 디자인(DSN 9종) 및 아키텍처(ARC/ADR 14종) 정식 승인(approved) 상태 반영 | @bob (Keunhyeok Lim) |
 | 2026-11-08 | 1.2.0 | 오브젝트 스토리지 RustFS 전환에 따른 ADR-0006 추가 등록 | Antigravity (사용자 검토 대기) |
 | 2026-11-05 | 1.1.0 | 디자인(`DSN-001`~`DSN-009`) 및 공통 아키텍처(`ARC-001`~`ARC-008`, `ADR-0001`~`ADR-0005`) 문서 목록 등록 | Antigravity (사용자 검토 대기) |
