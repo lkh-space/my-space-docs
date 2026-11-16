@@ -4,9 +4,9 @@ title: 반응형 디자인
 part: design
 tier: conditional
 status: approved
-version: 1.0.0
+version: 1.2.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-16
 depends_on: [DSN-004]
 related: [PRD-006]
 superseded_by: null
@@ -16,6 +16,12 @@ traces: [REQ-031]
 # DSN-007 반응형 디자인
 
 > v2 정식 승인본. Figma v2(디자인 시스템 및 제품 화면) 확정 시안 기준.
+
+## Figma 탐색
+
+비모바일 레이아웃은 [DSN-007-01 · 화면 골격](https://www.figma.com/design/i4UZw9LDRw0JLSWWbrmdik/my-space-v2?node-id=9-84)을 기준으로 찾는다. [펼침 1280px](https://www.figma.com/design/i4UZw9LDRw0JLSWWbrmdik/my-space-v2?node-id=33-49531)과 [접힘 1280px](https://www.figma.com/design/i4UZw9LDRw0JLSWWbrmdik/my-space-v2?node-id=33-49818)을 구분한다. [레이아웃·키보드 가이드](https://www.figma.com/design/i4UZw9LDRw0JLSWWbrmdik/my-space-v2?node-id=33-50392)는 DSN-008과 함께 읽는다. 모바일 문서·시안은 이번 정합성 작업에서 검토하거나 변경하지 않았다.
+
+2026-11-14 정합성 작업: 모바일과 프론트 DESIGN.md는 비교 대상에서 제외한다. 전체 탐색 규칙은 [design README](README.md)를 따른다.
 
 ## 지원 환경과 브레이크포인트
 
@@ -46,7 +52,7 @@ Figma v2 확정 시안(`02 · 제품 화면`의 375px 모바일 뷰포트)에 �
 ## 검토 체크리스트
 
 - [x] 사용자가 시안과 규칙을 검토했다
-- [x] 관련 화면과 문서의 내용이 일치한다
+- [x] 이번 비모바일 정합성 수정 범위를 대조했다 (수정 결과·검증 범위는 DSN-004 참조)
 - [x] 미결정 항목을 확정하거나 후속 작업으로 구분했다
 
 ## 변경 이력
@@ -55,3 +61,6 @@ Figma v2 확정 시안(`02 · 제품 화면`의 375px 모바일 뷰포트)에 �
 |---|---|---|---|
 | 2026-11-01 | 0.1.0 | v2 디자인 검토 초안 | Codex (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | Figma v2 최종 확정 시안 반영 및 사용자 승인 완료 | @bob (Keunhyeok Lim) |
+| 2026-11-14 | 1.1.0 | 비모바일 Figma DSN 탐색 식별자·직접 링크 연결 | Codex (사용자 지시) |
+| 2026-11-15 | 1.2.0 | 비모바일 정합성 수정 결과 반영 및 검증 범위 명시 | Codex (사용자 지시) |
+| 2026-11-16 | 1.2.0 | 비모바일 Figma 정합성 검토·수정본 사용자 승인 확정 (문서 승인, 실제 동작 검증과 구분) | @bob (Keunhyeok Lim) |

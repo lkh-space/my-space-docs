@@ -1,3 +1,5 @@
+> 이 문서는 Stitch 생성·수정의 과거 기록이다. 현재 기준은 검토 완료된 Figma v2이며 [DSN 탐색 대응표](README.md)에서 찾는다. 아래의 초안·미승인 표기는 당시 상태를 뜻한다.
+
 # Stitch 검토 현황
 
 프로젝트: https://stitch.withgoogle.com/projects/18082781618690839750
