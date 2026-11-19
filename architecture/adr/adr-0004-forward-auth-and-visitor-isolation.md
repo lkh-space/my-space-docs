@@ -3,17 +3,19 @@ id: ADR-0004
 title: Authelia ForwardAuth 게이트웨이 인증 위임 및 외부 방문자 테스트 계정 인메모리 샌드박스 격리
 part: architecture
 tier: required
-status: approved
-version: 1.0.0
+status: superseded
+version: 1.1.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-19
 depends_on: [ARC-001, ARC-002]
 related: [ARC-003, ARC-005, ARC-006, ARC-007, ARC-008, PRD-006]
-superseded_by: null
+superseded_by: ADR-0007
 traces: [REQ-026, REQ-030, NFR-006]
 ---
 
 # ADR-0004 Authelia ForwardAuth 게이트웨이 인증 위임 및 외부 방문자 테스트 계정 인메모리 샌드박스 격리
+
+> 2026-11-19: [ADR-0007](adr-0007-visitor-browser-state.md) 승인으로 대체되었다. 아래 결정 본문은 과거 기록이며 현재 설계에는 대체 ADR을 적용한다.
 
 ## 이 문서는
 
@@ -36,11 +38,11 @@ traces: [REQ-026, REQ-030, NFR-006]
 
 | 항목 | 값 |
 |---|---|
-| 결정 상태 | 승인됨 |
+| 결정 상태 | 대체됨 |
 | 결정일 | 2026-11-05 (제안) / 2026-11-12 (승인) |
 | 결정자 | `@bob (Keunhyeok Lim)` |
 | 자문한 사람 | AI 에이전트 |
-| 대체 관계 | 없음 |
+| 대체 관계 | ADR-0007로 대체됨 |
 
 ## 맥락과 문제 [필수]
 
@@ -97,3 +99,4 @@ traces: [REQ-026, REQ-030, NFR-006]
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | ADR-0004 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | ADR 정식 검토 및 승인 완료 | @bob (Keunhyeok Lim) |
+| 2026-11-19 | 1.1.0 | ADR-0007 승인에 따라 대체 상태 갱신 (기존 결정 본문 보존) | @bob (Keunhyeok Lim) |
