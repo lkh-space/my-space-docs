@@ -4,9 +4,9 @@ title: 시스템 개요
 part: architecture
 tier: required
 status: approved
-version: 1.0.0
+version: 1.2.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-20
 depends_on: [PRD-001, PRD-002]
 related: [ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, OPS-001]
 superseded_by: null
@@ -14,6 +14,8 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-006, REQ-009, REQ-010, REQ-011,
 ---
 
 # ARC-001 시스템 개요
+
+> v2 설계 승인 (2026-11-20): 사용자 검토 및 승인 완료. ADR-0007~0010은 2026-11-19 승인되었다. 문서 승인으로, v2 구현·시험 완료를 의미하지 않는다. 대체된 ADR 본문은 과거 결정 기록으로 보존한다.
 
 ## 이 문서는
 
@@ -45,7 +47,7 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-006, REQ-009, REQ-010, REQ-011,
 - **범위 안**:
   - `공간`: 마크다운 노트 및 버전(리비전) 관리, 기술 블로그 RSS 피드 수집·원문 본문 추출·키워드 필터링, 공통 날짜 모델 3유형(정기 결제·고정 만료일·단일 날짜) 관리, 홈랩 기동 시 누락 스케줄 보정(Catch-up) 및 알림, 실시간 음성·텍스트 AI 어시스턴트와 RAG 문서 검색.
   - `도구`: 하이브리드 PDF 조작(병합·분할·암호 해제), 마크다운 일회성 변환, 이미지 압축·리사이즈·포맷 변환 및 EXIF 조회·제거, RDB·NoSQL 스키마 시각화·변환, cron·정규식·JWT·타임스탬프 개발 도구, 더치페이·실수령액·대출/적금·단가 비교(PWA 오프라인)·영업일 계산기.
-  - `플랫폼·보안`: Authelia ForwardAuth 기반 인증 연동, 외부 방문자용 테스트 계정 인메모리 샌드박스 격리. 전체 요구사항은 [PRD-002의 REQ-001~REQ-031](../product/prd-002-requirements-scope.md#요구사항-목록-필수)이다.
+  - `플랫폼·보안`: Authelia ForwardAuth 기반 인증 연동, 외부 방문자의 브라우저 메모리 체험 상태 격리. 전체 요구사항은 [PRD-002의 REQ-001~REQ-031](../product/prd-002-requirements-scope.md#요구사항-목록-필수)이다.
 - **범위 밖**:
   - 사용자 비밀번호 저장·로그인 화면·2FA 검증: 홈랩 리버스 프록시 앞단의 외부 인증 게이트웨이(Authelia)가 맡는다.
   - 다중 사용자 간 실시간 공동 편집·일정 공유: 제품 비목표다([PRD-001 범위와 비목표](../product/prd-001-product-overview.md#범위와-비목표-필수)).
@@ -58,9 +60,9 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-006, REQ-009, REQ-010, REQ-011,
 | 이해관계자 | 관심사 | 답하는 문서 |
 |---|---|---|
 | 프로젝트 소유자 (주 사용자) | 홈랩 서버가 꺼져 있다가 켜져도 일정 알림과 피드 수집이 누락되지 않는가, 민감 파일이 외부로 나가지 않는가 | [ARC-002](arc-002-principles-constraints.md), [ARC-005](arc-005-data-flow.md), [ARC-008](arc-008-quality-attributes.md) |
-| 프론트엔드 개발자 | 어떤 도구를 브라우저 로컬(Web Worker·WASM)에서 처리하고 어떤 기능을 백엔드 API/SSE와 연동하는가 | [ARC-004](arc-004-containers-components.md), [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) |
+| 프론트엔드 개발자 | 어떤 도구를 브라우저 로컬(Web Worker·WASM)에서 처리하고 어떤 기능을 백엔드 API/SSE와 연동하는가 | [ARC-004](arc-004-containers-components.md), [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) |
 | 백엔드 개발자 | 메인 API(`apps/api`)와 AI 서버(`apps/ai`)의 책임 경계는 무엇이고, DB·스토리지·큐를 어떻게 공유하는가 | [ARC-004](arc-004-containers-components.md), [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md) |
-| 보안·인프라 담당자 | 외부 방문자 테스트 계정이 주 사용자 데이터를 침범하지 않게 어느 지점에서 격리하는가 | [ARC-007](arc-007-security-architecture.md), [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) |
+| 보안·인프라 담당자 | 외부 방문자 테스트 계정이 주 사용자 데이터를 침범하지 않게 어느 지점에서 격리하는가 | [ARC-007](arc-007-security-architecture.md), [ADR-0007](adr/adr-0007-visitor-browser-state.md) |
 
 ## 구성 요약 [필수]
 
@@ -100,11 +102,12 @@ flowchart LR
   api -->|"만료·결제 알림 발송 [HTTPS]"| slack
   api -->|"연도별 공휴일 조회 [HTTPS]"| holiday
   rmq -->|"비동기 인덱싱 작업 전달 [AMQP]"| ai
-  ai -->|"문서·세션 조회 및 저장 [SQL / S3 API]"| db
+  ai -->|"소유자 범위 문서 조회 [SQL]"| db
   ai -->|"문서 본문 읽기 [S3 API]"| rustfs
   ai -->|"벡터 임베딩 저장·시맨틱 검색 [REST]"| qdrant
   ai -->|"추론·임베딩·STT/TTS 요청 [HTTPS/HTTP]"| llm
 
+  ai -->|"노트 저장 [검증된 사용자 문맥 / HTTP]"| api
   classDef person fill:#ffffff,stroke:#333333
   classDef container fill:#ffffff,stroke:#333333
   classDef external fill:#eeeeee,stroke:#666666,stroke-dasharray:5 5
@@ -129,7 +132,7 @@ flowchart LR
 | 구성 요소 | 역할 | 기술 | 상세 문서 |
 |---|---|---|---|
 | `web` | 공간·도구 UI 렌더링, Web Worker/WASM 로컬 도구 실행, PWA 오프라인 캐싱을 담당하는 단일 페이지 웹앱 | React 19, TypeScript, Vite, Vanilla CSS | [ARC-004](arc-004-containers-components.md#컨테이너-목록-필수) |
-| `api` | 공간(노트·피드·관리·알림) REST API, `qpdf` 하이브리드 PDF 처리, 홈랩 기동 Catch-up 스케줄러, 테스트 계정 샌드박스를 담당하는 메인 API 서버 | NestJS 12, TypeScript, Prisma, `qpdf` | [ARC-004](arc-004-containers-components.md#api-메인-api-서버) |
+| `api` | 공간(노트·피드·관리·알림) REST API, `qpdf` 하이브리드 PDF 처리, 홈랩 기동 Catch-up 스케줄러, 방문자 샘플 읽기·인가를 담당하는 메인 API 서버 | NestJS 12, TypeScript, Prisma, `qpdf` | [ARC-004](arc-004-containers-components.md#api-메인-api-서버) |
 | `ai` | 실시간 음성·텍스트 AI 어시스턴트(SSE 스트리밍·즉시 중단), RabbitMQ 기반 비동기 문서 인덱싱 워커, Qdrant 시맨틱 검색을 담당하는 AI 전용 서버 | NestJS 12, TypeScript, `@google/genai` | [ARC-004](arc-004-containers-components.md#ai-ai-워크스페이스-서버) |
 | `PostgreSQL` | 폴더·노트 메타데이터/리비전, 피드 구독원·아티클·키워드, 관리 일정(공통 날짜 모델 3유형), 인앱 알림, 공휴일 캐시를 저장하는 주 관계형 데이터베이스 | PostgreSQL 18 | [ARC-004](arc-004-containers-components.md#컨테이너-목록-필수) |
 | `RustFS` | 마크다운 노트의 버전별 원문(`.md`) 본문 객체를 저장하는 S3 호환 오브젝트 스토리지 | RustFS (S3 API) | [ARC-004](arc-004-containers-components.md#컨테이너-목록-필수) |
@@ -143,12 +146,12 @@ flowchart LR
 
 | ADR | 제목 | 결정 상태 | 한 줄 요약 |
 |---|---|---|---|
-| [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) | 민감 도구 연산의 브라우저 로컬 처리와 백엔드(`qpdf`) 하이브리드 분리 | 승인됨 | 민감 파일·토큰 유출 방지와 즉각 응답을 위해 파서·이미지·일반 PDF는 브라우저(Web Worker·WASM)에서 처리하고, 암호화 PDF 해제·대용량 PDF만 백엔드 `qpdf`로 처리한다 |
+| [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) | 민감 도구 연산의 브라우저 로컬 처리(Web Worker·WASM) 및 백엔드(qpdf) 하이브리드 분리 | 대체됨 | 현재 기준은 [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) 참조 |
 | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | 백엔드 메인 API(`api`)와 AI 워크스페이스 서버(`ai`) 프로세스 분리 | 승인됨 | Nest CLI 모노레포 안에서 `api`와 `ai`를 독립 프로세스로 분리해 LLM 스트리밍·인덱싱 부하를 격리하고 `libs/`로 저장소·인증 모듈을 공유한다 |
 | [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md) | 홈랩 비-상시 구동 환경을 위한 DB 기반 누락 스케줄 보정(Catch-up) | 승인됨 | 서버 종료 중 지나간 만료 판별·정기 결제 갱신·RSS 수집을 복구하기 위해 DB의 `lastRunAt`을 기준으로 기동 직후 멱등 Catch-up을 수행한다 |
-| [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) | Authelia ForwardAuth 인증 위임 및 외부 방문자 테스트 계정 샌드박스 격리 | 승인됨 | 인증은 리버스 프록시 앞단의 Authelia ForwardAuth 헤더에 위임하고, 테스트 계정은 세션별 인메모리 샌드박스 저장소로 라우팅해 주 사용자 DB 오염을 원천 차단한다 |
+| [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) | Authelia ForwardAuth 게이트웨이 인증 위임 및 외부 방문자 테스트 계정 인메모리 샌드박스 격리 | 대체됨 | 현재 기준은 [ADR-0007](adr/adr-0007-visitor-browser-state.md) 참조 |
 | [ADR-0005](adr/adr-0005-notification-channel-abstraction.md) | 인앱 알림함과 외부 알림 채널(Slack Webhook) 추상화 구조 | 승인됨 | 모든 일정·만료 알림은 인앱 알림함(DB)에 우선 저장하고 `NotificationChannel` 어댑터를 통해 Slack Incoming Webhook 등 외부 채널로 비동기 발송한다 |
-| [ADR-0006](adr/adr-0006-object-storage-migration-to-rustfs.md) | 오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환 | 승인됨 | MinIO 커뮤니티 버전의 CVE 패치 중단 및 라이선스 리스크에 대응하여, 완전 무료 오픈소스이자 초경량인 RustFS(S3 API 호환)로 전면 교체한다 |
+| [ADR-0006](adr/adr-0006-object-storage-migration-to-rustfs.md) | 오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환 | 대체됨 | 현재 기준은 [ADR-0010](adr/adr-0010-rustfs-v2-adoption.md) 참조 |
 
 ## 아키텍처 문서 지도 [선택]
 
@@ -158,10 +161,19 @@ flowchart LR
 | [ARC-002 아키텍처 원칙과 제약](arc-002-principles-constraints.md) | 작성 | 홈랩 환경 제약(`CON-`) 및 설계 원칙(`AP-`), 가정(`ASM-`) |
 | [ARC-003 시스템 컨텍스트와 외부 시스템](arc-003-system-context.md) | 작성 | 주 사용자·외부 방문자와 5대 외부 연동 시스템 경계 |
 | [ARC-004 컨테이너와 주요 컴포넌트](arc-004-containers-components.md) | 작성 | 8개 컨테이너(`web`, `api`, `ai`, `PostgreSQL`, `RustFS`, `OpenSearch`, `Qdrant`, `RabbitMQ`)와 내부 모듈 책임 |
-| [ARC-005 데이터 흐름](arc-005-data-flow.md) | 작성 | 공간 영속 흐름, 로컬 격리 흐름, 하이브리드 PDF 흐름, 테스트 계정 샌드박스 흐름 |
-| [ARC-006 아키텍처 의사결정 기록(ADR)](arc-006-adr.md) | 작성 | ADR 색인 및 `ADR-0001`~`ADR-0006` 개별 기록 |
+| [ARC-005 데이터 흐름](arc-005-data-flow.md) | 작성 | 공간 영속 흐름, 로컬 격리 흐름, 하이브리드 PDF 흐름, 방문자 체험 흐름 |
+| [ARC-006 아키텍처 의사결정 기록(ADR)](arc-006-adr.md) | 작성 | ADR 색인 및 `ADR-0001`~`ADR-0010` 개별 기록 |
 | [ARC-007 보안 아키텍처](arc-007-security-architecture.md) | 작성 | 신뢰 경계, ForwardAuth·테스트 계정 인가 위치, 임시 파일 및 시크릿 보호 |
 | [ARC-008 품질 속성](arc-008-quality-attributes.md) | 작성 | `NFR-001`~`NFR-008` 달성을 위한 품질 시나리오(`QS-`), 전술 및 트레이드오프 |
+
+## v2 승인 ADR
+
+| ADR | 제목 | 관계 | 상태 |
+|---|---|---|---|
+| [ADR-0007](adr/adr-0007-visitor-browser-state.md) | 방문자 체험 상태의 브라우저 메모리 격리 | ADR-0004 대체 | approved |
+| [ADR-0008](adr/adr-0008-note-write-consistency.md) | 노트 저장의 단일 책임과 파생 색인 복구 | ADR-0002 보완 | approved |
+| [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) | PDF 실행 경로와 오프라인 도구 범위 | ADR-0001 대체 | approved |
+| [ADR-0010](adr/adr-0010-rustfs-v2-adoption.md) | v2 RustFS 채택과 호환성 검증 경계 | ADR-0006 대체 | approved |
 
 ## 검토 체크리스트
 
@@ -182,3 +194,6 @@ flowchart LR
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | my-space v2 시스템 개요(ARC-001) 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |
+| 2026-11-16 | 1.1.0 | v2 문서 정합성·실패 복구 경계 수정, 승인 대기 | AI 에이전트 |
+| 2026-11-19 | 1.1.1 | ADR 4건 승인·대체 관계 반영; ARC 검토 상태 유지 | @bob (Keunhyeok Lim) |
+| 2026-11-20 | 1.2.0 | 사용자 최종 검토 완료 및 ARC 문서 정식 승인 | @bob (Keunhyeok Lim) |

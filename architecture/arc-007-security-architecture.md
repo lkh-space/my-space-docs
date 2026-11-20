@@ -5,9 +5,9 @@ part: architecture
 tier: conditional
 condition: 배포
 status: approved
-version: 1.0.0
+version: 1.2.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-20
 depends_on: [ARC-001, ARC-004, ARC-005]
 related: [ARC-002, ARC-003, ARC-006, PRD-006]
 superseded_by: null
@@ -15,6 +15,8 @@ traces: [REQ-012, REQ-014, REQ-015, REQ-019, REQ-026, REQ-030, NFR-006]
 ---
 
 # ARC-007 보안 아키텍처
+
+> v2 설계 승인 (2026-11-20): 사용자 검토 및 승인 완료. ADR-0007~0010은 2026-11-19 승인되었다. 문서 승인으로, v2 구현·시험 완료를 의미하지 않는다. 대체된 ADR 본문은 과거 결정 기록으로 보존한다.
 
 ## 이 문서는
 
@@ -45,6 +47,7 @@ flowchart LR
   visitor(["외부 방문자<br/>[사람]"])
 
   subgraph tb1["신뢰 경계 1: 클라이언트 브라우저 (web)"]
+    sandbox[("방문자 브라우저 메모리<br/>[임시 체험 상태]")]
     web_local["로컬 도구 엔진 (Web Worker / WASM)<br/>[컨테이너 내부 모듈]"]
     web_client["웹 앱 클라이언트<br/>[컨테이너: web]"]
   end
@@ -56,7 +59,6 @@ flowchart LR
   subgraph tb3["신뢰 경계 3: 홈랩 애플리케이션 내부망"]
     api["api (메인 API 서버)<br/>[컨테이너]"]
     ai["ai (AI 워크스페이스 서버)<br/>[컨테이너]"]
-    sandbox[("테스트 계정 샌드박스<br/>[인메모리 저장소]")]
     db[("PostgreSQL / RustFS / OpenSearch / Qdrant<br/>[영속 데이터 저장소]")]
   end
 
@@ -68,11 +70,12 @@ flowchart LR
   edge -->|"전달 [ForwardAuth 검증, X-Forwarded-Auth-Secret, 크기 제한]"| api
   edge -->|"전달 [ForwardAuth 검증, X-Forwarded-Auth-Secret]"| ai
   api -->|"주 사용자 데이터 접근 [ownerId 스코프 검증]"| db
-  api -->|"외부 방문자 데이터 격리 [계정 유형 라우팅]"| sandbox
-  ai -->|"주 사용자 RAG 조회·저장 [ownerId 스코프 검증]"| db
+  web_client -->|"체험 변경·초기화 [로컬]"| sandbox
+  ai -->|"주 사용자 RAG 조회·벡터 갱신 [ownerId 스코프 검증]"| db
   api -->|"아웃바운드 호출 [TLS, URL/SSRF 검증, 시크릿 주입]"| ext
   ai -->|"아웃바운드 추론 호출 [TLS, API 키 주입]"| ext
 
+  ai -->|"노트 저장 [검증된 사용자 문맥 / HTTP]"| api
   classDef person fill:#ffffff,stroke:#333333
   classDef container fill:#ffffff,stroke:#333333
   classDef external fill:#eeeeee,stroke:#666666,stroke-dasharray:5 5
@@ -106,8 +109,8 @@ flowchart LR
 
 | 대상 | 인증하는 곳 | 인가를 판단하는 곳 | 세션·토큰 보관 위치 | 관련 결정 및 명세 |
 |---|---|---|---|---|
-| 사용자 (주 사용자) | `Authelia SSO` 게이트웨이 (`신뢰 경계 2`) | `api` 및 `ai`의 전역 인증 가드(`AutheliaAuthGuard`) + 모든 DB/스토리지 쿼리의 `ownerId` 일치 검증 | 브라우저 `HttpOnly, Secure` SSO 세션 쿠키 (Authelia 관리) | [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md), 백엔드 `authelia-auth.md` |
-| 외부 방문자 (테스트 계정) | `Authelia SSO` 게이트웨이 (테스트 전용 계정 로그인) | `api` 및 `ai`의 계정 격리 가드/인터셉터 (`visitor` 식별 시 영속 DB 쿼리 차단 및 인메모리 샌드박스 라우팅, 외부 웹훅 발송 차단) | 브라우저 `HttpOnly, Secure` SSO 세션 쿠키 + 백엔드 인메모리 세션 샌드박스 키 | [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md), [PRD-005 FN-025](../product/prd-005-functional-spec.md) |
+| 사용자 (주 사용자) | `Authelia SSO` 게이트웨이 (`신뢰 경계 2`) | `api` 및 `ai`의 전역 인증 가드(`AutheliaAuthGuard`) + 모든 DB/스토리지 쿼리의 `ownerId` 일치 검증 | 브라우저 `HttpOnly, Secure` SSO 세션 쿠키 (Authelia 관리) | [ADR-0007](adr/adr-0007-visitor-browser-state.md), 백엔드 `authelia-auth.md` |
+| 외부 방문자 (테스트 계정) | Authelia SSO | api·ai에서 주 사용자 데이터·영속 쓰기·외부 알림 차단; 체험 변경은 web 메모리 | SSO 쿠키; 서버 체험 세션 저장소 없음 | [ADR-0007](adr/adr-0007-visitor-browser-state.md) |
 | 로컬 개발 환경 (`IS_LOCAL=true`) | 로컬 개발 바이패스 (`AutheliaAuthGuard`) | 명시적으로 `IS_LOCAL=true`가 설정되고 `Remote-User`가 없을 때만 `local-admin` Mock 유저 주입 (비로컬 환경은 무조건 Fail-Closed 거부) | 해당 없음 (로컬 개발 전용) | 백엔드 `authelia-auth.md` (`BR-A02`) |
 
 인가는 백엔드 서버(`api`, `ai`)에서 모든 요청마다 판단하며, 프론트엔드 UI 숨김 처리만으로 인가를 대신하지 않는다. [근거: 공식 기술 문서 · OWASP Cheat Sheet Series — Authorization]
@@ -119,7 +122,7 @@ flowchart LR
 | 사진 원본·EXIF(GPS 포함), JWT 토큰 | 민감 로컬 도구 데이터 | 전송 안 함 (`신뢰 경계 1` 브라우저 메모리 내 처리) | 영속 저장 안 함 (메모리 휘발) | 서버 액세스 로그·애플리케이션 로그에 기록되지 않음 | `REQ-015`, `REQ-019`, `REQ-030`, [PRD-006 NFR-006](../product/prd-006-nfr.md) |
 | 암호화 PDF 파일 및 해제 비밀번호 | 민감 문서·인증 정보 | 클라이언트~게이트웨이 HTTPS TLS | PDF 파일은 `/tmp`에 일시 생성 후 처리 완료·오류 시 즉시 삭제(`60초` 이하). 비밀번호는 디스크에 쓰지 않고 `qpdf` 프로세스 `stdin`으로만 전달 | CLI 인자(`ps aux`) 및 Pino 로그에 비밀번호 평문 노출 금지(`0건`) | `REQ-012`, `REQ-030`, [PRD-006 NFR-006](../product/prd-006-nfr.md) |
 | 주 사용자 공간 데이터 (노트, 피드, 관리 일정, AI 대화) | 개인 워크스페이스 자산 | 클라이언트~게이트웨이 HTTPS TLS, 내부 k3s 클러스터 네트워크 격리 | 홈랩 호스트 로컬 스토리지 볼륨(`PostgreSQL`, `RustFS`, `OpenSearch`, `Qdrant`)에 소유자(`ownerId`) 스코프로 격리 저장 | 감사 로그에 `[AUDIT] <user> <method> <url>`만 기록하고 노트 본문·일정 상세는 로그에서 제외 | `REQ-003`~`REQ-011`, `REQ-028`, `NFR-006` |
-| 외부 방문자 테스트 계정 데이터 | 체험용 임시 데이터 | 클라이언트~게이트웨이 HTTPS TLS | 영속 디스크에 저장하지 않고 백엔드 인메모리 샌드박스에만 임시 보관 후 TTL 만료·초기화 시 파기 | 주 사용자 영역과 완전 분리 | `REQ-026`, `REQ-030`, `NFR-006` |
+| 외부 방문자 테스트 계정 데이터 | 체험용 임시 데이터 | 샘플 조회 HTTPS, 체험 변경은 전송하지 않음 | 브라우저 탭 메모리, 새로고침·초기화·탭 종료 시 폐기 | 주 사용자 영역과 분리, 개인 입력 가능 | `REQ-026`, `REQ-030`, `NFR-006` |
 
 ## 비밀 정보 위치 [필수]
 
@@ -139,11 +142,17 @@ flowchart LR
 
 | 통제 | 위치 | ASVS 5.0.0 챕터 | 대응 요구사항·NFR | 관련 결정 |
 |---|---|---|---|---|
-| 게이트웨이 ForwardAuth 검증 및 공유 시크릿 확인 | `Traefik/Authelia`, `api`, `ai` | V6 인증 / V12 보안 통신 | `REQ-026`, `NFR-006` | [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) |
-| 주 사용자(`ownerId`) vs 테스트 계정(`visitor`) 강제 격리 라우팅 | `api`, `ai` 인가 계층 | V8 인가 | `REQ-026`, `REQ-030`, `NFR-006` | [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) |
-| 로컬 도구 무통신 격리 (Browser-Only Execution) | `web` (`ImageWorker`, `DevTools`) | V14 데이터 보호 | `REQ-014`, `REQ-015`, `REQ-019`, `NFR-006` | [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) |
-| PDF 업로드 크기 상한(`50MB`), `qpdf` 비밀번호 `stdin` 파이프 전달, 임시 파일 즉시 삭제 | `api` (`PdfModule`) | V13 구성 / V14 데이터 보호 | `REQ-012`, `REQ-030`, `NFR-006` | [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) |
+| 게이트웨이 ForwardAuth 검증 및 공유 시크릿 확인 | `Traefik/Authelia`, `api`, `ai` | V6 인증 / V12 보안 통신 | `REQ-026`, `NFR-006` | [ADR-0007](adr/adr-0007-visitor-browser-state.md) |
+| 주 사용자(`ownerId`) vs 테스트 계정(`visitor`) 강제 격리 라우팅 | `api`, `ai` 인가 계층 | V8 인가 | `REQ-026`, `REQ-030`, `NFR-006` | [ADR-0007](adr/adr-0007-visitor-browser-state.md) |
+| 로컬 도구 무통신 격리 (Browser-Only Execution) | `web` (`ImageWorker`, `DevTools`) | V14 데이터 보호 | `REQ-014`, `REQ-015`, `REQ-019`, `NFR-006` | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) |
+| PDF 업로드 크기 상한(`50MB`), `qpdf` 비밀번호 `stdin` 파이프 전달, 임시 파일 즉시 삭제 | `api` (`PdfModule`) | V13 구성 / V14 데이터 보호 | `REQ-012`, `REQ-030`, `NFR-006` | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) |
 | 외부 RSS/원문 수집 시 사설 IP 대역 차단(SSRF 방어) 및 본문 HTML Sanitize | `api` (`FeedModule`), `web` | V12 보안 통신 / V13 구성 | `REQ-004` | [ARC-002 AP-04](arc-002-principles-constraints.md) |
+
+## 체험·저장·임시 파일 경계 보완
+
+방문자 공간 변경은 브라우저 메모리에서만 유지하며 서버 샘플과 주 사용자 데이터는 변경하지 않는다. [ADR-0007](adr/adr-0007-visitor-browser-state.md)의 서버 인가를 api·ai 모두에 적용한다. AI 저장의 내부 api 호출에도 검증된 사용자 문맥이 필요하다.
+
+PDF 제한은 파일당 50MB·총합 100MB·최대 20개다. 정상 finally 정리만으로 비정상 종료 복구를 보장하지 않으며 기동·주기 정리를 포함한다([ADR-0009](adr/adr-0009-local-tool-execution-contract.md)). 사용자 원문·비밀번호·개인 API 응답을 로그·정적 Service Worker 캐시에 기록하지 않는다.
 
 ## 검토 체크리스트
 
@@ -164,3 +173,6 @@ flowchart LR
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | my-space v2 보안 아키텍처(ARC-007) 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |
+| 2026-11-16 | 1.1.0 | v2 문서 정합성·실패 복구 경계 수정, 승인 대기 | AI 에이전트 |
+| 2026-11-19 | 1.1.1 | ADR 4건 승인·대체 관계 반영; ARC 검토 상태 유지 | @bob (Keunhyeok Lim) |
+| 2026-11-20 | 1.2.0 | 사용자 최종 검토 완료 및 ARC 문서 정식 승인 | @bob (Keunhyeok Lim) |

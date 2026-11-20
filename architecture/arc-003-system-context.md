@@ -5,9 +5,9 @@ part: architecture
 tier: conditional
 condition: 외부연동
 status: approved
-version: 1.0.0
+version: 1.2.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-20
 depends_on: [ARC-001, PRD-001, PRD-003]
 related: [ARC-002, ARC-004, ARC-005, ARC-007, OPS-001]
 superseded_by: null
@@ -15,6 +15,8 @@ traces: [REQ-004, REQ-010, REQ-011, REQ-025, REQ-026, REQ-030]
 ---
 
 # ARC-003 시스템 컨텍스트와 외부 시스템
+
+> v2 설계 승인 (2026-11-20): 사용자 검토 및 승인 완료. ADR-0007~0010은 2026-11-19 승인되었다. 문서 승인으로, v2 구현·시험 완료를 의미하지 않는다. 대체된 ADR 본문은 과거 결정 기록으로 보존한다.
 
 ## 이 문서는
 
@@ -91,7 +93,7 @@ flowchart LR
 
 | 외부 시스템 | 제공자 | 목적 | 방향 | 방식 | 주고받는 데이터 | 개인정보 | 장애 시 영향 | 연동 관련 문서 |
 |---|---|---|---|---|---|---|---|---|
-| Authelia SSO & 리버스 프록시 | 홈랩 공통 인프라 (`Traefik` + `Authelia`) | 사용자·외부 방문자 로그인 인증 및 신뢰된 사용자 식별 헤더 주입 | 받음 (프록시 경유 요청 수신) | HTTP ForwardAuth 헤더 (`Remote-User`, `Remote-Groups`, `X-Forwarded-Auth-Secret`) | 사용자 식별자(`username`), 표시명, 이메일, 그룹 목록 | 없음 (본인 및 테스트 계정 식별자만 사용) | 비로컬 환경에서 인증 헤더 누락 시 모든 백엔드 API가 `401 Unauthorized`로 차단됨 (이미 캐시된 PWA 오프라인 도구는 브라우저에서 단독 동작 가능) | [ARC-007](arc-007-security-architecture.md), [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) |
+| Authelia SSO & 리버스 프록시 | 홈랩 공통 인프라 (`Traefik` + `Authelia`) | 사용자·외부 방문자 로그인 인증 및 신뢰된 사용자 식별 헤더 주입 | 받음 (프록시 경유 요청 수신) | HTTP ForwardAuth 헤더 (`Remote-User`, `Remote-Groups`, `X-Forwarded-Auth-Secret`) | 사용자 식별자(`username`), 표시명, 이메일, 그룹 목록 | 없음 (본인 및 테스트 계정 식별자만 사용) | 비로컬 환경에서 인증 헤더 누락 시 모든 백엔드 API가 `401 Unauthorized`로 차단됨 (이미 캐시된 PWA 오프라인 도구는 브라우저에서 단독 동작 가능) | [ARC-007](arc-007-security-architecture.md), [ADR-0007](adr/adr-0007-visitor-browser-state.md) |
 | LLM / 음성 엔진 (`Google Gemini API` · 로컬 `Ollama` · `Whisper`/`Piper`) | Google Cloud 및 홈랩 로컬 AI 런타임 | `공간 › AI`의 텍스트·음성 대화 추론, 노트 RAG 임베딩 생성, STT(음성→텍스트)·TTS(텍스트→음성) 처리 | 보냄 (요청 후 응답·스트림 수신) | HTTPS REST / SSE (`@google/genai`), 로컬 HTTP (`Ollama`, STT/TTS 어댑터) | 사용자 프롬프트, RAG 참조 노트 발췌문, PTT 음성 오디오 버퍼, 합성 오디오 | 없음 | AI 대화 및 신규 노트 벡터 인덱싱만 실패 안내를 표시하며, 기존 노트 열람·편집과 다른 공간·도구는 정상 동작함 (`AP-04`) | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [PRD-005 FN-010](../product/prd-005-functional-spec.md) |
 | 외부 기술 블로그 RSS / 웹서버 | 외부 기술 블로그 및 뉴스 사이트 | `공간 › 피드`의 RSS/Atom 피드 목록 수집 및 Readability 원문 본문 추출 | 보냄 (수집 요청) | HTTPS GET (XML 및 HTML 조회) | RSS/Atom XML 피드, 아티클 웹페이지 HTML | 없음 | 해당 피드 구독원의 신규 글 수집만 지연되거나 원문 추출 실패 시 요약본+원문 링크 열기로 폴백됨 (`AP-04`) | [PRD-005 FN-004](../product/prd-005-functional-spec.md) |
 | Slack Incoming Webhook | Slack (Salesforce) | `공간 › 관리`의 정기 결제일·고정 만료일·D-day 알림을 외부 메신저로 전송 | 보냄 (단방향 발송) | HTTPS POST (JSON Webhook Payload) | 일정 제목, 유형, 기준일/남은 일수(`D-N`), 금액 요약 메시지 | 없음 | 외부 Slack 알림만 발송 실패로 기록되며, 인앱 알림함과 홈 대시보드 브리핑은 정상 표시됨 (`AP-04`) | [ADR-0005](adr/adr-0005-notification-channel-abstraction.md), [PRD-005 FN-009](../product/prd-005-functional-spec.md) |
@@ -124,3 +126,6 @@ flowchart LR
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | my-space v2 시스템 컨텍스트와 외부 시스템(ARC-003) 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |
+| 2026-11-16 | 1.1.0 | v2 문서 정합성·실패 복구 경계 수정, 승인 대기 | AI 에이전트 |
+| 2026-11-19 | 1.1.1 | ADR 4건 승인·대체 관계 반영; ARC 검토 상태 유지 | @bob (Keunhyeok Lim) |
+| 2026-11-20 | 1.2.0 | 사용자 최종 검토 완료 및 ARC 문서 정식 승인 | @bob (Keunhyeok Lim) |

@@ -5,9 +5,9 @@ part: architecture
 tier: conditional
 condition: 실무
 status: approved
-version: 1.0.0
+version: 1.2.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-20
 depends_on: [ARC-001, ARC-003]
 related: [ARC-002, ARC-005, ARC-006, ARC-007, ARC-008, OPS-001]
 superseded_by: null
@@ -15,6 +15,8 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008,
 ---
 
 # ARC-004 컨테이너와 주요 컴포넌트
+
+> v2 설계 승인 (2026-11-20): 사용자 검토 및 승인 완료. ADR-0007~0010은 2026-11-19 승인되었다. 문서 승인으로, v2 구현·시험 완료를 의미하지 않는다. 대체된 ADR 본문은 과거 결정 기록으로 보존한다.
 
 ## 이 문서는
 
@@ -48,7 +50,7 @@ flowchart LR
 
   subgraph sys["my-space"]
     web["web<br/>[컨테이너: React 19, Vite, PWA]<br/>공간·도구 UI 및 로컬 WASM/파서·계산기 실행"]
-    api["api<br/>[컨테이너: NestJS 12, qpdf]<br/>공간 CRUD, Catch-up 스케줄러, 하이브리드 PDF, 테스트 샌드박스"]
+    api["api<br/>[컨테이너: NestJS 12, qpdf]<br/>공간 CRUD, Catch-up 스케줄러, 하이브리드 PDF, 방문자 인가"]
     ai["ai<br/>[컨테이너: NestJS 12]<br/>실시간 음성·텍스트 AI 비서(SSE), 비동기 문서 인덱싱, RAG 검색"]
     db[("PostgreSQL<br/>[컨테이너: PostgreSQL 18]<br/>노트 메타·리비전, 피드, 관리 일정, 알림, 공휴일 캐시")]
     rustfs[("RustFS<br/>[컨테이너: RustFS S3]<br/>마크다운 노트 버전별 원문(.md) 객체")]
@@ -80,11 +82,12 @@ flowchart LR
   api -->|"연도별 공휴일 조회 [HTTPS/JSON]"| holiday
 
   rmq -->|"문서 인덱싱 이벤트 소비 [AMQP 0-9-1]"| ai
-  ai -->|"문서 메타데이터 조회 및 노트 저장 [SQL/Prisma]"| db
+  ai -->|"문서 메타데이터 읽기 [SQL/Prisma]"| db
   ai -->|"인덱싱 대상 마크다운 본문 읽기 [S3 API/HTTP]"| rustfs
   ai -->|"벡터 업서트 및 시맨틱 유사도 검색 [HTTP/REST]"| qdrant
   ai -->|"LLM 추론·임베딩·STT/TTS 호출 [HTTPS/HTTP]"| llm
 
+  ai -->|"노트 저장 [검증된 사용자 문맥 / HTTP]"| api
   classDef person fill:#ffffff,stroke:#333333
   classDef container fill:#ffffff,stroke:#333333
   classDef external fill:#eeeeee,stroke:#666666,stroke-dasharray:5 5
@@ -104,7 +107,7 @@ flowchart LR
 
 - **목적**: 사용자 요청과 백그라운드 작업이 어느 컨테이너를 거쳐 처리되고 저장되는지 보여준다.
 - **설명**:
-  - **클라이언트 완결 경로**: 순수 로컬 도구(이미지 압축·변환, EXIF, 스키마, cron, 정규식, JWT, 계산기)는 `web` 컨테이너 내부(메인 스레드 및 Web Worker/WASM)에서만 실행되며 `api`나 외부로 네트워크 요청을 보내지 않는다([ADR-0001](adr/adr-0001-hybrid-client-server-processing.md)).
+  - **클라이언트 완결 경로**: 순수 로컬 도구(이미지 압축·변환, EXIF, 스키마, cron, 정규식, JWT, 계산기)는 `web` 컨테이너 내부(메인 스레드 및 Web Worker/WASM)에서만 실행되며 `api`나 외부로 네트워크 요청을 보내지 않는다([ADR-0009](adr/adr-0009-local-tool-execution-contract.md)).
   - **동기 API 경로**: 공간(노트·피드·관리·알림) 조회·저장과 암호화 PDF 처리(`qpdf`), OpenSearch 전문 검색은 `web`에서 `api`로 호출하며, `api`가 `PostgreSQL`과 `RustFS`에 기록하고 `OpenSearch`에 전문 색인을 갱신한다.
   - **비동기 인덱싱 및 AI 스트리밍 경로**: `api`에서 노트가 저장되면 `RabbitMQ`에 이벤트를 발행하고 즉시 응답한다. `ai`가 큐에서 이벤트를 소비해 `RustFS`의 본문을 읽고 청킹·임베딩하여 `Qdrant`에 적재한다([ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md)).
 - **관련 문서**: [ARC-003](arc-003-system-context.md) (사람·외부 시스템의 기준)
@@ -113,11 +116,11 @@ flowchart LR
 
 | 컨테이너 | 종류 | 책임 | 기술 | 소유 | 결정 | 관련 요구사항 |
 |---|---|---|---|---|---|---|
-| `web` | 웹 앱 (SPA & PWA) | `공간`·`도구` 2계층 UI 렌더링, 브라우저 로컬 파서·계산기 및 Web Worker/WASM 이미지·일반 PDF 처리, Service Worker 기반 오프라인 도구 캐싱을 담당한다 | React 19, TypeScript, Vite, Vanilla CSS, Web Worker, WASM, `pdf-lib` (`my-space-front/apps/web`) | `@bob` | [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) | `REQ-001`~`REQ-025`, `REQ-027`, `REQ-029`, `REQ-031` |
-| `api` | 메인 API 서버 & 스케줄러 | 공간(노트·피드·관리·알림) REST API, `qpdf` 기반 암호화/대용량 PDF 처리, 기동 시 누락 스케줄 Catch-up 및 주기적 수집·만료 판별, 외부 방문자 테스트 계정 인메모리 샌드박스 격리를 담당한다 | NestJS 12, TypeScript, Prisma 6, `qpdf` CLI (`my-space-backend/apps/api`) | `@bob` | [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md), [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md), [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md), [ADR-0005](adr/adr-0005-notification-channel-abstraction.md) | `REQ-002`~`REQ-010`, `REQ-012`, `REQ-025`, `REQ-026`, `REQ-028`, `REQ-030` |
+| `web` | 웹 앱 (SPA & PWA) | `공간`·`도구` 2계층 UI 렌더링, 브라우저 로컬 파서·계산기 및 Web Worker/WASM 이미지·일반 PDF 처리, Service Worker 기반 오프라인 도구 캐싱을 담당한다 | React 19, TypeScript, Vite, Vanilla CSS, Web Worker, WASM, `pdf-lib` (`my-space-front/apps/web`) | `@bob` | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) | `REQ-001`~`REQ-025`, `REQ-027`, `REQ-029`, `REQ-031` |
+| `api` | 메인 API 서버 & 스케줄러 | 공간(노트·피드·관리·알림) REST API, `qpdf` 기반 암호화/대용량 PDF 처리, 기동 시 누락 스케줄 Catch-up 및 주기적 수집·만료 판별, 외부 방문자 방문자 브라우저 메모리 체험 상태 격리를 담당한다 | NestJS 12, TypeScript, Prisma 6, `qpdf` CLI (`my-space-backend/apps/api`) | `@bob` | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md), [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md), [ADR-0007](adr/adr-0007-visitor-browser-state.md), [ADR-0005](adr/adr-0005-notification-channel-abstraction.md) | `REQ-002`~`REQ-010`, `REQ-012`, `REQ-025`, `REQ-026`, `REQ-028`, `REQ-030` |
 | `ai` | AI 워크스페이스 서버 & 인덱싱 워커 | 실시간 음성(PTT)·텍스트 AI 스트리밍 대화(SSE) 및 즉시 중단(`AbortController`), RAG 도구 호출(`search_my_documents`, `read_document`, `save_to_markdown`), `RabbitMQ` 문서 인덱싱 워커를 담당한다 | NestJS 12, TypeScript, `@google/genai`, Ollama/STT/TTS 어댑터 (`my-space-backend/apps/ai`) | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | `REQ-003`, `REQ-011`, `REQ-026` |
 | `PostgreSQL` | 관계형 데이터베이스 | 주 사용자의 폴더·노트 메타데이터/리비전, 피드 구독원·아티클·키워드 규칙, 관리 일정(공통 날짜 모델 3유형)과 스케줄 실행 이력(`lastRunAt`), 인앱 알림함, 연도별 공휴일 캐시를 영속 저장한다 | PostgreSQL 18 | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md) | `REQ-002`~`REQ-010`, `REQ-025`, `REQ-028` |
-| `RustFS` | 오브젝트 스토리지 | 마크다운 노트의 현재 본문과 버전별 리비전 스냅샷(`.md` 파일 객체)을 저장한다 | RustFS (S3 호환 API) | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [ADR-0006](adr/adr-0006-object-storage-migration-to-rustfs.md) | `REQ-003`, `REQ-028` |
+| `RustFS` | 오브젝트 스토리지 | 마크다운 노트의 현재 본문과 버전별 리비전 스냅샷(`.md` 파일 객체)을 저장한다 | RustFS (S3 호환 API) | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md), [ADR-0010](adr/adr-0010-rustfs-v2-adoption.md) | `REQ-003`, `REQ-028` |
 | `OpenSearch` | 검색 엔진 | 마크다운 문서 본문·제목·태그의 키워드 전문(Full-text) 색인, 형태소 분석 및 빠른 검색·하이라이트를 수행한다 | OpenSearch 2.11 | `@bob` | - | `REQ-003` |
 | `Qdrant` | 벡터 데이터베이스 | 마크다운 노트를 청킹·임베딩한 고차원 벡터와 문서 메타데이터 페이로드를 저장하고 시맨틱 유사도 검색을 수행한다 | Qdrant | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | `REQ-003`, `REQ-011` |
 | `RabbitMQ` | 메시지 브로커 | `api`에서 발생한 마크다운 문서 생성·수정·삭제 이벤트를 `ai` 인덱싱 워커로 비동기 전달한다 (Dead Letter Queue 포함) | RabbitMQ 3.12 | `@bob` | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | `REQ-003`, `REQ-011` |
@@ -131,10 +134,11 @@ flowchart LR
 | `web` | `ai` | 텍스트·음성(PTT 오디오 Blob) AI 대화 시작 및 토큰·전사·벤치마크·오디오 완료 이벤트 수신, 발화 즉시 중단 요청 | HTTPS / `multipart/form-data` & `text/event-stream` (`SSE`), JSON | 동기 스트리밍 | [PRD-005 FN-010](../product/prd-005-functional-spec.md) |
 | `api` | `PostgreSQL` | 공간 엔티티 트랜잭션 처리, Catch-up 스케줄러 상태(`lastRunAt`) 조회·갱신 | TCP / SQL (Prisma Client) | 동기 | [PRD-005 FN-002~FN-009](../product/prd-005-functional-spec.md) |
 | `api` | `RustFS` | 마크다운 노트 원문 및 리비전 스냅샷 객체 업로드·다운로드·삭제 | HTTP / AWS S3 SDK v3 | 동기 | [PRD-005 FN-003](../product/prd-005-functional-spec.md) |
-| `api` | `OpenSearch` | 문서 생성·수정·삭제 시 전문 색인 동기화 및 본문·제목·태그 키워드 검색 | HTTPS / REST JSON (`@opensearch-project/opensearch`) | 동기 | [PRD-005 FN-003](../product/prd-005-functional-spec.md) |
+| `api` | `OpenSearch` | Outbox 기반 전문 색인 갱신·재시도 및 키워드 검색 | REST JSON | 색인 비동기 / 조회 동기 | ADR-0008 |
 | `api` | `RabbitMQ` | 문서 생성·수정(`DOCUMENT_UPSERT`) 및 삭제(`DOCUMENT_DELETE`) 인덱싱 메시지 발행 | TCP / AMQP 0-9-1 (JSON Payload) | 비동기 | [PRD-005 FN-003](../product/prd-005-functional-spec.md) |
 | `RabbitMQ` | `ai` | 인덱싱 큐 메시지 소비 및 문서 벡터화 워커 실행 | TCP / AMQP 0-9-1 | 비동기 | [PRD-005 FN-003, FN-010](../product/prd-005-functional-spec.md) |
-| `ai` | `PostgreSQL` / `RustFS` | 인덱싱 대상 문서 본문 조회 및 AI 대화 결과의 신규 마크다운 노트 저장(`save_to_markdown`) | TCP / SQL & HTTP / S3 API | 동기 | [PRD-005 FN-010](../product/prd-005-functional-spec.md) |
+| `ai` | `PostgreSQL` / `RustFS` | 소유자 범위 내 인덱싱·RAG 원문 읽기 (노트 직접 쓰기 금지) | SQL / S3 API | 동기 | ADR-0008 |
+| `ai` | `api` | 사용자 문맥을 검증한 save_to_markdown 공통 저장 요청 | 내부 HTTP / JSON | 동기 | ADR-0008 |
 | `ai` | `Qdrant` | 문서 청크 임베딩 벡터 저장·삭제 및 질의 벡터 유사도 검색 | HTTP / REST JSON (`@qdrant/js-client-rest`) | 동기 | [PRD-005 FN-010](../product/prd-005-functional-spec.md) |
 
 ## 주요 컴포넌트 [선택]
@@ -154,7 +158,7 @@ flowchart LR
 
 | 컴포넌트 | 책임 | 의존하는 컴포넌트·컨테이너 | 관련 요구사항 |
 |---|---|---|---|
-| 인증 & 테스트 계정 격리 계층 (`Auth & Sandbox`) | Authelia ForwardAuth 헤더를 검증하고, 요청자가 외부 방문자(`visitor`)일 경우 주 사용자 DB 대신 세션별 인메모리 샌드박스 저장소로 요청을 라우팅한다 | Authelia SSO, 인메모리 샌드박스 스토어 | `REQ-026`, `REQ-030` |
+| 인증 & 체험 인가 계층 (`Auth & Sandbox`) | ForwardAuth 검증, 방문자 샘플 읽기 및 주 사용자 데이터·영속 쓰기 접근 차단 | Authelia, 읽기 전용 샘플 | `REQ-026`, `REQ-030` |
 | 노트 모듈 (`MarkdownModule`) | 폴더·태그·노트 메타데이터 및 리비전 이력 CRUD, 버전 간 Diff 및 복원, 마크다운 ZIP 내보내기, OpenSearch 전문 색인 동기화, 문서 변경 시 인덱싱 이벤트 발행을 담당한다 | `PostgreSQL`, `RustFS`, `OpenSearch`, `RabbitMQ` | `REQ-003` |
 | 피드 모듈 (`FeedModule`) | RSS/Atom 구독원 등록·삭제, 피드 XML 파싱 및 중복 제거, Mozilla Readability 기반 원문 본문 추출, 관심·제외 키워드 규칙 적용을 담당한다 | `PostgreSQL`, 외부 RSS/웹서버 | `REQ-004`, `REQ-005` |
 | 관리 & 일정 모듈 (`ManagementModule`) | 공통 날짜 모델 3유형(`RECURRING_PAYMENT`, `EXPIRATION`, `SINGLE_DATE`) CRUD, 월 구독 합계 환산, 만료 연장(갱신) 처리를 담당한다 | `PostgreSQL` | `REQ-006`, `REQ-007`, `REQ-008` |
@@ -167,8 +171,14 @@ flowchart LR
 | 컴포넌트 | 책임 | 의존하는 컴포넌트·컨테이너 | 관련 요구사항 |
 |---|---|---|---|
 | 음성·텍스트 스트리밍 모듈 (`JarvisVoice & ChatModule`) | 텍스트 및 PTT 오디오 입력을 받아 STT 전사, LLM 토큰 생성, RAG 문맥 참조, TTS 음성 합성을 단일 SSE 스트림으로 다중화하고, `ActiveStreamRegistry`(`AbortController`)로 즉각 중단을 제어한다 | `LLM / 음성 엔진`, `SearchModule` | `REQ-011` |
-| 시맨틱 검색 & 도구 모듈 (`Search & ToolsModule`) | 사용자 질의를 임베딩해 `Qdrant`에서 관련 노트를 검색(`search_my_documents`)하고, 원문 열람(`read_document`) 및 대화 결과의 노트 저장(`save_to_markdown`)을 수행한다 | `Qdrant`, `PostgreSQL`, `RustFS` | `REQ-003`, `REQ-011` |
+| 시맨틱 검색 & 도구 모듈 (`Search & ToolsModule`) | 소유자 범위 검색·원문 읽기, 노트 저장은 api 공통 절차 호출 | `Qdrant`, `PostgreSQL`, `RustFS` (읽기), `api` (쓰기) | `REQ-003`, `REQ-011` |
 | 비동기 인덱싱 워커 (`IndexingModule`) | `RabbitMQ`에서 노트 변경 이벤트를 수신해 `RustFS`의 마크다운 본문을 청킹하고 임베딩 벡터를 생성해 `Qdrant`에 업서트한다 | `RabbitMQ`, `RustFS`, `Qdrant`, `LLM / 음성 엔진` | `REQ-003`, `REQ-011` |
+
+## v2 책임 및 실행 경계
+
+노트 쓰기는 api가 단독 소유하며 AI 저장도 같은 절차를 호출한다. OpenSearch 갱신과 RabbitMQ 발행은 DB Outbox에서 복구 가능한 비동기 작업으로 수행한다. ai는 본문을 읽고 Qdrant를 갱신한다. 세부 성공·실패 경계는 [ADR-0008](adr/adr-0008-note-write-consistency.md)을 따른다.
+
+PDF는 파일당 50MB·총합 100MB·최대 20개이며 작업 전체의 로컬 처리 기준과 서버 위임은 [ADR-0009](adr/adr-0009-local-tool-execution-contract.md)를 따른다. 기술 버전 표는 v2 설계 후보이며 v1 코드 확인이나 호환성 검증 완료를 뜻하지 않는다.
 
 ## 검토 체크리스트
 
@@ -190,3 +200,6 @@ flowchart LR
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | my-space v2 컨테이너와 주요 컴포넌트(ARC-004) 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |
+| 2026-11-16 | 1.1.0 | v2 문서 정합성·실패 복구 경계 수정, 승인 대기 | AI 에이전트 |
+| 2026-11-19 | 1.1.1 | ADR 4건 승인·대체 관계 반영; ARC 검토 상태 유지 | @bob (Keunhyeok Lim) |
+| 2026-11-20 | 1.2.0 | 사용자 최종 검토 완료 및 ARC 문서 정식 승인 | @bob (Keunhyeok Lim) |

@@ -4,9 +4,9 @@ title: 아키텍처 의사결정 기록(ADR)
 part: architecture
 tier: required
 status: approved
-version: 1.0.0
+version: 1.2.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-20
 depends_on: [ARC-001]
 related: [ARC-002, ARC-004, ARC-007, ARC-008]
 superseded_by: null
@@ -14,6 +14,8 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-009, REQ-010, REQ-011, REQ-012, REQ-014,
 ---
 
 # ARC-006 아키텍처 의사결정 기록(ADR)
+
+> v2 설계 승인 (2026-11-20): 사용자 검토 및 승인 완료. ADR-0007~0010은 2026-11-19 승인되었다. 문서 승인으로, v2 구현·시험 완료를 의미하지 않는다. 대체된 ADR 본문은 과거 결정 기록으로 보존한다.
 
 ## 이 문서는
 
@@ -45,20 +47,29 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-009, REQ-010, REQ-011, REQ-012, REQ-014,
 
 ## ADR 목록 [필수]
 
-사용자 검토를 거쳐 전체 6종 ADR이 모두 `승인됨`(`status: approved`)으로 확정되었다.
+2026-11-19 ADR-0007~0010이 사용자 승인되었다. ADR-0001·0004·0006은 각각 ADR-0009·0007·0010으로 대체되었으며, ADR-0002·0003·0005는 계속 유효하다.
 
 | ID | 결정 제목 | 결정 상태 | 결정일 | 관련 요구사항·NFR | 영향을 받는 문서 |
 |---|---|---|---|---|---|
-| [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) | 민감 도구 연산의 브라우저 로컬 처리(Web Worker·WASM) 및 백엔드(`qpdf`) 하이브리드 분리 | 승인됨 | 2026-11-05 | `REQ-012`, `REQ-014`~`024`, `REQ-029`, `REQ-030`, `NFR-001`~`003`, `NFR-005`, `NFR-006` | [ARC-002](arc-002-principles-constraints.md), [ARC-004](arc-004-containers-components.md), [ARC-005](arc-005-data-flow.md), [ARC-008](arc-008-quality-attributes.md) |
+| [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) | 민감 도구 연산의 브라우저 로컬 처리(Web Worker·WASM) 및 백엔드(`qpdf`) 하이브리드 분리 | 대체됨 | 2026-11-05 | `REQ-012`, `REQ-014`~`024`, `REQ-029`, `REQ-030`, `NFR-001`~`003`, `NFR-005`, `NFR-006` | [ARC-002](arc-002-principles-constraints.md), [ARC-004](arc-004-containers-components.md), [ARC-005](arc-005-data-flow.md), [ARC-008](arc-008-quality-attributes.md) |
 | [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) | 백엔드 메인 API(`api`)와 AI 워크스페이스 서버(`ai`) 프로세스 분리 및 저장소 공유 | 승인됨 | 2026-11-05 | `REQ-003`, `REQ-011`, `REQ-027`, `NFR-003` | [ARC-001](arc-001-system-overview.md), [ARC-004](arc-004-containers-components.md), [ARC-008](arc-008-quality-attributes.md) |
 | [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md) | 홈랩 비-상시 구동 환경을 위한 DB 영속화 기반 누락 스케줄 보정(Catch-up) 아키텍처 | 승인됨 | 2026-11-05 | `REQ-009`, `REQ-028`, `NFR-004`, `CON-01` | [ARC-002](arc-002-principles-constraints.md), [ARC-004](arc-004-containers-components.md), [ARC-005](arc-005-data-flow.md), [ARC-008](arc-008-quality-attributes.md) |
-| [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) | Authelia ForwardAuth 게이트웨이 인증 위임 및 외부 방문자 테스트 계정 인메모리 샌드박스 격리 | 승인됨 | 2026-11-05 | `REQ-026`, `REQ-030`, `NFR-006`, `CON-03`, `CON-05` | [ARC-003](arc-003-system-context.md), [ARC-005](arc-005-data-flow.md), [ARC-007](arc-007-security-architecture.md), [ARC-008](arc-008-quality-attributes.md) |
+| [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) | Authelia ForwardAuth 게이트웨이 인증 위임 및 외부 방문자 테스트 계정 인메모리 샌드박스 격리 | 대체됨 | 2026-11-05 | `REQ-026`, `REQ-030`, `NFR-006`, `CON-03`, `CON-05` | [ARC-003](arc-003-system-context.md), [ARC-005](arc-005-data-flow.md), [ARC-007](arc-007-security-architecture.md), [ARC-008](arc-008-quality-attributes.md) |
 | [ADR-0005](adr/adr-0005-notification-channel-abstraction.md) | 인앱 알림함 우선 저장 및 외부 알림 채널(Slack Webhook) 어댑터 추상화 | 승인됨 | 2026-11-05 | `REQ-002`, `REQ-010`, `NFR-004`, `AP-04` | [ARC-003](arc-003-system-context.md), [ARC-004](arc-004-containers-components.md), [ARC-005](arc-005-data-flow.md) |
-| [ADR-0006](adr/adr-0006-object-storage-migration-to-rustfs.md) | 오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환 | 승인됨 | 2026-11-08 | `REQ-003`, `REQ-028`, `NFR-006` | [ARC-001](arc-001-system-overview.md), [ARC-004](arc-004-containers-components.md), [ARC-005](arc-005-data-flow.md), [ARC-007](arc-007-security-architecture.md) |
+| [ADR-0006](adr/adr-0006-object-storage-migration-to-rustfs.md) | 오브젝트 스토리지를 MinIO에서 RustFS(Apache 2.0)로 전환 | 대체됨 | 2026-11-08 | `REQ-003`, `REQ-028`, `NFR-006` | [ARC-001](arc-001-system-overview.md), [ARC-004](arc-004-containers-components.md), [ARC-005](arc-005-data-flow.md), [ARC-007](arc-007-security-architecture.md) |
 
 ## 개별 저장소 내부 ADR과의 경계 [선택]
 
 [my-space-docs/README.md](../README.md#연계-repository와의-관계)의 원칙에 따라, 프로젝트 전체 시스템 경계와 다중 저장소(`my-space-front`, `my-space-backend`, `homelab-infra`)에 걸친 상위 아키텍처 결정은 본 `ARC-006`(`adr/ADR-0001`~`0006`)에서 관리한다. 단일 저장소 내부에 국한된 구현 결정(예: 프론트엔드 Storybook 구성, i18n 라이브러리 설정, 백엔드 pnpm 워크스페이스 버전 스크립트 등)은 각 구현 저장소의 `/docs/adr/`에 두고 참조한다.
+
+## v2 승인 ADR
+
+| ADR | 제목 | 관계 | 상태 |
+|---|---|---|---|
+| [ADR-0007](adr/adr-0007-visitor-browser-state.md) | 방문자 체험 상태의 브라우저 메모리 격리 | ADR-0004 대체 | approved |
+| [ADR-0008](adr/adr-0008-note-write-consistency.md) | 노트 저장의 단일 책임과 파생 색인 복구 | ADR-0002 보완 | approved |
+| [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) | PDF 실행 경로와 오프라인 도구 범위 | ADR-0001 대체 | approved |
+| [ADR-0010](adr/adr-0010-rustfs-v2-adoption.md) | v2 RustFS 채택과 호환성 검증 경계 | ADR-0006 대체 | approved |
 
 ## 검토 체크리스트
 
@@ -78,3 +89,6 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-009, REQ-010, REQ-011, REQ-012, REQ-014,
 | 2026-11-05 | 0.1.0 | my-space v2 아키텍처 의사결정 기록 색인(ARC-006) 및 ADR 5종 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-08 | 0.2.0 | ADR-0006(오브젝트 스토리지를 MinIO에서 RustFS로 전환) 추가 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 전체 ADR 정식 검토 및 승인 완료 | @bob (Keunhyeok Lim) |
+| 2026-11-16 | 1.1.0 | v2 문서 정합성·실패 복구 경계 수정, 승인 대기 | AI 에이전트 |
+| 2026-11-19 | 1.1.1 | ADR 4건 승인·대체 관계 반영; ARC 검토 상태 유지 | @bob (Keunhyeok Lim) |
+| 2026-11-20 | 1.2.0 | 사용자 최종 검토 완료 및 ARC 문서 정식 승인 | @bob (Keunhyeok Lim) |

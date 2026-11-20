@@ -5,9 +5,9 @@ part: architecture
 tier: conditional
 condition: 실무
 status: approved
-version: 1.0.0
+version: 1.2.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-20
 depends_on: [ARC-001, PRD-002]
 related: [ARC-006, ARC-008, PRD-006]
 superseded_by: null
@@ -15,6 +15,8 @@ traces: [REQ-001, REQ-009, REQ-010, REQ-012, REQ-014, REQ-015, REQ-019, REQ-026,
 ---
 
 # ARC-002 아키텍처 원칙과 제약
+
+> v2 설계 승인 (2026-11-20): 사용자 검토 및 승인 완료. ADR-0007~0010은 2026-11-19 승인되었다. 문서 승인으로, v2 구현·시험 완료를 의미하지 않는다. 대체된 ADR 본문은 과거 결정 기록으로 보존한다.
 
 ## 이 문서는
 
@@ -40,10 +42,10 @@ traces: [REQ-001, REQ-009, REQ-010, REQ-012, REQ-014, REQ-015, REQ-019, REQ-026,
 | ID | 종류 | 제약 | 출처 | 영향 받는 결정 |
 |---|---|---|---|---|
 | CON-01 | 인프라·운영 | 홈랩(Home-lab) 물리 서버에서 운영하므로 서버가 언제든 종료될 수 있으며 24시간 상시 구동이 보장되지 않는다 | [PRD-001 제약과 가정](../product/prd-001-product-overview.md#제약과-가정-선택), `REQ-009`, `REQ-028` | [ADR-0003](adr/adr-0003-homelab-catchup-scheduler.md) |
-| CON-02 | 보안·프라이버시 | 사용자의 민감 토큰(JWT), 개인 사진(EXIF·원본 이미지), 스키마·정규식 입력 데이터는 외부 제3자 온라인 서버로 전송할 수 없다 | [PRD-001 대상 사용자와 문제](../product/prd-001-product-overview.md#대상-사용자와-문제-필수), `REQ-014`, `REQ-015`, `REQ-019`, `REQ-030` | [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) |
-| CON-03 | 보안·데이터 격리 | 외부 방문자용 테스트 계정은 주 사용자의 영속 데이터(노트, 피드, 관리, AI 세션)를 열람·수정·삭제할 수 없으며, 테스트 계정의 변경 사항은 주 사용자 DB에 반영되지 않아야 한다 | [PRD-001 제약과 가정](../product/prd-001-product-overview.md#제약과-가정-선택), `REQ-026`, `REQ-030` | [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) |
-| CON-04 | 기술·저장소 | 프론트엔드(`my-space-front`), 백엔드(`my-space-backend`), 인프라(`homelab-infra`), 공통 문서(`my-space-docs`)는 독립된 Git 저장소로 분리 관리하며, 프론트엔드 저장소에 백엔드 코드를 복제·결합하지 않는다 | 프론트엔드·백엔드·문서 저장소 `AGENTS.md` | [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md), [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) |
-| CON-05 | 외부 시스템 | 사용자 인증(SSO 및 2FA)은 홈랩 리버스 프록시 앞단의 Authelia 게이트웨이가 전담하며, 애플리케이션이 자체 비밀번호 DB를 두지 않는다 | 백엔드 `authelia-auth.md` 명세, 홈랩 인프라 표준 | [ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md) |
+| CON-02 | 보안·프라이버시 | 사용자의 민감 토큰(JWT), 개인 사진(EXIF·원본 이미지), 스키마·정규식 입력 데이터는 외부 제3자 온라인 서버로 전송할 수 없다 | [PRD-001 대상 사용자와 문제](../product/prd-001-product-overview.md#대상-사용자와-문제-필수), `REQ-014`, `REQ-015`, `REQ-019`, `REQ-030` | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) |
+| CON-03 | 보안·데이터 격리 | 외부 방문자용 테스트 계정은 주 사용자의 영속 데이터(노트, 피드, 관리, AI 세션)를 열람·수정·삭제할 수 없으며, 테스트 계정의 변경 사항은 주 사용자 DB에 반영되지 않아야 한다 | [PRD-001 제약과 가정](../product/prd-001-product-overview.md#제약과-가정-선택), `REQ-026`, `REQ-030` | [ADR-0007](adr/adr-0007-visitor-browser-state.md) |
+| CON-04 | 기술·저장소 | 프론트엔드(`my-space-front`), 백엔드(`my-space-backend`), 인프라(`homelab-infra`), 공통 문서(`my-space-docs`)는 독립된 Git 저장소로 분리 관리하며, 프론트엔드 저장소에 백엔드 코드를 복제·결합하지 않는다 | 프론트엔드·백엔드·문서 저장소 `AGENTS.md` | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md), [ADR-0002](adr/adr-0002-backend-monorepo-api-ai-separation.md) |
+| CON-05 | 외부 시스템 | 사용자 인증(SSO 및 2FA)은 홈랩 리버스 프록시 앞단의 Authelia 게이트웨이가 전담하며, 애플리케이션이 자체 비밀번호 DB를 두지 않는다 | 백엔드 `authelia-auth.md` 명세, 홈랩 인프라 표준 | [ADR-0007](adr/adr-0007-visitor-browser-state.md) |
 
 ## 아키텍처 원칙 [필수]
 
@@ -63,8 +65,8 @@ traces: [REQ-001, REQ-009, REQ-010, REQ-012, REQ-014, REQ-015, REQ-019, REQ-026,
 | ID | 가정 | 확인 방법·시점 | 틀리면 다시 볼 결정 |
 |---|---|---|---|
 | ASM-01 | 구독하는 주요 기술 블로그의 상당수는 정적 HTML 또는 SSR로 본문을 제공하여 백엔드 HTTP 요청 + Readability 파싱으로 본문 추출이 가능하다 | `v2.1` 3단계 피드 수집기 구현 시 주요 기술 블로그 10곳 대상 추출 성공률 테스트 | SPA 전용 블로그 비중이 높을 경우 RSS 요약본 + 원문 새 탭 열기 기본 동작 유지 ([PRD-005 FN-004](../product/prd-005-functional-spec.md)) |
-| ASM-02 | 외부 방문자(테스트 계정)의 동시 접속 수는 소수(동시 10세션 이하)이므로 백엔드 프로세스 내 세션별 인메모리 샌드박스(LRU/TTL 정리 포함)로 충분히 감당할 수 있다 | `v2.3` 8단계 테스트 계정 샌드박스 메모리 사용량 측정 | 메모리 점유가 커질 경우 Redis 기반 임시 네임스페이스로 테스트 계정 스토리지 이전 ([ADR-0004](adr/adr-0004-forward-auth-and-visitor-isolation.md)) |
-| ASM-03 | 홈랩 로컬 네트워크 및 리버스 프록시에서 최대 50MB까지의 암호화 PDF 업로드가 타임아웃 없이 전달된다 | `v2.2` 6단계 PDF 하이브리드 통합 테스트 (`NFR-003`, `NFR-006`) | 프록시 본문 크기 제한(`client_max_body_size` / Traefik Buffering) 설정 조정 |
+| ASM-02 | 브라우저 체험 어댑터가 승인된 샘플 읽기·쓰기·검색 화면 동작을 재현할 수 있다 | v2.3 체험 흐름·새로고침 초기화·권한 분리 검증 | ADR-0007; PRD-005 FN-025의 브라우저 메모리 원칙은 유지 |
+| ASM-03 | 홈랩 로컬 네트워크 및 리버스 프록시에서 파일당 50MB·총합 100MB·최대 20개 PDF 업로드가 타임아웃 없이 전달된다 | `v2.2` 6단계 PDF 하이브리드 통합 테스트 (`NFR-003`, `NFR-006`) | 프록시 본문 크기 제한(`client_max_body_size` / Traefik Buffering) 설정 조정 |
 
 ## 예외 [선택]
 
@@ -72,7 +74,7 @@ traces: [REQ-001, REQ-009, REQ-010, REQ-012, REQ-014, REQ-015, REQ-019, REQ-026,
 
 | 원칙 | 예외 ADR | 범위 | 다시 검토할 시점 |
 |---|---|---|---|
-| AP-01 (브라우저 우선 처리) | [ADR-0001](adr/adr-0001-hybrid-client-server-processing.md) | `도구 › 문서`의 암호화 PDF 해제 및 20MB 초과·복잡 구조 PDF 병합/분할은 브라우저 JS(`pdf-lib`)의 암호화 알고리즘 미지원 및 메모리 한계로 인해 백엔드 네이티브 `qpdf`로 처리한다 | 브라우저용 오픈소스 PDF WASM 라이브러리가 최신 AES-256 PDF 복호화를 경량으로 완전 지원할 때 |
+| AP-01 (브라우저 우선 처리) | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) | `도구 › 문서`의 암호화 PDF 해제 및 작업 입력 총합 20MB 초과·로컬 엔진 지원 불가 PDF 병합/분할은 브라우저 JS(`pdf-lib`)의 암호화 알고리즘 미지원 및 메모리 한계로 인해 백엔드 네이티브 `qpdf`로 처리한다 | 브라우저용 오픈소스 PDF WASM 라이브러리가 최신 AES-256 PDF 복호화를 경량으로 완전 지원할 때 |
 
 ## 검토 체크리스트
 
@@ -91,3 +93,6 @@ traces: [REQ-001, REQ-009, REQ-010, REQ-012, REQ-014, REQ-015, REQ-019, REQ-026,
 |---|---|---|---|
 | 2026-11-05 | 0.1.0 | my-space v2 아키텍처 원칙과 제약(ARC-002) 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |
+| 2026-11-16 | 1.1.0 | v2 문서 정합성·실패 복구 경계 수정, 승인 대기 | AI 에이전트 |
+| 2026-11-19 | 1.1.1 | ADR 4건 승인·대체 관계 반영; ARC 검토 상태 유지 | @bob (Keunhyeok Lim) |
+| 2026-11-20 | 1.2.0 | 사용자 최종 검토 완료 및 ARC 문서 정식 승인 | @bob (Keunhyeok Lim) |
