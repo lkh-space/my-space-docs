@@ -42,7 +42,7 @@ traces: []
 | PRD-003 | [사용자 스토리와 수용 기준](../product/prd-003-user-stories.md) | 사용자 스토리 `US-001`~`US-024`과 체크리스트·시나리오형 수용 기준 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
 | PRD-004 | [사용자 여정과 업무 흐름](../product/prd-004-user-journeys.md) | 핵심 여정 `J-01`~`J-04`와 홈랩 Catch-up·하이브리드 도구 업무 흐름 및 예외 처리 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
 | PRD-005 | [기능 명세](../product/prd-005-functional-spec.md) | 기능 `FN-001`~`FN-025`의 입력, 처리 순서, 결과, 예외 정의 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
-| PRD-006 | [비기능 요구사항](../product/prd-006-nfr.md) | 파서·WASM 성능, 홈랩 Catch-up 복구, PWA 오프라인, 보안·접근성 수치 `NFR-001`~`NFR-008` | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-22 |
+| PRD-006 | [비기능 요구사항](../product/prd-006-nfr.md) | 파서·WASM 성능, 홈랩 Catch-up 복구, PWA 오프라인, 보안·접근성 수치 `NFR-001`~`NFR-008` | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | PRD-007 | [릴리스 범위와 우선순위](../product/prd-007-release-scope-priority.md) | 플랫폼 기반·공간·도구·테스트 계정 구현 순서에 따른 `v2.1`~`v2.3`(세부 1~8단계) 마일스톤 배분 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
 | DSN-001 | [디자인 브리프](../design/dsn-001-design-brief.md) | Calm Studio Workspace 미학, 정보 밀도, 레이아웃·모션 원칙 정의 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 | DSN-002 | [정보 구조와 사이트맵](../design/dsn-002-information-architecture.md) | 공간(5영역)·도구(15종) 2단 내비게이션과 전체 화면(`SCR-001`~`SCR-090`) 사이트맵 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
