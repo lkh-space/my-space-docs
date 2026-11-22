@@ -5,10 +5,10 @@ part: frontend
 tier: conditional
 condition: UI·인증
 status: review
-version: 0.1.0
+version: 0.1.1
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
-depends_on: [FE-001, ARC-007, ADR-0004]
+last_reviewed: 2026-11-22
+depends_on: [FE-001, ARC-007, ADR-0007]
 related: [FE-003, FE-005, PRD-001]
 superseded_by: null
 traces: [REQ-026, REQ-030, NFR-006]
@@ -29,21 +29,16 @@ traces: [REQ-026, REQ-030, NFR-006]
 |---|---|---|
 | 선행 | [FE-001 프론트엔드 기술 구조](fe-001-tech-stack.md) | 클라이언트 실행 환경 및 네트워크 요청 규격 |
 | 선행 | [ARC-007 보안 아키텍처](../architecture/arc-007-security-architecture.md) | ForwardAuth 인증 헤더 및 주 사용자/방문자 격리 원칙 |
-| 선행 | [ADR-0004 ForwardAuth 및 샌드박스](../architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md) | 인증 위임 및 방문자 인메모리 샌드박스 결정 |
+| 선행 | [ADR-0007 ForwardAuth 및 샌드박스](../architecture/adr/adr-0007-visitor-browser-state.md) | 인증 위임 및 방문자 인메모리 샌드박스 결정 |
 | 관련 | [PRD-001 제품 개요와 비전](../product/prd-001-product-overview.md) | 외부 방문자 체험 계정의 목적과 범위 |
 | 관련 | [FE-003 라우팅과 페이지 구성](fe-003-routing-pages.md) | 체험 안내 화면(`/guest`) 라우트 |
 | 관련 | [FE-005 상태 관리](fe-005-state-management.md) | 방문자 샌드박스 상태(`GuestSandboxStore`) 관리 |
 
-## 인증 방식과 세션 감지 [필수]
+## 인증 상태 확인과 방문자 진입
 
-프론트엔드 자체에 로그인 폼이나 비밀번호 입력 화면을 두지 않는다([ARC-001](../architecture/arc-001-system-overview.md)). 인증은 홈랩 리버스 프록시(Traefik) 앞단의 **Authelia ForwardAuth**가 담당한다.
+백엔드 인증 기준은 [BE-004](../backend/be-004-authn-authz.md), 신원 응답은 [OpenAPI](../backend/openapi.yaml)의 `getCurrentUser`다. 앱 진입 시 `/api/v1/auth/me`를 조회한다. 401은 미인증이므로 로그인 안내로 이동하며 방문자로 자동 전환하지 않는다. 성공 응답의 `role=GUEST`는 인증된 테스트 계정이며 체험 UI를 사용한다. OWNER는 개인 공간을 사용한다. `/guest` 진입 경로가 있더라도 인증·서버 인가를 우회하지 않는다.
 
-1. **초기 세션 감지**: 앱 기동 시 `/api/auth/me` 엔드포인트를 호출한다.
-2. **주 사용자 판정**: 응답에 유효한 주 사용자 식별자(`userId: "owner"`, 이메일)가 포함되어 있으면 일반 워크스페이스 모드로 진입한다.
-3. **방문자 모드 판정**:
-   - `/api/auth/me`가 `401 Unauthorized`를 반환하거나 게이트웨이 인증 헤더가 없는 경우
-   - 또는 사용자가 `/guest` 경로로 명시적 진입한 경우
-   - 앱은 자동으로 `isGuest = true` 플래그를 활성화하고 방문자 인메모리 샌드박스(`GuestSandboxStore`)를 가동한다.
+클라이언트의 owner/visitor 표현은 서버 OWNER/GUEST와 명시적으로 매핑한다. 방문자는 samples API로 정적 샘플을 읽고 변경은 브라우저 메모리에서 처리한다. 실제 외부 AI 호출·RAG·개인 공간 쓰기는 서버에서 거부한다. 프로필은 검증된 응답을 사용하고 브라우저가 Remote-User 헤더를 만들어 전송하지 않는다.
 
 ## 사용자 역할별 UI 차이 [필수]
 
@@ -127,3 +122,5 @@ export const GuestNoticeBar = () => {
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-12 | 0.1.0 | my-space v2 인증·권한에 따른 UI(FE-008) 최초 작성 | @bob (Keunhyeok Lim) |
+
+| 2026-11-22 | 0.1.1 | BE-004와 신원 API·401 처리·방문자 판정 정합성 반영 | AI 에이전트 |

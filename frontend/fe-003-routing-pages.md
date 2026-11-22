@@ -5,9 +5,9 @@ part: frontend
 tier: conditional
 condition: UI
 status: review
-version: 0.1.0
+version: 0.2.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-22
 depends_on: [DSN-002, DSN-004, FE-001]
 related: [DSN-003, FE-002, FE-008, FE-009, ADR-0004]
 superseded_by: null
@@ -64,21 +64,28 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-006, REQ-011, REQ-012, REQ-014,
 | `/spaces/schedules` | SCR-030 | 공간 › 관리 (일정·결제) | 메인 셸 | CSR | 공통 | `?tab=subscription\|expiry\|dday`, `?year=:year` |
 | `/spaces/ai` | SCR-040 | 공간 › AI 비서 | 메인 셸 | CSR (SSE) | 공통 | `?session=:sessionId` |
 | `/tools` | SCR-050 | 도구 탐색 카탈로그 | 메인 셸 | CSR + 오프라인 | 공통 | `?category=documents\|images\|dev\|calc` |
-| `/tools/documents/pdf` | SCR-051 | 도구 › PDF 병합·분할·암호해제 | 메인 셸 | CSR (Worker) | 공통 | `?mode=merge\|split\|unlock` |
-| `/tools/documents/markdown` | SCR-052 | 도구 › 마크다운 일회성 변환기 | 메인 셸 | CSR | 공통 | — |
-| `/tools/images/converter` | SCR-060 | 도구 › 이미지 압축·리사이즈·EXIF | 메인 셸 | CSR (Worker) | 공통 | `?tab=compress\|resize\|exif` |
-| `/tools/development/schema` | SCR-070 | 도구 › DB 스키마 시각화·변환 | 메인 셸 | CSR | 공통 | `?type=rdb\|nosql` |
-| `/tools/development/cron` | SCR-071 | 도구 › Cron 생성 및 해석기 | 메인 셸 | CSR + 오프라인 | 공통 | `?expr=:cronExpr` |
-| `/tools/development/regex` | SCR-072 | 도구 › 정규식 테스터 | 메인 셸 | CSR + 오프라인 | 공통 | — |
-| `/tools/development/jwt` | SCR-073 | 도구 › JWT 디코더 | 메인 셸 | CSR + 오프라인 | 공통 | — |
-| `/tools/development/timestamp` | SCR-074 | 도구 › 타임스탬프 변환기 | 메인 셸 | CSR + 오프라인 | 공통 | — |
-| `/tools/calculator/dutchpay` | SCR-080 | 도구 › 더치페이 계산기 | 메인 셸 | CSR + 오프라인 | 공통 | — |
-| `/tools/calculator/salary` | SCR-081 | 도구 › 실수령액 계산기 | 메인 셸 | CSR + 오프라인 | 공통 | `?year=:year` |
-| `/tools/calculator/loan` | SCR-082 | 도구 › 대출·적금 이자 계산기 | 메인 셸 | CSR + 오프라인 | 공통 | `?type=loan\|savings` |
-| `/tools/calculator/unit-price` | SCR-083 | 도구 › 마트 단가 비교기 | 메인 셸 | CSR + 오프라인 | 공통 | — |
-| `/tools/calculator/date` | SCR-084 | 도구 › D-day·영업일 계산기 | 메인 셸 | CSR + 오프라인 | 공통 | `?tab=dday\|workdays` |
+| `/tools/documents/pdf` (기본 `/merge` 리다이렉트) / `/tools/documents/pdf/merge` | SCR-051 | 도구 › PDF 병합 | 메인 셸 | CSR (Worker) | 공통 | — |
+| `/tools/documents/pdf/split` | SCR-051A | 도구 › PDF 페이지 추출·분할 | 메인 셸 | CSR (Worker) | 공통 | — |
+| `/tools/documents/pdf/unlock` | SCR-051B | 도구 › PDF 암호 해제 | 메인 셸 | CSR (`qpdf` 위임) | 공통 | — |
+| `/tools/documents/markdown` | SCR-052 | 도구 › 마크다운 변환 | 메인 셸 | CSR | 공통 | — |
+| `/tools/images/compress` | SCR-053 | 도구 › 이미지 압축 | 메인 셸 | CSR (Worker) | 공통 | — |
+| `/tools/images/resize` | SCR-054 | 도구 › 이미지 크기 조절 | 메인 셸 | CSR (Worker) | 공통 | — |
+| `/tools/images/convert` | SCR-055 | 도구 › 이미지 포맷 변환 | 메인 셸 | CSR (Worker) | 공통 | — |
+| `/tools/images/exif` | SCR-056 | 도구 › EXIF 조회·제거 | 메인 셸 | CSR (Worker) | 공통 | — |
+| `/tools/development/schema` | SCR-057 | 도구 › RDB·NoSQL 스키마 | 메인 셸 | CSR | 공통 | `?type=rdb\|nosql` |
+| `/tools/development/cron` | SCR-058 | 도구 › Cron 해석·생성 | 메인 셸 | CSR + 오프라인 | 공통 | `?expr=:cronExpr` |
+| `/tools/development/regex` | SCR-059 | 도구 › 정규식 테스터 | 메인 셸 | CSR + 오프라인 | 공통 | — |
+| `/tools/development/jwt` | SCR-060 | 도구 › JWT 디코더·검증 | 메인 셸 | CSR + 오프라인 | 공통 | — |
+| `/tools/development/timestamp` | SCR-061 | 도구 › 타임스탬프 변환 | 메인 셸 | CSR + 오프라인 | 공통 | — |
+| `/tools/calculator/dutchpay` | SCR-062 | 도구 › 더치페이 계산기 | 메인 셸 | CSR + 오프라인 | 공통 | — |
+| `/tools/calculator/salary` | SCR-063 | 도구 › 급여·실수령액 계산기 | 메인 셸 | CSR + 오프라인 | 공통 | `?year=:year` |
+| `/tools/calculator/loan` | SCR-064 | 도구 › 대출·예적금 계산기 | 메인 셸 | CSR + 오프라인 | 공통 | `?type=loan\|savings` |
+| `/tools/calculator/unit-price` | SCR-065 | 도구 › 단가 비교 계산기 | 메인 셸 | CSR + 오프라인 | 공통 | — |
+| `/tools/calculator/date` | SCR-066 | 도구 › 날짜·D-day 계산기 | 메인 셸 | CSR + 오프라인 | 공통 | `?tab=dday\|workdays` |
 | `/guest` | SCR-090 | 외부 방문자 체험 안내 및 샌드박스 시작 | 단독 셸 (체험 안내) | CSR | 방문자 전용 | `?redirect=:targetPath` |
 | `*` | — | 404 Not Found 화면 | 메인 셸 | CSR | 공통 | — |
+
+> **SCR 번호 참고**: `SCR-060`은 현재 **JWT 디코더·검증**이며 과거 초안의 이미지 도구 번호와 혼동하지 않는다.
 
 ## 모달 다이얼로그 라우팅 규칙 [선택]
 
@@ -86,10 +93,8 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-006, REQ-011, REQ-012, REQ-014,
 
 | 화면 ID | 모달 명칭 | 트리거 쿼리 파라미터 | 닫기 시 동작 |
 |---|---|---|---|
-| SCR-020 | 피드 관심 키워드 필터 모달 | `?modal=keyword-filter` | 쿼리 파라미터 제거 및 포커스 복귀 |
-| SCR-020 | 피드 키워드 등록/설정 모달 | `?modal=keyword-settings` | 쿼리 파라미터 제거 및 목록 재조회 |
-| SCR-020 | 피드 제외 규칙 모달 | `?modal=exclusion-rules` | 쿼리 파라미터 제거 |
-| SCR-020 | 피드 채널 삭제 확인 모달 | `?modal=confirm-delete&feedId=:id` | 삭제 실행 또는 취소 후 쿼리 제거 |
+| SCR-020 | 피드 키워드 필터 설정 팝업 | `?modal=keyword-filter` | 관심 가중치·제외 규칙·키워드 삭제를 단일 팝업 내 상태로 전환하고, 취소/`✕` 또는 저장 후 닫기 시 쿼리 제거 및 포커스 복귀 |
+| SCR-020 | RSS 피드 추가 및 구독 출처 관리 모달 | `?modal=feed-sources` | 신규 RSS 등록 및 구독 출처 관리(채널 삭제 확인 포함), 닫기 시 쿼리 제거 |
 | SCR-010 | 노트 버전 히스토리 비교 모달 | `?modal=version-diff&versionId=:vId` | 비교 모달 닫기 |
 | SCR-030 | 관리 일정 등록/편집 모달 | `?modal=schedule-form&type=:type` | 저장 후 일정 목록 갱신 |
 
@@ -102,7 +107,7 @@ title: 프론트엔드 라우트 레이아웃 구조
 flowchart TD
   RootLayout["RootLayout (글로벌 테마 토큰 주입, QueryClient, ToastProvider)"]
 
-  MainShell["MainAppShell (L1 사이드바 240px + 상단 헤더 56px + 모바일 하단 탭 56px+34px)"]
+  MainShell["MainAppShell (L1 사이드바 240px + 상단 헤더 68px + 모바일 하단 탭 56px+34px)"]
   GuestNoticeBar["GuestNoticeBar (방문자 모드일 때만 상단 고정 노출)"]
 
   GuestLandingShell["GuestLandingShell (SCR-090 전용 단순 중앙 집중형 레이아웃)"]
@@ -130,4 +135,5 @@ flowchart TD
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 0.2.0 | DSN-004 확정 SCR-051~066 번호, 68px 상단바 및 피드 단일 키워드 필터 팝업 규격 동기화 | @bob (Keunhyeok Lim) |
 | 2026-11-12 | 0.1.0 | my-space v2 라우팅과 페이지 구성(FE-003) 최초 작성 | @bob (Keunhyeok Lim) |

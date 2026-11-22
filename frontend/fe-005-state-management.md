@@ -4,9 +4,9 @@ title: 상태 관리
 part: frontend
 tier: optional
 status: review
-version: 0.1.0
+version: 0.1.1
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: 2026-11-22
 depends_on: [FE-001, ARC-004]
 related: [FE-003, FE-006, ARC-005, ADR-0004]
 superseded_by: null
@@ -101,7 +101,7 @@ export interface GuestSandboxState {
 }
 ```
 
-- **격리 보장**: 방문자 모드에서는 `apiClient`의 HTTP `POST/PUT/DELETE` 요청이 백엔드로 전송되지 않고 `GuestSandboxStore`의 내부 상태만 변경한다.
+- **격리 보장**: 방문자 모드에서는 `apiClient`의 HTTP `POST/PUT/PATCH/DELETE` 요청이 백엔드로 전송되지 않고 `GuestSandboxStore`의 내부 상태만 변경한다.
 - **초기화 지원**: 상단 헤더의 '샘플 데이터 초기화' 버튼을 누르면 초기 번들 시드 데이터로 즉각 재설정된다.
 - **영속화 금지**: `localStorage`나 `IndexedDB`에 저장하지 않고 순수 브라우저 메모리에만 유지하여 개인정보 잔존을 방지한다.
 
@@ -156,3 +156,5 @@ sequenceDiagram
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
 | 2026-11-12 | 0.1.0 | my-space v2 상태 관리(FE-005) 최초 작성 | @bob (Keunhyeok Lim) |
+
+인증된 방문자 판정 및 서버 권한은 [BE-004](../backend/be-004-authn-authz.md)를 따른다. 방문자의 개인 공간 GET도 OWNER API로 보내지 않고 읽기 전용 samples API와 브라우저 복제본을 사용한다. PDF 임시 처리·공휴일 조회·auth/me는 별도 허용 경로이며 전체 HTTP 요청을 무조건 가로채지 않는다.
