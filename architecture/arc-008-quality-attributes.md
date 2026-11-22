@@ -5,9 +5,9 @@ part: architecture
 tier: conditional
 condition: 실무
 status: approved
-version: 1.2.0
+version: 1.2.1
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-20
+last_reviewed: '2026-11-22'
 depends_on: [PRD-006, ARC-004]
 related: [ARC-002, ARC-006, ARC-007]
 superseded_by: null
@@ -33,7 +33,7 @@ traces: [REQ-001, REQ-009, REQ-012, REQ-014, REQ-015, REQ-019, REQ-024, REQ-026,
 | 선행 | [PRD-006 비기능 요구사항](../product/prd-006-nfr.md) | `NFR-001`~`NFR-008` ID, 품질 범주, 목표 수치의 기준 문서 |
 | 선행 | [ARC-004 컨테이너와 주요 컴포넌트](arc-004-containers-components.md) | 달성 전술을 적용할 컨테이너와 컴포넌트 이름의 기준 |
 | 관련 | [ARC-002 아키텍처 원칙과 제약](arc-002-principles-constraints.md) | 전술 선택을 규율하는 원칙(`AP-01`~`AP-06`)과 제약(`CON-01`~`CON-05`) |
-| 관련 | [ARC-006 아키텍처 의사결정 기록(ADR)](arc-006-adr.md) | 핵심 전술을 채택한 이유와 기각한 대안(`ADR-0001`~`ADR-0005`) |
+| 관련 | [ARC-006 아키텍처 의사결정 기록(ADR)](arc-006-adr.md) | 핵심 전술을 채택한 이유와 기각한 대안(현재 유효한 ADR-0002·0003·0005·0007~0010 및 대체된 결정의 역사 기록) |
 | 관련 | [ARC-007 보안 아키텍처](arc-007-security-architecture.md) | `NFR-006` 보안 시나리오의 신뢰 경계별 통제 위치 |
 
 ## 품질 속성 우선순위 [필수]
@@ -112,6 +112,7 @@ traces: [REQ-001, REQ-009, REQ-012, REQ-014, REQ-015, REQ-019, REQ-024, REQ-026,
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 1.2.1 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
 | 2026-11-05 | 0.1.0 | my-space v2 품질 속성(ARC-008) 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |
 | 2026-11-16 | 1.1.0 | v2 문서 정합성·실패 복구 경계 수정, 승인 대기 | AI 에이전트 |

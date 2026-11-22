@@ -4,9 +4,9 @@ title: 아키텍처 의사결정 기록(ADR)
 part: architecture
 tier: required
 status: approved
-version: 1.2.0
+version: 1.2.1
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-20
+last_reviewed: '2026-11-22'
 depends_on: [ARC-001]
 related: [ARC-002, ARC-004, ARC-007, ARC-008]
 superseded_by: null
@@ -19,7 +19,7 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-009, REQ-010, REQ-011, REQ-012, REQ-014,
 
 ## 이 문서는
 
-- **목적**: `my-space` v2 전체 시스템 수준에서 내린 핵심 아키텍처 의사결정(ADR)의 목록과 상태 관리 기준을 정의한다. 각 결정의 상세 맥락, 대안 비교, 결과는 `adr/` 디렉터리의 개별 문서(`ADR-0001`~`ADR-0006`)에 한 파일씩 기록한다. 결정 상태가 바뀌면 이 표와 [ARC-001 시스템 개요](arc-001-system-overview.md#주요-결정-필수)의 표를 함께 갱신한다.
+- **목적**: `my-space` v2 전체 시스템 수준에서 내린 핵심 아키텍처 의사결정(ADR)의 목록과 상태 관리 기준을 정의한다. 각 결정의 상세 맥락, 대안 비교, 결과는 `adr/` 디렉터리의 개별 문서(`ADR-0001`~`ADR-0010`)에 한 파일씩 기록한다. 결정 상태가 바뀌면 이 표와 [ARC-001 시스템 개요](arc-001-system-overview.md#주요-결정-필수)의 표를 함께 갱신한다.
 - **대상 독자**: 프로젝트 소유자, 프론트엔드·백엔드·인프라 개발자, AI 에이전트
 - **작성 시점**: 시스템 구조, 비기능 품질 특성(`NFR-`), 외부 연동, 보안 경계에 영향을 주는 결정을 내릴 때마다 작성·갱신한다.
 - **등급**: 필수 — 모든 프로젝트
@@ -60,7 +60,7 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-009, REQ-010, REQ-011, REQ-012, REQ-014,
 
 ## 개별 저장소 내부 ADR과의 경계 [선택]
 
-[my-space-docs/README.md](../README.md#연계-repository와의-관계)의 원칙에 따라, 프로젝트 전체 시스템 경계와 다중 저장소(`my-space-front`, `my-space-backend`, `homelab-infra`)에 걸친 상위 아키텍처 결정은 본 `ARC-006`(`adr/ADR-0001`~`0006`)에서 관리한다. 단일 저장소 내부에 국한된 구현 결정(예: 프론트엔드 Storybook 구성, i18n 라이브러리 설정, 백엔드 pnpm 워크스페이스 버전 스크립트 등)은 각 구현 저장소의 `/docs/adr/`에 두고 참조한다.
+[my-space-docs/README.md](../README.md#연계-repository와의-관계)의 원칙에 따라, 프로젝트 전체 시스템 경계와 다중 저장소(`my-space-front`, `my-space-backend`, `homelab-infra`)에 걸친 상위 아키텍처 결정은 본 `ARC-006`(`adr/ADR-0001`~`0010`)에서 관리한다. 단일 저장소 내부에 국한된 구현 결정(예: 프론트엔드 Storybook 구성, i18n 라이브러리 설정, 백엔드 pnpm 워크스페이스 버전 스크립트 등)은 각 구현 저장소의 `/docs/adr/`에 두고 참조한다.
 
 ## v2 승인 ADR
 
@@ -86,6 +86,7 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-009, REQ-010, REQ-011, REQ-012, REQ-014,
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 1.2.1 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
 | 2026-11-05 | 0.1.0 | my-space v2 아키텍처 의사결정 기록 색인(ARC-006) 및 ADR 5종 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-08 | 0.2.0 | ADR-0006(오브젝트 스토리지를 MinIO에서 RustFS로 전환) 추가 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 전체 ADR 정식 검토 및 승인 완료 | @bob (Keunhyeok Lim) |

@@ -5,9 +5,9 @@ part: architecture
 tier: conditional
 condition: 실무
 status: approved
-version: 1.2.0
+version: 1.2.2
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-20
+last_reviewed: '2026-11-22'
 depends_on: [ARC-001, ARC-003]
 related: [ARC-002, ARC-005, ARC-006, ARC-007, ARC-008, OPS-001]
 superseded_by: null
@@ -31,7 +31,7 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008,
 |---|---|---|
 | 선행 | [ARC-001 시스템 개요](arc-001-system-overview.md) | 구성 요약과 전체 시스템 범위 |
 | 선행 | [ARC-003 시스템 컨텍스트와 외부 시스템](arc-003-system-context.md) | 다이어그램에 함께 등장하는 사람과 외부 시스템의 기준 |
-| 관련 | [ARC-006 아키텍처 의사결정 기록(ADR)](arc-006-adr.md) | 컨테이너 분리(`ADR-0001`, `ADR-0002`)와 기술 선택의 이유 |
+| 관련 | [ARC-006 아키텍처 의사결정 기록(ADR)](arc-006-adr.md) | 컨테이너 분리(`ADR-0009`, `ADR-0002`)와 기술 선택의 이유 |
 | 관련 | [PRD-005 기능 명세](../product/prd-005-functional-spec.md) | 각 컴포넌트가 수행하는 세부 기능(`FN-001`~`FN-025`) |
 | 후행 | [ARC-005 데이터 흐름](arc-005-data-flow.md) | 컨테이너 사이를 지나는 주요 데이터 흐름 |
 | 후행 | [ARC-007 보안 아키텍처](arc-007-security-architecture.md) | 컨테이너 사이의 신뢰 경계와 보안 통제 |
@@ -159,22 +159,25 @@ flowchart LR
 | 컴포넌트 | 책임 | 의존하는 컴포넌트·컨테이너 | 관련 요구사항 |
 |---|---|---|---|
 | 인증 & 체험 인가 계층 (`Auth & Sandbox`) | ForwardAuth 검증, 방문자 샘플 읽기 및 주 사용자 데이터·영속 쓰기 접근 차단 | Authelia, 읽기 전용 샘플 | `REQ-026`, `REQ-030` |
-| 노트 모듈 (`MarkdownModule`) | 폴더·태그·노트 메타데이터 및 리비전 이력 CRUD, 버전 간 Diff 및 복원, 마크다운 ZIP 내보내기, OpenSearch 전문 색인 동기화, 문서 변경 시 인덱싱 이벤트 발행을 담당한다 | `PostgreSQL`, `RustFS`, `OpenSearch`, `RabbitMQ` | `REQ-003` |
-| 피드 모듈 (`FeedModule`) | RSS/Atom 구독원 등록·삭제, 피드 XML 파싱 및 중복 제거, Mozilla Readability 기반 원문 본문 추출, 관심·제외 키워드 규칙 적용을 담당한다 | `PostgreSQL`, 외부 RSS/웹서버 | `REQ-004`, `REQ-005` |
-| 관리 & 일정 모듈 (`ManagementModule`) | 공통 날짜 모델 3유형(`RECURRING_PAYMENT`, `EXPIRATION`, `SINGLE_DATE`) CRUD, 월 구독 합계 환산, 만료 연장(갱신) 처리를 담당한다 | `PostgreSQL` | `REQ-006`, `REQ-007`, `REQ-008` |
-| Catch-up 스케줄러 & 알림 모듈 (`Catchup & NotificationModule`) | 서버 기동 시 및 주기적 루프에서 `lastRunAt`을 대조해 누락된 정기 결제일 갱신·만료 판별·RSS 수집을 멱등 실행하고, 인앱 알림함 저장 및 `NotificationChannel`(Slack Webhook) 발송을 수행한다 | `FeedModule`, `ManagementModule`, `PostgreSQL`, `Slack Incoming Webhook` | `REQ-002`, `REQ-009`, `REQ-010`, `REQ-028` |
-| PDF 유틸리티 모듈 (`PdfModule`) | 업로드 크기 검증(50MB 이하), `qpdf` 자식 프로세스(`stdin` 비밀번호 전달)를 통한 암호화 PDF 해제·병합·분할 및 임시 파일 즉시 삭제를 담당한다 | 로컬 임시 파일시스템 (`/tmp`), `qpdf` | `REQ-012`, `REQ-030` |
-| 공휴일 캐시 모듈 (`HolidayModule`) | 공공데이터포털 특일 정보 API를 조회해 연도별 공휴일을 `PostgreSQL`에 캐싱하고 프론트엔드 영업일 계산기에 제공한다 | `PostgreSQL`, `공공데이터포털 특일 정보 API` | `REQ-025` |
+| 노트 모듈 (`Markdown`) | 폴더·태그·노트 메타데이터 및 리비전 이력 CRUD, 버전 간 Diff 및 복원, 마크다운 ZIP 내보내기, OpenSearch 전문 색인 동기화, 문서 변경 시 인덱싱 이벤트 발행을 담당한다 | `PostgreSQL`, `RustFS`, `OpenSearch`, `RabbitMQ` | `REQ-003` |
+| 피드 모듈 (`Feed`) | RSS/Atom 구독원 등록·삭제, 피드 XML 파싱 및 중복 제거, Mozilla Readability 기반 원문 본문 추출, 관심·제외 키워드 규칙 적용을 담당한다 | `PostgreSQL`, 외부 RSS/웹서버 | `REQ-004`, `REQ-005` |
+| 관리 & 일정 모듈 (`Management`) | 공통 날짜 모델 3유형(`RECURRING_PAYMENT`, `EXPIRATION`, `SINGLE_DATE`) CRUD, 월 구독 합계 환산, 만료 연장(갱신) 처리를 담당한다 | `PostgreSQL` | `REQ-006`, `REQ-007`, `REQ-008` |
+| Catch-up 스케줄러 & 알림 모듈 (`Catchup & Notification`) | 서버 기동 시 및 주기적 루프에서 `lastRunAt`을 대조해 누락된 정기 결제일 갱신·만료 판별·RSS 수집을 멱등 실행하고, 인앱 알림함 저장 및 `NotificationChannel`(Slack Webhook) 발송을 수행한다 | `Feed`, `Management`, `PostgreSQL`, `Slack Incoming Webhook` | `REQ-002`, `REQ-009`, `REQ-010`, `REQ-028` |
+| PDF 유틸리티 모듈 (`PDF`) | 업로드 크기 검증(50MB 이하), `qpdf` 자식 프로세스(`stdin` 비밀번호 전달)를 통한 암호화 PDF 해제·병합·분할 및 임시 파일 즉시 삭제를 담당한다 | 로컬 임시 파일시스템 (`/tmp`), `qpdf` | `REQ-012`, `REQ-030` |
+| 공휴일 캐시 모듈 (`Holiday`) | 공공데이터포털 특일 정보 API를 조회해 연도별 공휴일을 `PostgreSQL`에 캐싱하고 프론트엔드 영업일 계산기에 제공한다 | `PostgreSQL`, `공공데이터포털 특일 정보 API` | `REQ-025` |
 
 ### `ai` (AI 워크스페이스 서버)
 
 | 컴포넌트 | 책임 | 의존하는 컴포넌트·컨테이너 | 관련 요구사항 |
 |---|---|---|---|
-| 음성·텍스트 스트리밍 모듈 (`JarvisVoice & ChatModule`) | 텍스트 및 PTT 오디오 입력을 받아 STT 전사, LLM 토큰 생성, RAG 문맥 참조, TTS 음성 합성을 단일 SSE 스트림으로 다중화하고, `ActiveStreamRegistry`(`AbortController`)로 즉각 중단을 제어한다 | `LLM / 음성 엔진`, `SearchModule` | `REQ-011` |
-| 시맨틱 검색 & 도구 모듈 (`Search & ToolsModule`) | 소유자 범위 검색·원문 읽기, 노트 저장은 api 공통 절차 호출 | `Qdrant`, `PostgreSQL`, `RustFS` (읽기), `api` (쓰기) | `REQ-003`, `REQ-011` |
-| 비동기 인덱싱 워커 (`IndexingModule`) | `RabbitMQ`에서 노트 변경 이벤트를 수신해 `RustFS`의 마크다운 본문을 청킹하고 임베딩 벡터를 생성해 `Qdrant`에 업서트한다 | `RabbitMQ`, `RustFS`, `Qdrant`, `LLM / 음성 엔진` | `REQ-003`, `REQ-011` |
+| 음성·텍스트 스트리밍 모듈 (`Voice & Chat`) | 텍스트 및 PTT 오디오 입력을 받아 STT 전사, LLM 토큰 생성, RAG 문맥 참조, TTS 음성 합성을 단일 SSE 스트림으로 다중화하고, `ActiveStreamRegistry`(`AbortController`)로 즉각 중단을 제어한다 | `LLM / 음성 엔진`, `Search` | `REQ-011` |
+| 시맨틱 검색 & 도구 모듈 (`Search & Tools`) | 소유자 범위 검색·원문 읽기, 노트 저장은 api 공통 절차 호출 | `Qdrant`, `PostgreSQL`, `RustFS` (읽기), `api` (쓰기) | `REQ-003`, `REQ-011` |
+| 비동기 인덱싱 워커 (`Indexing`) | `RabbitMQ`에서 노트 변경 이벤트를 수신해 `RustFS`의 마크다운 본문을 청킹하고 임베딩 벡터를 생성해 `Qdrant`에 업서트한다 | `RabbitMQ`, `RustFS`, `Qdrant`, `LLM / 음성 엔진` | `REQ-003`, `REQ-011` |
 
 ## v2 책임 및 실행 경계
+
+백엔드 컴포넌트의 영문명은 기능 영역을 뜻한다. NestJS 클래스명은 구현 문맥에서만 `*Module`로 표기하며, 각 영역이 독립 Bounded Context라는 뜻은 아니다. 계층·소스 의존 규칙은 [BE-001](../backend/be-001-architecture-modules.md)을 따른다.
+
 
 노트 쓰기는 api가 단독 소유하며 AI 저장도 같은 절차를 호출한다. OpenSearch 갱신과 RabbitMQ 발행은 DB Outbox에서 복구 가능한 비동기 작업으로 수행한다. ai는 본문을 읽고 Qdrant를 갱신한다. 세부 성공·실패 경계는 [ADR-0008](adr/adr-0008-note-write-consistency.md)을 따른다.
 
@@ -198,8 +201,10 @@ PDF는 파일당 50MB·총합 100MB·최대 20개이며 작업 전체의 로컬 
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 1.2.2 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
 | 2026-11-05 | 0.1.0 | my-space v2 컨테이너와 주요 컴포넌트(ARC-004) 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |
 | 2026-11-16 | 1.1.0 | v2 문서 정합성·실패 복구 경계 수정, 승인 대기 | AI 에이전트 |
 | 2026-11-19 | 1.1.1 | ADR 4건 승인·대체 관계 반영; ARC 검토 상태 유지 | @bob (Keunhyeok Lim) |
 | 2026-11-20 | 1.2.0 | 사용자 최종 검토 완료 및 ARC 문서 정식 승인 | @bob (Keunhyeok Lim) |
+| 2026-11-22 | 1.2.1 | 백엔드 기능 영역 명칭을 통일하고 BE-001 계층 규칙 연결; 기존 책임 분리 유지 | AI 에이전트 |

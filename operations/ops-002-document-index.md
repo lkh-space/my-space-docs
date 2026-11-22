@@ -59,7 +59,7 @@ traces: []
 | ARC-004 | [컨테이너와 컴포넌트 구조](../architecture/arc-004-containers-components.md) | C4 Level 2/3 컨테이너(`web`, `api`, `ai`, DB/스토리지) 및 내부 모듈 책임과 의존 규칙 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | ARC-005 | [데이터 흐름](../architecture/arc-005-data-flow.md) | 핵심 시나리오 6종(DF-01~DF-06)의 데이터 이동 경로, 저장소 매핑, 민감 데이터 로컬 격리·마스킹 규칙 | 조건부(개인정보) | approved | @bob (Keunhyeok Lim) | 2026-11-20 |
 | ARC-006 | [아키텍처 의사결정 기록(ADR)](../architecture/arc-006-adr.md) | 시스템 아키텍처 핵심 의사결정(`ADR-0001`~`ADR-0010`) 색인 및 운영 규칙 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
-| ARC-007 | [보안 아키텍처](../architecture/arc-007-security-architecture.md) | 신뢰 경계 4영역, Authelia ForwardAuth·방문자 격리, STRIDE 위협 모델과 통제 수단 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-22 |
+| ARC-007 | [보안 아키텍처](../architecture/arc-007-security-architecture.md) | 신뢰 경계 4영역, Authelia ForwardAuth·방문자 격리, STRIDE 위협 모델과 통제 수단 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | ARC-008 | [품질 속성](../architecture/arc-008-quality-attributes.md) | `PRD-006` 비기능 요구사항을 달성하는 품질 속성 시나리오 `QS-01`~`QS-07`과 트레이드오프 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | ADR-0001 | [민감 도구 연산의 브라우저 로컬 처리 및 백엔드 하이브리드 분리](../architecture/adr/adr-0001-hybrid-client-server-processing.md) | 역사 기록; 현재 기준은 [ADR-0009](../architecture/adr/adr-0009-local-tool-execution-contract.md) | 필수 | superseded | @bob (Keunhyeok Lim) | 2026-11-19 |
 | ADR-0002 | [백엔드 메인 API와 AI 워크스페이스 서버 프로세스 분리](../architecture/adr/adr-0002-backend-monorepo-api-ai-separation.md) | NestJS 모노레포 내 `apps/api`와 `apps/ai` 독립 배포 및 저장소·스키마 공유 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |

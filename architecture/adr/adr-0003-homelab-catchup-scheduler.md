@@ -4,9 +4,9 @@ title: 홈랩 비-상시 구동 환경을 위한 DB 영속화 기반 누락 스�
 part: architecture
 tier: required
 status: approved
-version: 1.0.0
+version: 1.0.1
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: '2026-11-22'
 depends_on: [ARC-001, ARC-002]
 related: [ARC-004, ARC-005, ARC-006, ARC-008, PRD-006]
 superseded_by: null
@@ -41,6 +41,12 @@ traces: [REQ-004, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-028, NFR-004]
 | 결정자 | `@bob (Keunhyeok Lim)` |
 | 자문한 사람 | AI 에이전트 |
 | 대체 관계 | 없음 |
+
+## 현재 적용 범위 보충 (2026-11-22)
+
+아래 최초 결정의 “100% 복구”, “단 한 건도 유실되지 않는다”, “중복 알림이 생기지 않는다”는 전체 외부 시스템에 대한 무조건적 보장이 아니다. 현재 구현 계약은 [ARC-005](../arc-005-data-flow.md), [BE-005 BR-021](../../backend/be-005-domain-model-rules.md), [BE-006](../../backend/be-006-database-erd.md)을 따른다.
+
+DB에 기록된 일정의 전진·인앱 알림·체크포인트는 원자적 커밋과 고유 키로 재시도에 안전하게 처리한다. 이는 DB 보존·복구 가능성과 정상 재기동을 전제로 한다. Slack 전송 성공 후 완료 기록 전 장애에서는 외부 중복이 가능하며 정확히 한 번 전달을 보장하지 않는다. RSS 원천에서 이미 사라진 글은 복구를 보장하지 않는다. 이 보충은 DB 기반 Catch-up 선택을 유지하면서 내부 처리·외부 전달·원천 데이터 복구의 보장 범위를 구분한다. 최초 결정 본문은 역사 기록으로 보존한다.
 
 ## 맥락과 문제 [필수]
 
@@ -96,5 +102,6 @@ traces: [REQ-004, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-028, NFR-004]
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 1.0.1 | API·화면·검증 범위 계약 불일치 보완 | AI 에이전트 |
 | 2026-11-05 | 0.1.0 | ADR-0003 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | ADR 정식 검토 및 승인 완료 | @bob (Keunhyeok Lim) |

@@ -5,9 +5,9 @@ part: architecture
 tier: conditional
 condition: 배포
 status: approved
-version: 1.2.0
+version: 1.2.3
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-20
+last_reviewed: '2026-11-22'
 depends_on: [ARC-001, ARC-004, ARC-005]
 related: [ARC-002, ARC-003, ARC-006, PRD-006]
 superseded_by: null
@@ -16,7 +16,7 @@ traces: [REQ-012, REQ-014, REQ-015, REQ-019, REQ-026, REQ-030, NFR-006]
 
 # ARC-007 보안 아키텍처
 
-> v2 설계 승인 (2026-11-20): 사용자 검토 및 승인 완료. ADR-0007~0010은 2026-11-19 승인되었다. 문서 승인으로, v2 구현·시험 완료를 의미하지 않는다. 대체된 ADR 본문은 과거 결정 기록으로 보존한다.
+> 이전 v2 기준 승인 (2026-11-20): 사용자 검토 및 승인 완료. 2026-11-22 보안 보완본은 review이며 이전 승인과 구분한다. ADR-0007~0010은 2026-11-19 승인되었다. 문서 승인으로, v2 구현·시험 완료를 의미하지 않는다. 대체된 ADR 본문은 과거 결정 기록으로 보존한다.
 
 ## 이 문서는
 
@@ -33,7 +33,7 @@ traces: [REQ-012, REQ-014, REQ-015, REQ-019, REQ-026, REQ-030, NFR-006]
 | 선행 | [ARC-004 컨테이너와 주요 컴포넌트](arc-004-containers-components.md) | 보안 통제를 배치할 컨테이너와 모듈 |
 | 선행 | [ARC-005 데이터 흐름](arc-005-data-flow.md) | 신뢰 경계(`신뢰 경계 1`~`3`)를 넘는 데이터 흐름(`DF-01`~`DF-06`) |
 | 관련 | [ARC-002 아키텍처 원칙과 제약](arc-002-principles-constraints.md) | 로컬 격리(`CON-02`), 테스트 계정 분리(`CON-03`), Authelia 위임(`CON-05`) 제약 |
-| 관련 | [ARC-006 아키텍처 의사결정 기록(ADR)](arc-006-adr.md) | 하이브리드 처리(`ADR-0001`) 및 인증·격리(`ADR-0004`) 결정 기록 |
+| 관련 | [ARC-006 아키텍처 의사결정 기록(ADR)](arc-006-adr.md) | 하이브리드 처리(`ADR-0009`) 및 인증·격리(`ADR-0007`) 결정 기록 |
 | 관련 | [PRD-006 비기능 요구사항](../product/prd-006-nfr.md) | 보안 정량 목표 및 검증 조건(`NFR-006`) |
 
 ## 신뢰 경계 [필수]
@@ -59,7 +59,10 @@ flowchart LR
   subgraph tb3["신뢰 경계 3: 홈랩 애플리케이션 내부망"]
     api["api (메인 API 서버)<br/>[컨테이너]"]
     ai["ai (AI 워크스페이스 서버)<br/>[컨테이너]"]
-    db[("PostgreSQL / RustFS / OpenSearch / Qdrant<br/>[영속 데이터 저장소]")]
+    db[("PostgreSQL<br/>[영속 데이터 저장소]")]
+    rustfs[("RustFS<br/>[본문·첨부 저장소]")]
+    opensearch[("OpenSearch<br/>[전문 검색 색인]")]
+    qdrant[("Qdrant<br/>[벡터 색인]")]
   end
 
   ext["외부 API (Gemini · RSS · Slack · 공공데이터)<br/>[외부 시스템]"]
@@ -69,9 +72,13 @@ flowchart LR
   visitor -->|"체험 요청 [HTTPS/TLS]"| edge
   edge -->|"전달 [ForwardAuth 검증, X-Forwarded-Auth-Secret, 크기 제한]"| api
   edge -->|"전달 [ForwardAuth 검증, X-Forwarded-Auth-Secret]"| ai
-  api -->|"주 사용자 데이터 접근 [ownerId 스코프 검증]"| db
+  api -->|"노트·공간 데이터 [ownerId 검증]"| db
+  api -->|"본문·첨부 저장·조회 [ownerId 검증]"| rustfs
+  api -->|"전문 색인 갱신·검색 [ownerId 검증]"| opensearch
   web_client -->|"체험 변경·초기화 [로컬]"| sandbox
-  ai -->|"주 사용자 RAG 조회·벡터 갱신 [ownerId 스코프 검증]"| db
+  ai -->|"노트 메타데이터 읽기·AI 소유 상태 관리 [ownerId 검증]"| db
+  ai -->|"인덱싱·RAG 본문 읽기 [ownerId 검증]"| rustfs
+  ai -->|"벡터 갱신·RAG 검색 [ownerId 검증]"| qdrant
   api -->|"아웃바운드 호출 [TLS, URL/SSRF 검증, 시크릿 주입]"| ext
   ai -->|"아웃바운드 추론 호출 [TLS, API 키 주입]"| ext
 
@@ -80,9 +87,12 @@ flowchart LR
   classDef container fill:#ffffff,stroke:#333333
   classDef external fill:#eeeeee,stroke:#666666,stroke-dasharray:5 5
   class owner,visitor person
-  class web_local,web_client,api,ai,sandbox,db container
+  class web_local,web_client,api,ai,sandbox,db,rustfs,opensearch,qdrant container
   class edge,ext external
 ```
+
+저장소 접근선은 프로세스별 권한 경계를 나타낸다. `api`는 Qdrant에 직접 색인을 쓰지 않으며, 노트 이벤트는 Outbox·RabbitMQ를 거쳐 `ai` 인덱싱 워커가 처리한다. 보안 경계도에서 생략한 큐·청킹·임베딩 순서는 [ARC-005](arc-005-data-flow.md)와 [BE-001](../backend/be-001-architecture-modules.md)을 따른다. ai의 PostgreSQL 접근은 노트 메타데이터 읽기 및 자신이 소유한 대화·색인 처리 상태에 한정하며 노트 본문·메타데이터 쓰기는 api를 경유한다.
+
 
 | 모양 | 요소 종류 |
 |---|---|
@@ -133,8 +143,8 @@ flowchart LR
 | 프록시 공유 시크릿 (`AUTH_FORWARDED_SECRET`) | `Traefik/Authelia`, `api`, `ai` | 홈랩 Kubernetes Secret 및 로컬 `.env` (Git 커밋 제외) | 인프라·백엔드 런타임 프로세스 | 게이트웨이를 우회한 직접 포트 호출 차단용 |
 | 데이터베이스, 검색엔진 및 스토리지 접속 정보 (`DATABASE_URL`, `OPENSEARCH_*`, `RUSTFS_*` / `S3_*`, `RABBITMQ_URL`) | `api`, `ai` | 홈랩 Kubernetes Secret 및 로컬 `.env` | 백엔드 런타임 프로세스 | 코드 및 컨테이너 이미지에 하드코딩 금지 (S3 SDK 호환을 위한 `MINIO_*` 환경변수 키 포함) |
 | 외부 LLM API 키 (`GEMINI_API_KEY`) | `ai` | 홈랩 Kubernetes Secret 및 로컬 `.env` | `ai` 컨테이너 런타임 | 프론트엔드(`web`) 번들에 절대 노출하지 않음 |
-| Slack Incoming Webhook URL (`SLACK_WEBHOOK_URL`) | `api` (`NotificationModule`) | 홈랩 Kubernetes Secret (또는 주 사용자 전용 암호화 설정) | `api` 컨테이너 런타임 | 테스트 계정(`visitor`) 세션에는 노출·발송하지 않음 |
-| 공공데이터포털 API 인증키 (`HOLIDAY_API_KEY`) | `api` (`HolidayModule`) | 홈랩 Kubernetes Secret 및 로컬 `.env` | `api` 컨테이너 런타임 | 프론트엔드가 직접 외부 API를 부르지 않고 `api`가 대리 조회·캐싱 |
+| Slack Incoming Webhook URL (`SLACK_WEBHOOK_URL`) | `api` (`Notification`) | 홈랩 Kubernetes Secret (또는 주 사용자 전용 암호화 설정) | `api` 컨테이너 런타임 | 테스트 계정(`visitor`) 세션에는 노출·발송하지 않음 |
+| 공공데이터포털 API 인증키 (`HOLIDAY_API_KEY`) | `api` (`Holiday`) | 홈랩 Kubernetes Secret 및 로컬 `.env` | `api` 컨테이너 런타임 | 프론트엔드가 직접 외부 API를 부르지 않고 `api`가 대리 조회·캐싱 |
 
 ## 보안 통제 배치 [선택]
 
@@ -145,8 +155,8 @@ flowchart LR
 | 게이트웨이 ForwardAuth 검증 및 공유 시크릿 확인 | `Traefik/Authelia`, `api`, `ai` | V6 인증 / V12 보안 통신 | `REQ-026`, `NFR-006` | [ADR-0007](adr/adr-0007-visitor-browser-state.md) |
 | 주 사용자(`ownerId`) vs 테스트 계정(`visitor`) 강제 격리 라우팅 | `api`, `ai` 인가 계층 | V8 인가 | `REQ-026`, `REQ-030`, `NFR-006` | [ADR-0007](adr/adr-0007-visitor-browser-state.md) |
 | 로컬 도구 무통신 격리 (Browser-Only Execution) | `web` (`ImageWorker`, `DevTools`) | V14 데이터 보호 | `REQ-014`, `REQ-015`, `REQ-019`, `NFR-006` | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) |
-| PDF 업로드 크기 상한(`50MB`), `qpdf` 비밀번호 `stdin` 파이프 전달, 임시 파일 즉시 삭제 | `api` (`PdfModule`) | V13 구성 / V14 데이터 보호 | `REQ-012`, `REQ-030`, `NFR-006` | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) |
-| 외부 RSS/원문 수집 시 사설 IP 대역 차단(SSRF 방어) 및 본문 HTML Sanitize | `api` (`FeedModule`), `web` | V12 보안 통신 / V13 구성 | `REQ-004` | [ARC-002 AP-04](arc-002-principles-constraints.md) |
+| PDF 업로드 크기 상한(`50MB`), `qpdf` 비밀번호 `stdin` 파이프 전달, 임시 파일 즉시 삭제 | `api` (`PDF`) | V13 구성 / V14 데이터 보호 | `REQ-012`, `REQ-030`, `NFR-006` | [ADR-0009](adr/adr-0009-local-tool-execution-contract.md) |
+| 외부 RSS/원문 수집 시 사설 IP 대역 차단(SSRF 방어) 및 본문 HTML Sanitize | `api` (`Feed`), `web` | V12 보안 통신 / V13 구성 | `REQ-004` | [ARC-002 AP-04](arc-002-principles-constraints.md) |
 
 ## 체험·저장·임시 파일 경계 보완
 
@@ -167,12 +177,31 @@ PDF 제한은 파일당 50MB·총합 100MB·최대 20개다. 정상 finally 정�
 
 예시 없음 — 실무 프로젝트 문서 본문
 
+## v2 보안 보완 계약 (2026-11-22 검토안)
+
+이번 보완은 문서 계약이며 실제 v2 구현·공격 테스트 완료를 의미하지 않는다. 기존 승인 이력은 보존하되 보완본은 review 상태로 둔다.
+
+| 경계 | 필수 통제 | 상세 기준 |
+|---|---|---|
+| 브라우저 → 공개 API | 동일 origin 배포, 쿠키 인증 변경 요청의 정확한 Origin 검사, 누락/null 거부, cross-site 거부, CORS 제한, Secure/HttpOnly/SameSite 쿠키 | [BE-004](../backend/be-004-authn-authz.md) |
+| 세션 → 브라우저 상태 | 사용자·역할·세대별 캐시 격리, 로그아웃/계정 전환 시 화면 잠금·캐시/초안/스트림 폐기, 늦은 결과 차단, 민감 응답 no-store | [FE-005](../frontend/fe-005-state-management.md), [FE-008](../frontend/fe-008-auth-ui.md) |
+| 신뢰하지 않는 콘텐츠 → DOM/출력물 | Markdown raw HTML 금지, HTML/SVG 허용 목록 정제, URL 제한, Mermaid strict 설정, 외부 이미지 자동 로딩 차단, 내보내기 동일 정책 | [FE-006](../frontend/fe-006-components-design-system.md) |
+| 비동기 작업 → 색인/검색 | 버전별 키, 실행권 세대 조건부 기록, 현재 DB 소유권·삭제·버전 확인 후 검색/모델 입력 사용, 고아 색인 반복 정리 | [BE-005](../backend/be-005-domain-model-rules.md), [BE-006](../backend/be-006-database-erd.md) |
+| 리비전 → 첨부/객체 정리 | 리비전별 첨부 참조 보존, 저장과 GC의 잠금·상태 전환, 삭제된 문서의 첨부 조회 차단 | [BE-005](../backend/be-005-domain-model-rules.md), [BE-006](../backend/be-006-database-erd.md) |
+
+구현 수용 기준은 각 상세 문서의 공격·경합 시나리오를 충족하는 것이다. ForwardAuth 인증만으로 CSRF가 해결되거나 lease만으로 외부 쓰기 순서가 보장된다고 보지 않는다. 기존 CSP·RSS 정제는 전체 렌더링 정책을 대신하지 않는다.
+
+근거: [OWASP CSRF 방어](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html), [OWASP XSS 방어](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html), [실행권 만료와 오래된 쓰기](https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html).
+
 ## 변경 이력
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 1.2.3 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
+| 2026-11-22 | 1.2.2 | CSRF·세션 캐시·렌더링·오래된 색인 쓰기·첨부 보존 보완 검토안 | AI 에이전트 |
 | 2026-11-05 | 0.1.0 | my-space v2 보안 아키텍처(ARC-007) 최초 작성 | Antigravity (사용자 검토 대기) |
 | 2026-11-12 | 1.0.0 | 아키텍처 검토 완료 및 정식 승인 | @bob (Keunhyeok Lim) |
 | 2026-11-16 | 1.1.0 | v2 문서 정합성·실패 복구 경계 수정, 승인 대기 | AI 에이전트 |
 | 2026-11-19 | 1.1.1 | ADR 4건 승인·대체 관계 반영; ARC 검토 상태 유지 | @bob (Keunhyeok Lim) |
 | 2026-11-20 | 1.2.0 | 사용자 최종 검토 완료 및 ARC 문서 정식 승인 | @bob (Keunhyeok Lim) |
+| 2026-11-22 | 1.2.1 | 저장소별 접근선 분리 및 Qdrant의 ai 인덱싱 책임 명확화; 보안 정책 변경 없음 | AI 에이전트 |
