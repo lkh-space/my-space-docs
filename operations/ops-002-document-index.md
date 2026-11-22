@@ -47,7 +47,7 @@ traces: []
 | DSN-001 | [디자인 브리프](../design/dsn-001-design-brief.md) | Calm Studio Workspace 미학, 정보 밀도, 레이아웃·모션 원칙 정의 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 | DSN-002 | [정보 구조와 사이트맵](../design/dsn-002-information-architecture.md) | 공간(5영역)·도구(15종) 2단 내비게이션과 전체 화면(`SCR-001`~`SCR-090`) 사이트맵 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 | DSN-003 | [사용자 흐름](../design/dsn-003-user-flows.md) | 대시보드·노트·피드·PDF·테스트 계정 핵심 화면 전환 흐름 `UF-01`~`UF-05` | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
-| DSN-004 | [와이어프레임과 화면 명세](../design/dsn-004-wireframes-screen-spec.md) | `SCR-001`~`SCR-090` 전체 화면의 레이아웃 구역, 주요 요소, 상호작용 명세 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-22 |
+| DSN-004 | [와이어프레임과 화면 명세](../design/dsn-004-wireframes-screen-spec.md) | `SCR-001`~`SCR-090` 전체 화면의 레이아웃 구역, 주요 요소, 상호작용 명세 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | DSN-005 | [디자인 시스템과 디자인 토큰](../design/dsn-005-design-system-tokens.md) | 색상(`--color-*`), 타이포그래피, 간격, 반경, 그림자 CSS 변수 토큰 정의 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 | DSN-006 | [컴포넌트 가이드](../design/dsn-006-component-guide.md) | 공통 셸, 버튼, 입력, 뱃지, 토스트, 모달 등 재사용 UI 컴포넌트 규격 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
 | DSN-007 | [반응형 디자인](../design/dsn-007-responsive.md) | Desktop/Tablet/Mobile 브레이크포인트 및 모바일 전용 읽기·입력 레이아웃 적응 규칙 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
