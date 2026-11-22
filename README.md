@@ -14,12 +14,12 @@ AI에게 기능 구현, 버그 수정, 아키텍처 질문 등 작업을 지시�
 | **기능 요구사항 & 스펙 구현**<br>(노트·피드·관리·도구 등) | [`PRD-002 요구사항과 범위`](product/prd-002-requirements-scope.md)<br>[`PRD-005 기능 명세`](product/prd-005-functional-spec.md) | [`PRD-003 사용자 스토리`](product/prd-003-user-stories.md)<br>[`PRD-004 여정과 업무흐름`](product/prd-004-user-journeys.md) | `REQ-001`~`031`, `FN-001`~`025` 입출력/처리 흐름, Acceptance Criteria |
 | **UI 화면 개발 & 사이트맵** | [`DSN-002 정보구조·사이트맵`](design/dsn-002-information-architecture.md)<br>[`DSN-004 와이어프레임·화면명세`](design/dsn-004-wireframes-screen-spec.md) | [`DSN-003 사용자 흐름`](design/dsn-003-user-flows.md)<br>[`DSN-009 UI/오류 상태`](design/dsn-009-ui-states-errors.md) | `SCR-001`~`SCR-090` 화면 레이아웃 구역, 요소 배치, 화면 전환 흐름 |
 | **디자인 시스템 & 컴포넌트 구현** | [`DSN-005 디자인 시스템·토큰`](design/dsn-005-design-system-tokens.md)<br>[`DSN-006 컴포넌트 가이드`](design/dsn-006-component-guide.md) | [`DSN-007 반응형 디자인`](design/dsn-007-responsive.md)<br>[`DSN-008 접근성 가이드`](design/dsn-008-accessibility.md) | `--color-*` CSS 변수 토큰, 버튼·입력·모달 재사용 컴포넌트, 3단 반응형 |
-| **백엔드 구조 & 통신 (api vs ai)** | [`ARC-004 컨테이너·컴포넌트`](architecture/arc-004-containers-components.md)<br>[`ADR-0002 api/ai 프로세스 분리`](architecture/adr/adr-0002-backend-monorepo-api-ai-separation.md)<br>[`BE-001 백엔드 아키텍처`](file:///Users/limkeunhyeok/workspace/my-space-backend/docs/be-001-architecture-modules.md) | [`ARC-005 데이터 흐름`](architecture/arc-005-data-flow.md)<br>[`BE-005 도메인 모델`](file:///Users/limkeunhyeok/workspace/my-space-backend/docs/be-005-domain-model-rules.md)<br>[`BE-006 DB 설계·ERD`](file:///Users/limkeunhyeok/workspace/my-space-backend/docs/be-006-database-erd.md) | 메인 API(`apps/api`)와 AI 비서(`apps/ai`) 분리, 도메인 모델, Prisma ERD, RabbitMQ 인덱싱 |
-| **오브젝트 스토리지 (RustFS) 연동** | [`ADR-0006 RustFS 전환`](architecture/adr/adr-0006-object-storage-migration-to-rustfs.md)<br>[`ARC-004 컨테이너·컴포넌트`](architecture/arc-004-containers-components.md) | [`ARC-005 데이터 흐름`](architecture/arc-005-data-flow.md)<br>[`homelab-infra 전환 가이드`](file:///Users/limkeunhyeok/workspace/homelab-infra/docs/rustfs-migration-guide.md) | MinIO CVE 패치 중단 대응, RustFS(Apache 2.0) S3 API 연동 및 `rustfs-pvc` |
+| **백엔드 구조 & 통신 (api vs ai)** | [`ARC-004 컨테이너·컴포넌트`](architecture/arc-004-containers-components.md)<br>[`ADR-0002 api/ai 프로세스 분리`](architecture/adr/adr-0002-backend-monorepo-api-ai-separation.md)<br>[`BE-001 백엔드 아키텍처`](backend/be-001-architecture-modules.md) | [`ARC-005 데이터 흐름`](architecture/arc-005-data-flow.md)<br>[`BE-005 도메인 모델`](backend/be-005-domain-model-rules.md)<br>[`BE-006 DB 설계·ERD`](backend/be-006-database-erd.md) | 메인 API(`apps/api`)와 AI 비서(`apps/ai`) 분리, 도메인 모델, Prisma ERD, RabbitMQ 인덱싱 |
+| **오브젝트 스토리지 (RustFS) 연동** | [`ADR-0010 RustFS 전환`](architecture/adr/adr-0010-rustfs-v2-adoption.md)<br>[`ARC-004 컨테이너·컴포넌트`](architecture/arc-004-containers-components.md) | [`ARC-005 데이터 흐름`](architecture/arc-005-data-flow.md)<br>[`homelab-infra 전환 가이드`](file:///Users/limkeunhyeok/workspace/homelab-infra/docs/rustfs-migration-guide.md) | v2 RustFS 버전 고정·사용 S3 기능 검증, v1 전환은 별도 런북 |
 | **검색 엔진 (OpenSearch vs Qdrant)** | [`ARC-004 컨테이너·컴포넌트`](architecture/arc-004-containers-components.md)<br>[`PRD-005 기능 명세`](product/prd-005-functional-spec.md) | [`ARC-005 데이터 흐름 (DF-03)`](architecture/arc-005-data-flow.md)<br>[`PRD-003 사용자 스토리`](product/prd-003-user-stories.md) | OpenSearch 2.11 키워드 전문 검색 vs Qdrant 1.13 벡터 유사도 시맨틱 RAG 검색 |
 | **Catch-up 스케줄러 & 알림** | [`ADR-0003 Catch-up 스케줄러`](architecture/adr/adr-0003-homelab-catchup-scheduler.md)<br>[`ADR-0005 알림 채널 추상화`](architecture/adr/adr-0005-notification-channel-abstraction.md) | [`PRD-004 여정과 업무흐름`](product/prd-004-user-journeys.md)<br>[`ARC-004 컴포넌트`](architecture/arc-004-containers-components.md) | 비-상시 구동 홈랩 부팅 시 누락 스케줄 소급 실행, 인앱 알림 우선 저장 |
-| **보안, SSO & 방문자 샌드박스** | [`ARC-007 보안 아키텍처`](architecture/arc-007-security-architecture.md)<br>[`ADR-0004 ForwardAuth·샌드박스`](architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md) | [`ARC-005 데이터 흐름`](architecture/arc-005-data-flow.md)<br>[`PRD-006 비기능 요구사항`](product/prd-006-nfr.md) | Authelia ForwardAuth, 주 사용자 영속 DB 격리, 방문자 인메모리 샌드박스 |
-| **로컬 브라우저 처리 (WASM/Worker)** | [`ADR-0001 하이브리드 연산`](architecture/adr/adr-0001-hybrid-client-server-processing.md)<br>[`PRD-005 기능 명세 (도구)`](product/prd-005-functional-spec.md) | [`ARC-005 데이터 흐름 (DF-01)`](architecture/arc-005-data-flow.md)<br>[`PRD-006 NFR-001~006`](product/prd-006-nfr.md) | 민감 파일/토큰 브라우저 내부 완결, 암호화 PDF만 백엔드 `qpdf` 위임 |
+| **보안, SSO & 방문자 샌드박스** | [`ARC-007 보안 아키텍처`](architecture/arc-007-security-architecture.md)<br>[`ADR-0007 ForwardAuth·샌드박스`](architecture/adr/adr-0007-visitor-browser-state.md) | [`ARC-005 데이터 흐름`](architecture/arc-005-data-flow.md)<br>[`PRD-006 비기능 요구사항`](product/prd-006-nfr.md) | Authelia ForwardAuth, 주 사용자 영속 DB 격리, 방문자 인메모리 샌드박스 |
+| **로컬 브라우저 처리 (WASM/Worker)** | [`ADR-0009 하이브리드 연산`](architecture/adr/adr-0009-local-tool-execution-contract.md)<br>[`PRD-005 기능 명세 (도구)`](product/prd-005-functional-spec.md) | [`ARC-005 데이터 흐름 (DF-01)`](architecture/arc-005-data-flow.md)<br>[`PRD-006 NFR-001~006`](product/prd-006-nfr.md) | 로컬 도구 입력은 브라우저 내부 완결, PDF는 ADR-0009의 작업 단위 조건으로 서버 위임 |
 | **비기능 품질 속성 & 성능 검증** | [`PRD-006 비기능 요구사항`](product/prd-006-nfr.md)<br>[`ARC-008 품질 속성`](architecture/arc-008-quality-attributes.md) | [`ARC-002 아키텍처 원칙`](architecture/arc-002-principles-constraints.md) | `NFR-001`~`008` 목표 수치, 품질 시나리오(`QS-01`~`07`), 트레이드오프 |
 | **구현 단계 및 릴리스 일정** | [`PRD-007 릴리스 범위·우선순위`](product/prd-007-release-scope-priority.md) | [`PRD-002 요구사항과 범위`](product/prd-002-requirements-scope.md) | `v2.1`~`v2.3` 마일스톤, 8단계 세부 구현 순서 및 기능 배분 |
 
@@ -60,18 +60,23 @@ AI에게 기능 구현, 버그 수정, 아키텍처 질문 등 작업을 지시�
 | [컨테이너와 컴포넌트 구조](architecture/arc-004-containers-components.md) | `ARC-004` | 8개 컨테이너(`web`, `api`, `ai`, `PostgreSQL`, `RustFS`, `OpenSearch`, `Qdrant`, `RabbitMQ`) 책임 |
 | [데이터 흐름](architecture/arc-005-data-flow.md) | `ARC-005` | 핵심 시나리오 6종(`DF-01`~`DF-06`) 데이터 이동 경로, 신뢰 경계, 저장소 매핑 |
 | [아키텍처 의사결정 기록 (ADR 색인)](architecture/arc-006-adr.md) | `ARC-006` | 전체 ADR 목록, 결정 상태 관리 기준 및 단일 저장소 ADR과의 경계 |
-| [보안 아키텍처](architecture/arc-007-security-architecture.md) | `ARC-007` | 3대 신뢰 경계, ForwardAuth 인증, 주 사용자 데이터 격리, STRIDE 통제 |
+| [보안 아키텍처](architecture/arc-007-security-architecture.md) | `ARC-007` | 신뢰 경계 4영역, ForwardAuth 인증, 주 사용자 데이터 격리, STRIDE 통제 |
 | [품질 속성](architecture/arc-008-quality-attributes.md) | `ARC-008` | `NFR` 달성을 위한 7개 품질 시나리오(`QS-01`~`QS-07`), 달성 전술 및 트레이드오프 |
 
 ### 4. 아키텍처 의사결정 기록 (ADR - `architecture/adr/`)
 | 문서 | ID | 결정 내용 요약 |
 | :--- | :--- | :--- |
-| [민감 도구 로컬 처리 및 백엔드 하이브리드 분리](architecture/adr/adr-0001-hybrid-client-server-processing.md) | `ADR-0001` | 민감 파일/토큰은 브라우저(Web Worker·WASM)에서 완결, 암호화 PDF만 `qpdf` 위임 |
+| [민감 도구 로컬 처리 및 백엔드 하이브리드 분리](architecture/adr/adr-0001-hybrid-client-server-processing.md) | `ADR-0001` | 대체된 결정의 역사 기록. 현재 기준: [ADR-0009](architecture/adr/adr-0009-local-tool-execution-contract.md) |
 | [백엔드 api와 ai 프로세스 분리](architecture/adr/adr-0002-backend-monorepo-api-ai-separation.md) | `ADR-0002` | NestJS 모노레포 안에서 `api`와 `ai`를 독립 컨테이너로 분리하여 AI 부하 격리 |
 | [홈랩 비-상시 구동 Catch-up 스케줄러](architecture/adr/adr-0003-homelab-catchup-scheduler.md) | `ADR-0003` | 홈랩 기동 시 `lastRunAt` 기준으로 누락된 결제·만료일·RSS 수집을 멱등 복구 |
-| [ForwardAuth 위임 및 방문자 샌드박스 격리](architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md) | `ADR-0004` | Authelia SSO 헤더 검증 및 테스트 계정(`visitor`) 인메모리 샌드박스 격리 |
+| [ForwardAuth 위임 및 방문자 샌드박스 격리](architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md) | `ADR-0004` | 대체된 결정의 역사 기록. 현재 기준: [ADR-0007](architecture/adr/adr-0007-visitor-browser-state.md) |
 | [인앱 알림함 우선 저장 및 알림 채널 추상화](architecture/adr/adr-0005-notification-channel-abstraction.md) | `ADR-0005` | 인앱 알림함(DB)에 우선 저장 후 Slack Incoming Webhook 어댑터로 비동기 발송 |
-| [오브젝트 스토리지 RustFS(Apache 2.0) 전환](architecture/adr/adr-0006-object-storage-migration-to-rustfs.md) | `ADR-0006` | MinIO CVE 패치 중단 대응을 위해 완전 무료 오픈소스인 RustFS(S3 API 호환)로 전환 |
+| [오브젝트 스토리지 RustFS(Apache 2.0) 전환](architecture/adr/adr-0006-object-storage-migration-to-rustfs.md) | `ADR-0006` | 대체된 결정의 역사 기록. 현재 기준: [ADR-0010](architecture/adr/adr-0010-rustfs-v2-adoption.md) |
+
+| [방문자 체험 상태의 브라우저 메모리 격리](architecture/adr/adr-0007-visitor-browser-state.md) | `ADR-0007` | 현재 v2 승인 기준 |
+| [노트 저장의 단일 책임과 파생 색인 복구](architecture/adr/adr-0008-note-write-consistency.md) | `ADR-0008` | 현재 v2 승인 기준 |
+| [PDF 실행 경로와 오프라인 도구 범위](architecture/adr/adr-0009-local-tool-execution-contract.md) | `ADR-0009` | 현재 v2 승인 기준 |
+| [v2 RustFS 채택과 호환성 검증 경계](architecture/adr/adr-0010-rustfs-v2-adoption.md) | `ADR-0010` | 현재 v2 승인 기준 |
 
 ### 5. 프론트엔드 명세 (Frontend - `frontend/`)
 | 문서 | ID | 설명 |
@@ -80,15 +85,26 @@ AI에게 기능 구현, 버그 수정, 아키텍처 질문 등 작업을 지시�
 | [디렉터리와 모듈 구조](frontend/fe-002-directory-modules.md) | `FE-002` | `apps/web/src` FSD 계층형 디렉터리 분리 및 단방향 의존성 규칙 |
 | [라우팅과 페이지 구성](frontend/fe-003-routing-pages.md) | `FE-003` | 전체 화면(`SCR-001`~`SCR-090`) 1:1 URL 매핑, 모달 쿼리 파라미터 및 레이아웃 구조 |
 | [상태 관리](frontend/fe-005-state-management.md) | `FE-005` | TanStack Query 서버 캐시, 인메모리 샌드박스 스토어, AI SSE 스트리밍 레지스트리 |
-| [공통 컴포넌트와 디자인 시스템 연계](frontend/fe-006-components-design-system.md) | `FE-006` | Figma v2 디자인 토큰 CSS 변수 바인딩, 버튼·입력·피드 4대 모달·결과 패널 규격 |
+| [공통 컴포넌트와 디자인 시스템 연계](frontend/fe-006-components-design-system.md) | `FE-006` | Figma v2 디자인 토큰 CSS 변수 바인딩, 버튼·입력·피드 키워드 필터 팝업·결과 패널 규격 |
 | [인증·권한에 따른 UI](frontend/fe-008-auth-ui.md) | `FE-008` | Authelia ForwardAuth SSO 헤더 처리 및 주 사용자/방문자 체험 모드 UI 분기 |
 | [오류와 로딩 상태](frontend/fe-009-error-loading.md) | `FE-009` | 스켈레톤 로딩, 카드 단위 에러 바운더리 격리, PWA 오프라인 감지 배너 |
 
-### 6. 운영 및 공통 기반 (Operations - `operations/`)
+### 6. 백엔드 명세 (Backend - `backend/`)
+| 문서 | ID | 설명 |
+| :--- | :--- | :--- |
+| [백엔드 아키텍처와 모듈 구조](backend/be-001-architecture-modules.md) | `BE-001` | `apps/api`와 `apps/ai` 마이크로서비스 및 `libs/*` 공유 라이브러리의 모듈 구조와 계층별 의존성 규칙 |
+| [API 설계 가이드](backend/be-002-api-design-guide.md) | `BE-002` | REST API 경로 규칙, 버전 관리, 페이지네이션, SSE 스트리밍 및 멱등성 규약 |
+| [API 명세](backend/be-003-api-spec.md) | `BE-003` | v2 OpenAPI 계약 및 공간·도구의 operationId 추적 목록 |
+| [인증과 인가](backend/be-004-authn-authz.md) | `BE-004` | Authelia ForwardAuth 프록시 헤더 검증 및 주 사용자 데이터 보호 및 방문자 브라우저 메모리 체험 격리 |
+| [도메인 모델과 비즈니스 규칙](backend/be-005-domain-model-rules.md) | `BE-005` | 5대 핵심 도메인 상태 전이, 공통 날짜 3대 모델, 홈랩 전원 복구 Catch-up 소급 실행 비즈니스 규칙 |
+| [데이터베이스 설계와 ERD](backend/be-006-database-erd.md) | `BE-006` | PostgreSQL Prisma 스키마, RustFS S3 객체 매핑, OpenSearch 및 Qdrant 물리 스키마 정의 |
+| [오류 처리](backend/be-013-error-handling.md) | `BE-013` | RFC 9457 Problem Details 표준 에러 응답 포맷 및 도메인별 표준 에러 코드(`ERR_*`) 체계 |
+
+### 7. 운영 및 공통 기반 (Operations - `operations/`)
 | 문서 | ID | 설명 |
 | :--- | :--- | :--- |
 | [용어집](operations/ops-001-glossary.md) | `OPS-001` | 공간·도구, 날짜 모델 3유형, Catch-up, ForwardAuth 등 공통 표준 용어 사전 |
-| [문서 인덱스](operations/ops-002-document-index.md) | `OPS-002` | `my-space-docs` 전체 40종 문서의 상태, 버전, 검토일, 메타데이터 총괄 |
+| [문서 인덱스](operations/ops-002-document-index.md) | `OPS-002` | `my-space-docs` 전체 47종 문서의 상태, 버전, 검토일, 메타데이터 총괄 |
 
 ---
 
