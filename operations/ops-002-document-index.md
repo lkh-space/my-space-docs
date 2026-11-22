@@ -71,13 +71,13 @@ traces: []
 | ADR-0008 | [노트 저장의 단일 책임과 파생 색인 복구](../architecture/adr/adr-0008-note-write-consistency.md) | v2 승인 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-19 |
 | ADR-0009 | [PDF 실행 경로와 오프라인 도구 범위](../architecture/adr/adr-0009-local-tool-execution-contract.md) | v2 승인 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-19 |
 | ADR-0010 | [v2 RustFS 채택과 호환성 검증 경계](../architecture/adr/adr-0010-rustfs-v2-adoption.md) | v2 승인 결정 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-19 |
-| FE-001 | [프론트엔드 기술 구조](../frontend/fe-001-tech-stack.md) | React 19, TypeScript, Vite, Nx, PWA 오프라인, Web Worker/WASM 클라이언트 실행 구조 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-22 |
-| FE-002 | [디렉터리와 모듈 구조](../frontend/fe-002-directory-modules.md) | `apps/web/src` FSD 계층형 디렉터리 분리 및 단방향 의존성 규칙 | 선택 | review | @bob (Keunhyeok Lim) | 2026-11-12 |
-| FE-003 | [라우팅과 페이지 구성](../frontend/fe-003-routing-pages.md) | 전체 화면(`SCR-001`~`SCR-090`) 1:1 URL 매핑, 모달 쿼리 파라미터 및 레이아웃 구조 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-22 |
-| FE-005 | [상태 관리](../frontend/fe-005-state-management.md) | TanStack Query 서버 캐시, 인메모리 샌드박스 스토어, AI SSE 스트리밍 레지스트리 | 선택 | review | @bob (Keunhyeok Lim) | 2026-11-22 |
-| FE-006 | [공통 컴포넌트와 디자인 시스템 연계](../frontend/fe-006-components-design-system.md) | Figma v2 디자인 토큰 CSS 변수 바인딩, 버튼·입력·피드 키워드 필터 팝업·결과 패널 규격 | 선택 | review | @bob (Keunhyeok Lim) | 2026-11-22 |
-| FE-008 | [인증·권한에 따른 UI](../frontend/fe-008-auth-ui.md) | Authelia ForwardAuth SSO 헤더 처리 및 주 사용자/방문자 체험 모드 UI 분기 | 조건부(인증) | review | @bob (Keunhyeok Lim) | 2026-11-22 |
-| FE-009 | [오류와 로딩 상태](../frontend/fe-009-error-loading.md) | 스켈레톤 로딩, 카드 단위 에러 바운더리 격리, PWA 오프라인 감지 배너 | 조건부(UI) | review | @bob (Keunhyeok Lim) | 2026-11-22 |
+| FE-001 | [프론트엔드 기술 구조](../frontend/fe-001-tech-stack.md) | React 19, TypeScript, Vite, Nx, PWA 오프라인, Web Worker/WASM 클라이언트 실행 구조 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
+| FE-002 | [디렉터리와 모듈 구조](../frontend/fe-002-directory-modules.md) | `apps/web/src` FSD 계층형 디렉터리 분리 및 단방향 의존성 규칙 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-12 |
+| FE-003 | [라우팅과 페이지 구성](../frontend/fe-003-routing-pages.md) | 전체 화면(`SCR-001`~`SCR-090`) 1:1 URL 매핑, 모달 쿼리 파라미터 및 레이아웃 구조 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
+| FE-005 | [상태 관리](../frontend/fe-005-state-management.md) | TanStack Query 서버 캐시, 인메모리 샌드박스 스토어, AI SSE 스트리밍 레지스트리 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
+| FE-006 | [공통 컴포넌트와 디자인 시스템 연계](../frontend/fe-006-components-design-system.md) | Figma v2 디자인 토큰 CSS 변수 바인딩, 버튼·입력·피드 키워드 필터 팝업·결과 패널 규격 | 선택 | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
+| FE-008 | [인증·권한에 따른 UI](../frontend/fe-008-auth-ui.md) | Authelia ForwardAuth SSO 헤더 처리 및 주 사용자/방문자 체험 모드 UI 분기 | 조건부(인증) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
+| FE-009 | [오류와 로딩 상태](../frontend/fe-009-error-loading.md) | 스켈레톤 로딩, 카드 단위 에러 바운더리 격리, PWA 오프라인 감지 배너 | 조건부(UI) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | BE-001 | [백엔드 아키텍처와 모듈 구조](../backend/be-001-architecture-modules.md) | `apps/api`와 `apps/ai` 마이크로서비스 및 `libs/*` 공유 라이브러리의 모듈 구조와 계층별 의존성 규칙 | 조건부(API) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | BE-002 | [API 설계 가이드](../backend/be-002-api-design-guide.md) | REST API 경로 규칙, 버전 관리, 페이지네이션, SSE 스트리밍 및 멱등성 규약 | 조건부(API) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | BE-003 | [API 명세](../backend/be-003-api-spec.md) | v2 OpenAPI 계약 및 공간·도구의 operationId 추적 목록 | 조건부(API) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |

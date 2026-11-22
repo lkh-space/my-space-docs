@@ -3,7 +3,7 @@ id: FE-002
 title: 디렉터리와 모듈 구조
 part: frontend
 tier: optional
-status: review
+status: approved
 version: 0.1.0
 owner: "@bob (Keunhyeok Lim)"
 last_reviewed: 2026-11-12

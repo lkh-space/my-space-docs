@@ -4,10 +4,10 @@ title: 오류와 로딩 상태
 part: frontend
 tier: conditional
 condition: UI
-status: review
-version: 0.1.0
+status: approved
+version: 0.1.1
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-12
+last_reviewed: '2026-11-22'
 depends_on: [DSN-009, FE-001]
 related: [FE-003, FE-006, ARC-002]
 superseded_by: null
@@ -103,8 +103,13 @@ flowchart TD
 
 예시 없음 — 실무 프로젝트 문서 본문
 
+## 홈 부분 실패와 재시도 계약
+
+카드별 GET `/api/v1/home/summary?sections=카드이름`을 사용한다. OpenAPI HomeSummary의 SUCCESS/data는 정상 UI, ERROR/error와 HTTP 실패는 해당 카드의 오류 UI로 처리한다. React ErrorBoundary는 렌더링 예외를 처리하며 비동기 요청 오류 처리를 대신하지 않는다. 다시 시도는 해당 카드만 재조회하고 다른 성공 카드의 데이터를 지우지 않는다. 401 또는 신원 변경은 FE-005의 전체 세션 폐기 규칙을 적용한다. 서버 연결 자체가 불가능해도 정적 도구 바로가기는 유지한다.
+
 ## 변경 이력
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 0.1.1 | API·화면·검증 범위 계약 불일치 보완 | AI 에이전트 |
 | 2026-11-12 | 0.1.0 | my-space v2 오류와 로딩 상태(FE-009) 최초 작성 | @bob (Keunhyeok Lim) |

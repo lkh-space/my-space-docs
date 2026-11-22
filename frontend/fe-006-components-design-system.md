@@ -3,10 +3,10 @@ id: FE-006
 title: 공통 컴포넌트와 디자인 시스템 연계
 part: frontend
 tier: optional
-status: review
-version: 0.2.0
+status: approved
+version: 0.2.1
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-22
+last_reviewed: '2026-11-22'
 depends_on: [FE-001, DSN-005, DSN-006]
 related: [FE-002, DSN-007, DSN-008]
 superseded_by: null
@@ -180,9 +180,22 @@ export interface ModalDialogProps {
 
 예시 없음 — 실무 프로젝트 문서 본문
 
+## 외부·사용자 콘텐츠 렌더링 보안 [필수]
+
+노트 작성·가져오기·리비전 미리보기, RSS 본문, AI 응답, 검색 결과 및 Mermaid 입력은 모두 신뢰하지 않는 데이터다. 서버에서 저장하거나 정제했다는 이유만으로 브라우저의 렌더링 방어를 생략하지 않는다.
+
+- Markdown의 원문 HTML은 비활성화하고 일반 텍스트로 표시한다. 코드 블록·제목·검색 강조 문구는 텍스트 노드 또는 안전하게 이스케이프된 출력으로 처리한다. 스트리밍 AI의 미완성 조각도 예외가 아니다.
+- HTML 출력이 필요한 RSS·Markdown 플러그인 결과는 최종 DOM 삽입 직전에 검증된 sanitizer의 명시적인 태그·속성 허용 목록을 적용한다. script/iframe/object/embed/form, 이벤트 속성, 임의 style 및 실행 가능한 URL을 허용하지 않는다. 정제 후 플러그인이 위험한 마크업을 다시 붙이지 않도록 한다. 정제기를 자체 정규식으로 구현하지 않으며 라이브러리 선정은 별도 구현 검토 대상이다.
+- 링크는 URL 파싱·정규화 후 http/https 또는 검증된 앱 내부 경로만 허용한다. javascript/vbscript/data/file 및 난독화된 변형은 차단한다. 외부 링크는 `noopener noreferrer`를 적용한다. 노트 이미지는 소유권을 검증하는 첨부 API로 표시한다. 임의 외부 이미지 자동 로딩은 추적 요청을 만들 수 있으므로 기본 차단하고 원본 링크로 대체한다. 앱이 직접 만든 임시 blob URL만 미리보기에 허용하고 종료 시 해제한다.
+- Mermaid는 strict 보안 설정, HTML label 및 click 콜백 비활성화를 적용하고 문서 내부 지시문으로 설정을 완화하지 못하게 한다. 생성 SVG는 별도 SVG 허용 목록으로 정제하여 이벤트·script·foreignObject·외부 참조를 제거한다. 안전한 렌더링을 보장하지 못하면 코드 블록으로 표시한다. 시간·입력 크기를 제한하고 실패를 해당 다이어그램에 격리한다.
+- HTML/PDF 출력용 렌더러에도 같은 콘텐츠 정책을 적용한다. 서버 렌더러가 원문 URL을 통해 내부망·로컬 파일에 접근하지 않도록 외부 네트워크와 파일 접근을 차단한다. Markdown 원문 내보내기는 실행하지 않고 첨부 다운로드로 제공한다. CSP는 추가 방어이며 sanitizer를 대신하지 않는다.
+
+검증 fixture: script·onerror, javascript 링크와 인코딩 변형, 악성 SVG/foreignObject, Mermaid click/설정 지시문, RSS 추적 이미지, AI 스트리밍 중 불완전 HTML을 각 화면·미리보기·내보내기에 적용한다. 스크립트 실행·외부 자동 요청 없이 텍스트 또는 안전한 대체 UI로 표시되어야 한다. 상위 정책은 [ARC-007](../architecture/arc-007-security-architecture.md)을 따른다.
+
 ## 변경 이력
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 0.2.1 | Markdown·RSS·AI·Mermaid 및 내보내기 렌더링 보안 계약 추가 | AI 에이전트 |
 | 2026-11-22 | 0.2.0 | 개정된 DESIGN.md 및 DSN-004/005/006(v1.2.1) 확정 토큰·버튼 2종·피드 단일 팝업·접근성 규격 동기화 | @bob (Keunhyeok Lim) |
 | 2026-11-12 | 0.1.0 | my-space v2 공통 컴포넌트와 디자인 시스템 연계(FE-006) 최초 작성 | @bob (Keunhyeok Lim) |

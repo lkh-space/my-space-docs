@@ -4,12 +4,12 @@ title: 라우팅과 페이지 구성
 part: frontend
 tier: conditional
 condition: UI
-status: review
-version: 0.2.0
+status: approved
+version: 0.2.1
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-22
+last_reviewed: '2026-11-22'
 depends_on: [DSN-002, DSN-004, FE-001]
-related: [DSN-003, FE-002, FE-008, FE-009, ADR-0004]
+related: [DSN-003, FE-002, FE-008, FE-009, ADR-0007]
 superseded_by: null
 traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-006, REQ-011, REQ-012, REQ-014, REQ-026, REQ-029]
 ---
@@ -135,5 +135,6 @@ flowchart TD
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 0.2.1 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
 | 2026-11-22 | 0.2.0 | DSN-004 확정 SCR-051~066 번호, 68px 상단바 및 피드 단일 키워드 필터 팝업 규격 동기화 | @bob (Keunhyeok Lim) |
 | 2026-11-12 | 0.1.0 | my-space v2 라우팅과 페이지 구성(FE-003) 최초 작성 | @bob (Keunhyeok Lim) |

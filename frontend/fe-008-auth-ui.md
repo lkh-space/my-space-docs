@@ -4,10 +4,10 @@ title: 인증·권한에 따른 UI
 part: frontend
 tier: conditional
 condition: UI·인증
-status: review
-version: 0.1.1
+status: approved
+version: 0.1.2
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-22
+last_reviewed: '2026-11-22'
 depends_on: [FE-001, ARC-007, ADR-0007]
 related: [FE-003, FE-005, PRD-001]
 superseded_by: null
@@ -117,10 +117,17 @@ export const GuestNoticeBar = () => {
 
 예시 없음 — 실무 프로젝트 문서 본문
 
+## 세션 변경 시 화면 잠금과 초기화
+
+로그아웃·세션 만료·계정/역할 변경 시 [FE-005의 세션 폐기 절차](fe-005-state-management.md)를 수행한다. auth/me 확인 중에는 개인 화면을 렌더링하지 않으며, 이전 Query 캐시나 편집 초안을 새 역할 화면으로 넘기지 않는다. 탭 활성화·페이지 복귀와 다른 탭 로그아웃에서도 재확인한다. `/guest` 경로나 환경변수는 인증 우회 수단이 아니다.
+
+브라우저 API는 [BE-004](../backend/be-004-authn-authz.md)의 동일 출처 계약을 따른다. `ERR_AUTH_ORIGIN_REJECTED`는 요청 출처 오류로 표시하고 자동 재시도·데모 모드 전환으로 우회하지 않는다. 로그인 쿠키는 Authelia가 관리하며 앱이 복사하거나 직접 검증하지 않는다.
+
 ## 변경 이력
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 0.1.2 | 세션 전환 화면 잠금·초기화 및 요청 출처 오류 처리 명시 | AI 에이전트 |
 | 2026-11-12 | 0.1.0 | my-space v2 인증·권한에 따른 UI(FE-008) 최초 작성 | @bob (Keunhyeok Lim) |
 
 | 2026-11-22 | 0.1.1 | BE-004와 신원 API·401 처리·방문자 판정 정합성 반영 | AI 에이전트 |

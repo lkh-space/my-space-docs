@@ -4,12 +4,12 @@ title: 프론트엔드 기술 구조
 part: frontend
 tier: conditional
 condition: UI
-status: review
-version: 0.1.1
+status: approved
+version: 0.1.3
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: 2026-11-22
+last_reviewed: '2026-11-22'
 depends_on: [ARC-001]
-related: [ARC-002, ARC-004, ARC-006, DSN-005, ADR-0001, ADR-0004, PRD-006]
+related: [ARC-002, ARC-004, ARC-006, DSN-005, ADR-0009, ADR-0007, PRD-006]
 superseded_by: null
 traces: [REQ-001, REQ-012, REQ-014, REQ-026, REQ-029, REQ-030, NFR-001, NFR-002, NFR-003, NFR-005, NFR-006]
 ---
@@ -30,8 +30,8 @@ traces: [REQ-001, REQ-012, REQ-014, REQ-026, REQ-029, REQ-030, NFR-001, NFR-002,
 | 선행 | [ARC-001 시스템 개요](../architecture/arc-001-system-overview.md) | 전체 시스템 컨테이너 중 프론트엔드(`web`)의 위치와 책임 |
 | 관련 | [ARC-002 아키텍처 원칙과 제약](../architecture/arc-002-principles-constraints.md) | 브라우저 로컬 우선 처리 원칙(`AP-01`) 및 개인정보 로컬 완결 제약(`CON-02`) |
 | 관련 | [ARC-004 컨테이너와 주요 컴포넌트](../architecture/arc-004-containers-components.md) | `web` 컨테이너 내부 컴포넌트(`ImageWorker`, `PdfWorker` 등)와 `api`, `ai` 연동 경로 |
-| 관련 | [ADR-0001 하이브리드 로컬 연산](../architecture/adr/adr-0001-hybrid-client-server-processing.md) | 민감 파일 브라우저 로컬 완결 및 암호화 PDF 백엔드(`qpdf`) 위임 결정 |
-| 관련 | [ADR-0004 ForwardAuth 및 샌드박스](../architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md) | Authelia SSO 헤더 연동 및 방문자 인메모리 샌드박스 격리 결정 |
+| 관련 | [ADR-0009 PDF 실행·오프라인 경계](../architecture/adr/adr-0009-local-tool-execution-contract.md) | 로컬 도구 실행, PDF 작업 단위 서버 위임 조건 및 최초 캐시 후 필수 오프라인 범위 |
+| 관련 | [ADR-0007 ForwardAuth 및 샌드박스](../architecture/adr/adr-0007-visitor-browser-state.md) | Authelia SSO 헤더 연동 및 방문자 인메모리 샌드박스 격리 결정 |
 | 관련 | [DSN-005 디자인 시스템과 디자인 토큰](../design/dsn-005-design-system-tokens.md) | CSS 변수 토큰 규격 및 라이트 테마 정의 |
 | 관련 | [PRD-006 비기능 요구사항](../product/prd-006-nfr.md) | 응답 시간(`NFR-001`~`003`), PWA 오프라인(`NFR-005`), 보안 격리(`NFR-006`) 수치 |
 | 후행 | [FE-002 디렉터리와 모듈 구조](fe-002-directory-modules.md) | 본 기술 스택을 적용한 코드 디렉터리 및 모듈 의존 규칙 |
@@ -49,7 +49,7 @@ traces: [REQ-001, REQ-012, REQ-014, REQ-026, REQ-029, REQ-030, NFR-001, NFR-002,
 | 서버 상태 관리 | TanStack Query | v5 | 공간 데이터(노트, 피드, 일정)의 선언적 캐싱, 백그라운드 갱신 및 가비지 컬렉션 | [ARC-004](../architecture/arc-004-containers-components.md) |
 | 스타일링 | Vanilla CSS (CSS Variables) | 표준 CSS | 외부 UI 라이브러리 의존성 없이 Figma v2 디자인 토큰을 순수 CSS 변수로 직접 제어 | [DSN-005](../design/dsn-005-design-system-tokens.md) |
 | 오프라인 & PWA | vite-plugin-pwa | 최신 안정 | 계산기 5종 및 개발 도구 5종의 완전 오프라인 캐싱 및 Service Worker 지원 | [PRD-006 NFR-005](../product/prd-006-nfr.md) |
-| 로컬 백그라운드 연산 | Web Worker & WebAssembly | 브라우저 표준 | 이미지 무손실 압축, EXIF 파싱, 일반 PDF 조작 시 메인 UI 스레드 블로킹 방지 | [ADR-0001](../architecture/adr/adr-0001-hybrid-client-server-processing.md) |
+| 로컬 백그라운드 연산 | Web Worker & WebAssembly | 브라우저 표준 | 이미지 무손실 압축, EXIF 파싱, 일반 PDF 조작 시 메인 UI 스레드 블로킹 방지 | [ADR-0009](../architecture/adr/adr-0009-local-tool-execution-contract.md) |
 | 마크다운 렌더링 | markdown-it / PrismJS | 최신 안정 | 노트 스튜디오 및 일회성 변환기의 마크다운 실시간 렌더링과 코드 하이라이팅 | [PRD-005 FN-002](../product/prd-005-functional-spec.md) |
 | 테스트 도구 | Vitest + RTL | Vitest 2+, RTL 16+ | Vite와 동일한 파이프라인으로 동작하는 초고속 JSDOM 단위 및 컴포넌트 테스트 | `my-space-front/AGENTS.md` |
 
@@ -64,7 +64,7 @@ traces: [REQ-001, REQ-012, REQ-014, REQ-026, REQ-029, REQ-030, NFR-001, NFR-002,
 | 공간: AI 비서 (`SCR-040`) | 클라이언트 렌더링 (CSR) | Server-Sent Events (SSE) 실시간 누적 렌더링 | 음성 전사 텍스트 및 LLM 토큰의 즉각적인 스트리밍 출력 |
 | 도구: 계산기 5종 (`SCR-062`~`SCR-066`) | 클라이언트 렌더링 (CSR + PWA 오프라인) | 사용자 입력 즉시 로컬 연산 (서버 통신 0회) | 마트 현장이나 지하철 등 오프라인 환경에서도 100% 정상 계산 동작 보장 (`NFR-005`) |
 | 도구: 문서·이미지·개발 (`SCR-051`~`SCR-061`) | 클라이언트 렌더링 (CSR) | Web Worker 비동기 연산 후 UI 상태 반영 | 대용량 파일 처리 중에도 UI 멈춤 없이 부드러운 반응성 유지 (`NFR-001`, `NFR-002`) |
-| 방문자 체험 안내 (`SCR-090`) | 클라이언트 렌더링 (CSR) | 인메모리 샌드박스 상태 참조 (서버 저장 차단) | 외부 방문자의 데이터가 주 사용자 DB에 영속화되는 것을 원천 차단 (`ADR-0004`) |
+| 방문자 체험 안내 (`SCR-090`) | 클라이언트 렌더링 (CSR) | 인메모리 샌드박스 상태 참조 (서버 저장 차단) | 외부 방문자의 데이터가 주 사용자 DB에 영속화되는 것을 원천 차단 (`ADR-0007`) |
 
 ## 실행 구조 [필수]
 
@@ -111,8 +111,8 @@ flowchart TD
 
 - **목적**: 브라우저 메인 스레드, 백그라운드 Worker 스레드, PWA Service Worker 및 홈랩 백엔드 통신 경로를 한눈에 보여준다.
 - **설명**: 
-  1. 민감 파일과 토큰은 브라우저 Worker 스레드에서만 처리되고 외부로 전송되지 않는다([ADR-0001](../architecture/adr/adr-0001-hybrid-client-server-processing.md)).
-  2. 공간 데이터 통신은 Traefik을 거치며, Authelia ForwardAuth를 통해 인증된 주 사용자 요청에만 `Remote-User` 헤더가 부착되어 백엔드로 전달된다([ADR-0004](../architecture/adr/adr-0004-forward-auth-and-visitor-isolation.md)).
+  1. 로컬 도구 입력은 브라우저 내부에서 처리한다. PDF는 암호화 포함·입력 총합 20MB 초과·로컬 엔진 미지원 시 사용자의 실행으로 작업 전체를 서버에 위임한다([ADR-0009](../architecture/adr/adr-0009-local-tool-execution-contract.md)).
+  2. 공간 데이터 통신은 Traefik을 거치며, Authelia ForwardAuth를 통해 인증된 OWNER·GUEST 요청에 신뢰된 `Remote-User` 헤더가 부착되어 백엔드로 전달된다([ADR-0007](../architecture/adr/adr-0007-visitor-browser-state.md)).
   3. 외부 방문자의 경우 클라이언트 `GuestSandboxStore`가 모든 쓰기 요청을 인메모리에서 모킹하여 백엔드 DB 오염을 방지한다.
 - **관련 문서**: [ARC-004 컨테이너와 주요 컴포넌트](../architecture/arc-004-containers-components.md), [ARC-007 보안 아키텍처](../architecture/arc-007-security-architecture.md)
 
@@ -132,14 +132,14 @@ flowchart TD
 | 설정 | 주입 시점 | 브라우저 노출 | 설명 / 출처 |
 |---|---|---|---|
 | `VITE_API_BASE_URL` | 빌드 / 실행 (런타임 주입) | 예 | 백엔드 메인 API 프록시 기본 엔드포인트 (기본값: `/api`) |
-| `VITE_AI_STREAM_URL` | 빌드 / 실행 (런타임 주입) | 예 | AI 비서 SSE 스트리밍 엔드포인트 (기본값: `/ai/stream`) |
+| `VITE_AI_STREAM_URL` | 빌드 / 실행 (런타임 주입) | 예 | AI 텍스트 SSE 경로 (기본값: `/api/v1/ai/chat/stream`). 음성은 `/api/v1/ai/voice/stream`, 중단은 `/api/v1/ai/chat/interrupt`; 모두 동일 origin API |
 | `VITE_APP_VERSION` | 빌드 시점 | 예 | 앱 버전 및 빌드 타임스탬프 (`vite-plugin-version`) |
 | `VITE_DEMO_MODE` | 빌드 / 실행 | 예 | 외부 방문자용 테스트 계정 샌드박스 강제 활성화 여부 |
 
 ## 검토 체크리스트
 
 - [x] 기술 스택 표의 모든 행에 버전과 선택 이유가 있다
-- [x] 대안이 있었던 선택은 관련 ADR(`ADR-0001`, `ADR-0004` 등)로 명확히 연결되어 있다
+- [x] 대안이 있었던 선택은 관련 ADR(`ADR-0009`, `ADR-0007` 등)로 명확히 연결되어 있다
 - [x] 렌더링 방식이 페이지 유형별로 정의되어 있으며 [FE-003](fe-003-routing-pages.md)과 일치한다
 - [x] 실행 구조 다이어그램이 [ARC-004](../architecture/arc-004-containers-components.md)의 컨테이너 및 컴포넌트 구조와 일치한다
 - [x] 지원 브라우저 범위가 [PRD-006](../product/prd-006-nfr.md) 및 [DSN-007](../design/dsn-007-responsive.md)과 일치한다
@@ -153,5 +153,7 @@ flowchart TD
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-22 | 0.1.3 | API·화면·검증 범위 계약 불일치 보완 | AI 에이전트 |
+| 2026-11-22 | 0.1.2 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
 | 2026-11-22 | 0.1.1 | DSN-004 확정 SCR 번호(SCR-051~066) 동기화 | @bob (Keunhyeok Lim) |
 | 2026-11-12 | 0.1.0 | my-space v2 프론트엔드 기술 구조(FE-001) 최초 작성 | @bob (Keunhyeok Lim) |
