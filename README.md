@@ -83,7 +83,17 @@ AI에게 기능 구현, 버그 수정, 아키텍처 질문 등 작업을 지시�
 | 문서                                                | ID        | 설명                                                                     |
 | :-------------------------------------------------- | :-------- | :----------------------------------------------------------------------- |
 | [용어집](operations/ops-001-glossary.md)            | `OPS-001` | 공간·도구, 날짜 모델 3유형, Catch-up, ForwardAuth 등 공통 표준 용어 사전 |
-| [문서 인덱스](operations/ops-002-document-index.md) | `OPS-002` | `my-space-docs` 전체 33종 문서의 상태, 버전, 검토일, 메타데이터 총괄     |
+| [문서 인덱스](operations/ops-002-document-index.md) | `OPS-002` | `my-space-docs`에 등록된 문서의 상태, 버전, 검토일, 메타데이터 총괄     |
+
+### 6. 인프라 운영 명세 (Infrastructure - `infrastructure/`)
+
+| 문서 | ID | 설명 |
+|---|---|---|
+| [백업과 복구](infrastructure/inf-009-backup-recovery.md) | `INF-009` | PostgreSQL·RustFS 공동 복원 지점과 격리 복원 기준 |
+| [모니터링·로그·추적·알림](infrastructure/inf-010-observability.md) | `INF-010` | 가동 중 수집 신호, NFR 판정, 운영 경보와 수신 경로 |
+| [인프라 운영 절차](infrastructure/inf-011-ops-procedures.md) | `INF-011` | 재기동·원본 복구·재색인·롤백·관측 점검 절차 |
+
+배포 구조·환경·접근 제어·CI/CD·시크릿 명세는 [전체 문서 인덱스](operations/ops-002-document-index.md)에서 확인한다.
 
 ---
 

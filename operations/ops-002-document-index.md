@@ -4,11 +4,11 @@ title: 문서 인덱스
 part: operations
 tier: required
 status: approved
-version: 1.6.0
+version: 1.7.1
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: '2026-11-23'
+last_reviewed: '2026-11-24'
 depends_on: []
-related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, ADR-0008, ADR-0009, ADR-0010, FE-001, FE-002, FE-003, FE-005, FE-006, FE-008, FE-009, BE-001, BE-002, BE-003, BE-004, BE-005, BE-006, BE-013, INF-001, INF-002, INF-003, INF-005, INF-007]
+related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, ADR-0008, ADR-0009, ADR-0010, FE-001, FE-002, FE-003, FE-005, FE-006, FE-008, FE-009, BE-001, BE-002, BE-003, BE-004, BE-005, BE-006, BE-013, INF-001, INF-002, INF-003, INF-005, INF-007, INF-009, INF-010, INF-011]
 superseded_by: null
 traces: []
 ---
@@ -33,7 +33,7 @@ traces: []
 
 ## 문서 목록 [필수]
 
-현재 **1단계: 기획(PRD) 및 공통 기반(OPS)** 문서 9종(`approved`), **2단계: 디자인(DSN)** 문서 9종(`approved`), **3단계: 공통 아키텍처(ARC/ADR)** 문서 18종(ARC 8종 `approved`, ADR 7종 `approved`·3종 `superseded`), **4단계: 프론트엔드 상세 명세(FE)** 문서 7종(`review`), **5단계: 백엔드 상세 명세(BE)** 문서 7종(`review`)이 번호 건너뜀 없이 순차 작성 및 등록되어 있다. 후속 단계(테스트/검증 `QA` → 운영관리 `OPS`) 진행 시 해당 파트 문서를 이 표에 순차 추가한다.
+아래 표는 기획·디자인·아키텍처·개발·인프라·운영 문서의 현재 상태를 기록한다. 인프라는 배포 기반 5종이 승인되었고, 백업·관측·운영 절차 3종이 검토 중이다.
 
 | ID | 문서 | 한 줄 설명 | 등급 | 상태 | owner | last_reviewed |
 |---|---|---|---|---|---|---|
@@ -90,12 +90,15 @@ traces: []
 | INF-003 | [네트워크와 접근 제어](../infrastructure/inf-003-network-access.md) | v2 네트워크와 접근 제어 설계 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
 | INF-005 | [CI/CD 파이프라인](../infrastructure/inf-005-ci-cd.md) | v2 CI/CD 파이프라인 설계 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
 | INF-007 | [시크릿 관리](../infrastructure/inf-007-secrets.md) | v2 시크릿 관리 설계 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-009 | [백업과 복구](../infrastructure/inf-009-backup-recovery.md) | PostgreSQL·RustFS 공동 복원 지점과 격리 복원 기준 | 조건부(운영) | approved | @bob (Keunhyeok Lim) | 2026-11-24 |
+| INF-010 | [모니터링·로그·추적·알림](../infrastructure/inf-010-observability.md) | 가동 중 수집 신호, NFR 판정, 운영 경보와 수신 경로 | 조건부(운영) | approved | @bob (Keunhyeok Lim) | 2026-11-24 |
+| INF-011 | [인프라 운영 절차](../infrastructure/inf-011-ops-procedures.md) | 재기동·원본 복구·재색인·롤백·관측 점검 절차 | 조건부(운영) | approved | @bob (Keunhyeok Lim) | 2026-11-24 |
 | OPS-001 | [용어집](ops-001-glossary.md) | 공간·도구, 공통 날짜 모델 3유형, Catch-up, 테스트 계정 격리 등 표준 용어와 코드 식별자 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
-| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
+| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-24 |
 
 ## 작성하지 않는 문서 [필수]
 
-본 저장소는 프로젝트에 실제로 필요한 문서만 선별하여 각 파트 내에서 `001`번부터 빈 번호 없이 순차적으로 번호를 부여한다.
+가이드의 고정 ID를 유지하고 필요한 문서를 선별한다. 조건부·선택 문서를 생략해도 뒤의 ID를 당겨 매기지 않는다.
 
 | 구분 | 내용 | 다시 판단할 시점 |
 |---|---|---|
@@ -108,7 +111,7 @@ traces: []
 | v2 프론트엔드 디자인 시스템 (`DESIGN.md`) | `my-space-front/DESIGN.md` | 색상 토큰, 타이포그래피, 반응형 브레이크포인트 기준 | PRD-006, DSN-005 |
 | v1 프론트엔드 SDD 명세 및 ADR | `my-space-front/docs/` | v1에서 구현 완료된 마크다운 노트, AI, PDF, DBML 프론트엔드 사양 | PRD-002, PRD-005, ARC-004 |
 | v1 백엔드 SDD 명세 및 ADR | `my-space-backend/docs/` | v1에서 구현 완료된 백엔드 API 및 `qpdf`·AI 파이프라인 사양 | PRD-002, PRD-005, ARC-004, ARC-006 |
-| 홈랩 쿠버네티스 인프라 매니페스트 및 v2 전환 가이드 | `homelab-infra/`, `homelab-infra/docs/my-space-v2-infra-guide.md` | k3s 클러스터, Traefik, Authelia, PostgreSQL, RustFS, Qdrant, RabbitMQ 구성 및 v2 일괄 컷오버 도해 가이드 | ARC-001, ARC-003, ARC-004, ARC-007, INF-001~007 |
+| 홈랩 쿠버네티스 인프라 매니페스트 및 v2 전환 가이드 | `homelab-infra/`, `homelab-infra/docs/my-space-v2-infra-guide.md` | k3s 클러스터, Traefik, Authelia, PostgreSQL, RustFS, Qdrant, RabbitMQ 구성 및 v2 일괄 컷오버 도해 가이드 | ARC-001, ARC-003, ARC-004, ARC-007, INF-001·002·003·005·007·009~011 |
 | v2 초기 기능 기획 메모 | `solution-docs-guide-main/temp-space.md` | 사용자 대화 기반 초기 아이디어 및 결정 스냅샷 | PRD-001, PRD-002, PRD-007 |
 
 ## 검토 체크리스트
@@ -129,7 +132,7 @@ traces: []
 | BE-009 캐시 | 별도 범용 캐시 도입 없음. 공휴일·피드 본문 캐시는 BE-005·006 |
 | BE-010 비동기 처리 | ARC-005 및 BE-005·006의 Outbox·전송 상태·복구 계약 |
 | BE-011 외부 연동 | ARC-003의 경계, BE-001·002의 호출 규칙, BE-013의 실패 처리 |
-| BE-012 로깅 | BE-001·013의 기록/금지 항목. 배포별 수집·보존은 후행 운영/인프라 설정에서 검증 |
+| BE-012 로깅 | BE-001·013의 기록/금지 항목. 배포별 수집·보존·알림은 [INF-010](../infrastructure/inf-010-observability.md)에서 연결 |
 
 가이드에서 BE-009·010은 선택, BE-008·011·012는 조건부다. 별도 파일 생략은 해당 기능의 안전성·복구 검증을 생략한다는 뜻이 아니다. BE-014·015는 구현 테스트 및 실제 운영 데이터 이전 범위가 정해지는 단계에서 적용 여부를 판단한다.
 
@@ -137,6 +140,8 @@ traces: []
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-24 | 1.7.1 | 인프라 운영 명세 INF-009~011 SRE 검토 반영 및 approved 확정 | @bob (Keunhyeok Lim) |
+| 2026-11-23 | 1.7.0 | 인프라 운영 명세 INF-009~011 검토본과 대응 절차 등록 | AI 에이전트 |
 | 2026-11-23 | 1.6.0 | v2 인프라 명세(INF-001·002·003·005·007) 수정 반영 및 approved 확정, homelab-infra v2 전환 가이드 연결 | @bob (Keunhyeok Lim) |
 | 2026-11-22 | 1.5.7 | DSN-004·PRD-006 계약 보완본의 review 상태 및 관련 문서 검토일 동기화 | AI 에이전트 |
 | 2026-11-22 | 1.5.6 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
