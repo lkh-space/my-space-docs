@@ -8,7 +8,7 @@ version: 1.5.7
 owner: "@bob (Keunhyeok Lim)"
 last_reviewed: '2026-11-22'
 depends_on: []
-related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, ADR-0008, ADR-0009, ADR-0010, FE-001, FE-002, FE-003, FE-005, FE-006, FE-008, FE-009, BE-001, BE-002, BE-003, BE-004, BE-005, BE-006, BE-013]
+related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, ADR-0008, ADR-0009, ADR-0010, FE-001, FE-002, FE-003, FE-005, FE-006, FE-008, FE-009, BE-001, BE-002, BE-003, BE-004, BE-005, BE-006, BE-013, INF-001, INF-002, INF-003, INF-005, INF-007]
 superseded_by: null
 traces: []
 ---
@@ -85,6 +85,11 @@ traces: []
 | BE-005 | [도메인 모델과 비즈니스 규칙](../backend/be-005-domain-model-rules.md) | 5대 핵심 도메인 상태 전이, 공통 날짜 3대 모델, 홈랩 전원 복구 Catch-up 소급 실행 비즈니스 규칙 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | BE-006 | [데이터베이스 설계와 ERD](../backend/be-006-database-erd.md) | PostgreSQL Prisma 스키마, RustFS S3 객체 매핑, OpenSearch 및 Qdrant 물리 스키마 정의 | 조건부(DB) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | BE-013 | [오류 처리](../backend/be-013-error-handling.md) | RFC 9457 Problem Details 표준 에러 응답 포맷 및 도메인별 표준 에러 코드(`ERR_*`) 체계 | 조건부(API) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
+| INF-001 | [인프라 아키텍처](../infrastructure/inf-001-infra-architecture.md) | v2 인프라 아키텍처 설계 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-002 | [환경 분리와 구성 관리](../infrastructure/inf-002-environments-config.md) | v2 환경 분리와 구성 관리 설계 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-003 | [네트워크와 접근 제어](../infrastructure/inf-003-network-access.md) | v2 네트워크와 접근 제어 설계 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-005 | [CI/CD 파이프라인](../infrastructure/inf-005-ci-cd.md) | v2 CI/CD 파이프라인 설계 | 조건부(실무) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-007 | [시크릿 관리](../infrastructure/inf-007-secrets.md) | v2 시크릿 관리 설계 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
 | OPS-001 | [용어집](ops-001-glossary.md) | 공간·도구, 공통 날짜 모델 3유형, Catch-up, 테스트 계정 격리 등 표준 용어와 코드 식별자 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
 | OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 
