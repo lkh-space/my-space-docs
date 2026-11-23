@@ -45,16 +45,16 @@ apps/web/src/
   features/               # 사용자 인터랙션 단위의 비즈니스 기능 (노트 편집, 피드 모달, PDF 병합 등)
   entities/               # 도메인 모델 단위의 상태, 쿼리 훅 및 기본 뷰 (note, feed, schedule, user)
   shared/                 # 도메인에 종속되지 않는 재사용 UI 컴포넌트, 유틸리티, 디자인 토큰
-  workers/                # 메인 UI 스레드와 분리된 Web Worker 및 WASM 연산 스크립트
+  workers/                # 메인 UI 스레드와 분리된 Web Worker 연산 스크립트 (OffscreenCanvas 등)
 ```
 
 | 디렉터리 | 책임 | 여기에 두지 않는 것 |
 |---|---|---|
-| `app/` | `main.tsx`, `App.tsx`, 전역 스타일(`tokens.css`, `reset.css`), QueryClient/라우터 설정 | 특정 화면 전용 컴포넌트나 비즈니스 로직 |
+| `app/` | `main.tsx`, `App.tsx`, 전역 스타일(`tokens.css`, `reset.css`), 전역 프로바이더/라우터 설정 | 특정 화면 전용 컴포넌트나 비즈니스 로직 |
 | `pages/` | `FE-003`의 라우트별 페이지 조립 (위젯들을 배치) | 구체적인 API 호출 로직이나 복잡한 폼 검증 로직 |
 | `widgets/` | `Sidebar`, `HeaderBar`, `DashboardGrid`, `NoteEditorPanel` 등 굵직한 화면 구역 | 다른 페이지에서 쓸 수 없는 초세부 비즈니스 로직 |
 | `features/` | `note-editor`, `feed-filter-modal`, `pdf-merger`, `cron-builder` 등 인터랙션 단위 | 전역 레이아웃 또는 다른 feature의 내부 상태 참조 |
-| `entities/` | `note`, `feed`, `schedule`, `guest` 등 도메인 엔티티 타입, TanStack Query 키 및 API 클라이언트 | 화면 전체를 구성하는 레이아웃 구조 |
+| `entities/` | `note`, `feed`, `schedule`, `guest` 등 도메인 엔티티 타입, 세션 가드 훅/스토어 및 API 클라이언트 | 화면 전체를 구성하는 레이아웃 구조 |
 | `shared/` | `Button`, `Input`, `Modal`, `Toast`, `date-utils`, `crypto-utils` 등 공통 자산 | 특정 도메인(노트, 일정)에만 종속적인 비즈니스 로직 |
 | `workers/` | `pdf.worker.ts`, `image.worker.ts`, `dev-tools.worker.ts` 등 브라우저 로컬 연산 스레드 | DOM 객체 직접 조작 또는 메인 스레드 UI 상태 |
 
@@ -120,4 +120,5 @@ flowchart TD
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-24 | 0.1.1 | `FE-001` 스택 현행화 반영 (`workers/`, `entities/` 설명 정렬) | @bob (Keunhyeok Lim) |
 | 2026-11-12 | 0.1.0 | my-space v2 프론트엔드 디렉터리와 모듈 구조(FE-002) 최초 작성 | @bob (Keunhyeok Lim) |

@@ -36,7 +36,7 @@ traces: [REQ-003, REQ-011, REQ-026, REQ-029]
 
 | 상태 영역 | 담는 데이터 | 관리 도구 | 보관 위치 | 생명주기 |
 |---|---|---|---|---|
-| 1. 서버 상태 (Server State) | 공간별 데이터: 노트 목록/본문, RSS 피드 목록/아티클, 관리 일정, 상단 알림함 목록 | TanStack Query v5 | 브라우저 메모리 (Query Cache) | Stale 시간 동안 신선 유지, 컴포넌트 언마운트 후 5분간 가비지 컬렉션 유예 |
+| 1. 서버 상태 (Server State) | 공간별 데이터: 노트 목록/본문, RSS 피드 목록/아티클, 관리 일정, 상단 알림함 목록 | 커스텀 비동기 훅 + `AbortController` + 세션 세대 가드(백엔드 v2 연동 시 TanStack Query v5 도입 가능) | 브라우저 메모리 (컴포넌트/스토어 상태) | 동일 `SessionScope`([username, role, generation]) 키 체계와 Stale/Invalidation 규약을 준수하며 세션 전환 시 즉시 폐기 |
 | 2. 로컬 UI 상태 (Local UI State) | 모달 열림 여부, 노트 3종 뷰 모드 토글(에디터/스플릿/프리뷰), 파일 드롭존 선택 파일 목록, 아코디언 접힘 | React `useState`, `useReducer` | 컴포넌트 인스턴스 | 해당 컴포넌트 마운트 중 유지, 언마운트 시 자동 파기 |
 | 3. 전역 세션 상태 (Global Session State) | 현재 접속자 권한 모드(`owner` vs `visitor`), 네트워크 온라인/오프라인 감지 상태, 토스트 알림 큐 | 경량 Store (Zustand 또는 React Context) | 브라우저 메모리 | 브라우저 탭 세션 동안 유지 (새로고침 시 재평가) |
 | 4. 실시간 스트리밍 상태 (Streaming State) | AI 음성 녹음 버퍼(PTT 오디오), SSE 수신 토큰 누적 버퍼, 실행 중인 요청 취소용 `AbortController` | `ActiveStreamRegistry` (클래스 인스턴스) | 브라우저 메모리 | 스트리밍 세션 연결 중 유지, 취소/완료 시 즉시 버퍼 해제 |
@@ -189,6 +189,7 @@ sequenceDiagram
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-24 | 0.1.4 | 프론트엔드 단독 단계 커스텀 비동기 훅·세션 세대 가드 현행화 및 백엔드 v2 연동 시 TanStack Query v5 선택 도입 기준 명시 | @bob (Keunhyeok Lim) |
 | 2026-11-22 | 0.1.3 | API·화면·검증 범위 계약 불일치 보완 | AI 에이전트 |
 | 2026-11-22 | 0.1.2 | 사용자·역할·세션별 캐시 격리와 늦은 응답 폐기, 방문자 판정 정합성 보완 | AI 에이전트 |
 | 2026-11-12 | 0.1.0 | my-space v2 상태 관리(FE-005) 최초 작성 | @bob (Keunhyeok Lim) |

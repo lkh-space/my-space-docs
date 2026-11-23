@@ -5,9 +5,9 @@ part: frontend
 tier: conditional
 condition: UI
 status: approved
-version: 0.1.3
+version: 0.1.4
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: '2026-11-22'
+last_reviewed: '2026-11-24'
 depends_on: [ARC-001]
 related: [ARC-002, ARC-004, ARC-006, DSN-005, ADR-0009, ADR-0007, PRD-006]
 superseded_by: null
@@ -18,7 +18,7 @@ traces: [REQ-001, REQ-012, REQ-014, REQ-026, REQ-029, REQ-030, NFR-001, NFR-002,
 
 ## 이 문서는
 
-- **목적**: `my-space` v2 프론트엔드 웹 애플리케이션(`apps/web`)의 핵심 기술 스택, 렌더링 방식, 클라이언트 로컬 격리 실행 구조(Web Worker·WASM), PWA 오프라인 지원 정책 및 브라우저 호환성 기준을 정의한다.
+- **목적**: `my-space` v2 프론트엔드 웹 애플리케이션(`apps/web`)의 핵심 기술 스택, 렌더링 방식, 클라이언트 로컬 격리 실행 구조(Web Worker·OffscreenCanvas·지연 로딩 로컬 엔진), PWA 오프라인 지원 정책 및 브라우저 호환성 기준을 정의한다.
 - **대상 독자**: 프론트엔드 개발자, 백엔드·인프라 개발자, AI 에이전트
 - **작성 시점**: 시스템 개요([ARC-001](../architecture/arc-001-system-overview.md)) 및 디자인 시스템([DSN-005](../design/dsn-005-design-system-tokens.md)) 승인 직후.
 - **등급**: 조건부 — UI (화면이 있는 통합 워크스페이스 웹 애플리케이션)
@@ -45,12 +45,12 @@ traces: [REQ-001, REQ-012, REQ-014, REQ-026, REQ-029, REQ-030, NFR-001, NFR-002,
 | 모노레포 관리 | Nx + pnpm | Nx 20+, pnpm 9+ | 플러그인 기반 빠른 태스크 실행 및 독립 프론트엔드 모노레포 관리 | `my-space-front/AGENTS.md` |
 | UI 라이브러리 | React | 19.x | 최신 컴포넌트 모델, React Compiler 및 안정적인 동시성 렌더링 지원 | [ARC-001](../architecture/arc-001-system-overview.md) |
 | 언어 | TypeScript | 5.5+ | 정적 타입 검증을 통한 안정적인 컴포넌트 인터페이스 보장 | [ARC-001](../architecture/arc-001-system-overview.md) |
-| 번들러 & 개발 서버 | Vite | 6.x | 초고속 HMR, 최적화된 ESM 빌드 및 Rollup 생태계 활용 | [ARC-001](../architecture/arc-001-system-overview.md) |
-| 서버 상태 관리 | TanStack Query | v5 | 공간 데이터(노트, 피드, 일정)의 선언적 캐싱, 백그라운드 갱신 및 가비지 컬렉션 | [ARC-004](../architecture/arc-004-containers-components.md) |
+| 번들러 & 개발 서버 | Vite | 8.x | 초고속 HMR, 최적화된 ESM 빌드 및 Rolldown/Rollup 파이프라인 활용 | [ARC-001](../architecture/arc-001-system-overview.md) |
+| 서버 상태 관리 | 커스텀 비동기 훅 (백엔드 연동 시 TanStack Query v5 선택) | React 19 | `AbortController`와 `sessionGeneration` 가드 기반의 경량 비동기 상태 관리(백엔드 v2 연동 시 선언적 캐시 도입 가능) | [ARC-004](../architecture/arc-004-containers-components.md) |
 | 스타일링 | Vanilla CSS (CSS Variables) | 표준 CSS | 외부 UI 라이브러리 의존성 없이 Figma v2 디자인 토큰을 순수 CSS 변수로 직접 제어 | [DSN-005](../design/dsn-005-design-system-tokens.md) |
-| 오프라인 & PWA | vite-plugin-pwa | 최신 안정 | 계산기 5종 및 개발 도구 5종의 완전 오프라인 캐싱 및 Service Worker 지원 | [PRD-006 NFR-005](../product/prd-006-nfr.md) |
-| 로컬 백그라운드 연산 | Web Worker & WebAssembly | 브라우저 표준 | 이미지 무손실 압축, EXIF 파싱, 일반 PDF 조작 시 메인 UI 스레드 블로킹 방지 | [ADR-0009](../architecture/adr/adr-0009-local-tool-execution-contract.md) |
-| 마크다운 렌더링 | markdown-it / PrismJS | 최신 안정 | 노트 스튜디오 및 일회성 변환기의 마크다운 실시간 렌더링과 코드 하이라이팅 | [PRD-005 FN-002](../product/prd-005-functional-spec.md) |
+| 오프라인 & PWA | 자체 Zero-dep Vite 플러그인 (`vite-plugin-pwa.ts` + `offlinePolicy.ts`) | 표준 Service Worker | App Shell과 필수 9종 도구 청크의 정밀 프리캐시 및 비필수 에셋 런타임 지연 캐시 | [PRD-006 NFR-005](../product/prd-006-nfr.md) |
+| 로컬 백그라운드 연산 | `pdf-lib`(지연 로딩) · Web Worker · `OffscreenCanvas` | `pdf-lib` 1.x / 브라우저 표준 | 비암호화 ≤20MB PDF 병합·분할 및 이미지 압축·EXIF 파싱 시 서버 전송과 메인 스레드 블로킹 방지 | [ADR-0009](../architecture/adr/adr-0009-local-tool-execution-contract.md) |
+| 마크다운 렌더링 | `marked` + `KaTeX` + `Mermaid` + `DOMPurify` | 최신 안정 | 노트 스튜디오 및 일회성 변환기의 GFM·수식·다이어그램 실시간 렌더링 및 XSS 새니타이즈 | [PRD-005 FN-002](../product/prd-005-functional-spec.md) |
 | 테스트 도구 | Vitest + RTL | Vitest 2+, RTL 16+ | Vite와 동일한 파이프라인으로 동작하는 초고속 JSDOM 단위 및 컴포넌트 테스트 | `my-space-front/AGENTS.md` |
 
 ## 렌더링 방식 [필수]
@@ -60,10 +60,10 @@ traces: [REQ-001, REQ-012, REQ-014, REQ-026, REQ-029, REQ-030, NFR-001, NFR-002,
 | 페이지 유형 | 렌더링 방식 | 데이터 갱신 방식 | 이유 |
 |---|---|---|---|
 | 홈 대시보드 (`SCR-001`) | 클라이언트 렌더링 (CSR) | 화면 진입 시 병렬 갱신 + 5분 주기 백그라운드 재검증 | 4개 공간의 요약 정보를 개별 카드 단위로 비동기 로딩하여 빠른 첫 화면 렌더링 달성 |
-| 공간: 노트·피드·관리 (`SCR-010`~`SCR-030`) | 클라이언트 렌더링 (CSR) | TanStack Query 캐시 우선 표시 + 사용자 액션 성공 시 무효화 | 개인화 데이터의 즉각적인 UI 반영 및 낙관적 업데이트 지원 |
+| 공간: 노트·피드·관리 (`SCR-010`~`SCR-030`) | 클라이언트 렌더링 (CSR) | 커스텀 비동기 훅 + 세션 세대 가드(백엔드 연동 시 캐시 재검증 연계) | 개인화 데이터의 즉각적인 UI 반영 및 세션 전환 시 스테일 응답 차단 |
 | 공간: AI 비서 (`SCR-040`) | 클라이언트 렌더링 (CSR) | Server-Sent Events (SSE) 실시간 누적 렌더링 | 음성 전사 텍스트 및 LLM 토큰의 즉각적인 스트리밍 출력 |
 | 도구: 계산기 5종 (`SCR-062`~`SCR-066`) | 클라이언트 렌더링 (CSR + PWA 오프라인) | 사용자 입력 즉시 로컬 연산 (서버 통신 0회) | 마트 현장이나 지하철 등 오프라인 환경에서도 100% 정상 계산 동작 보장 (`NFR-005`) |
-| 도구: 문서·이미지·개발 (`SCR-051`~`SCR-061`) | 클라이언트 렌더링 (CSR) | Web Worker 비동기 연산 후 UI 상태 반영 | 대용량 파일 처리 중에도 UI 멈춤 없이 부드러운 반응성 유지 (`NFR-001`, `NFR-002`) |
+| 도구: 문서·이미지·개발 (`SCR-051`~`SCR-061`) | 클라이언트 렌더링 (CSR) | Web Worker·OffscreenCanvas·`pdf-lib`(지연 로딩) 비동기 연산 | 대용량 파일 처리 중 UI 멈춤 최소화 및 비암호화 ≤20MB PDF 로컬 완결 (`NFR-001`, `NFR-002`) |
 | 방문자 체험 안내 (`SCR-090`) | 클라이언트 렌더링 (CSR) | 인메모리 샌드박스 상태 참조 (서버 저장 차단) | 외부 방문자의 데이터가 주 사용자 DB에 영속화되는 것을 원천 차단 (`ADR-0007`) |
 
 ## 실행 구조 [필수]
@@ -76,15 +76,15 @@ flowchart TD
   subgraph Browser ["클라이언트 브라우저 (web)"]
     subgraph UI_Thread ["메인 UI 스레드"]
       Router["React Router (SPA 라우팅)"]
-      QueryCache["TanStack Query (서버 상태 캐시)"]
+      QueryCache["서버 상태 관리 (커스텀 훅 / 세션 세대 가드)"]
       SandboxStore["GuestSandboxStore (방문자 인메모리 샌드박스)"]
       ComponentTree["컴포넌트 트리 (Design Tokens CSS 적용)"]
     end
 
-    subgraph Worker_Thread ["웹 워커 스레드 (Web Worker / WASM)"]
-      PdfWorker["PdfWorker (일반 PDF 병합·분할)"]
-      ImgWorker["ImageWorker (무손실 압축·EXIF 제거)"]
-      DevWorker["DevWorker (스키마·정규식·JWT 파싱)"]
+    subgraph Worker_Thread ["백그라운드 로컬 연산 (Web Worker · pdf-lib 지연 로딩)"]
+      PdfWorker["LocalPdfEngine (pdf-lib 일반 PDF 병합·분할)"]
+      ImgWorker["ImageWorker (OffscreenCanvas 압축·EXIF 제거)"]
+      DevWorker["로컬 파서 (스키마·정규식·JWT·Cron 파싱)"]
     end
 
     SW["Service Worker (PWA 오프라인 캐시)"]
@@ -100,7 +100,7 @@ flowchart TD
     AiServer["apps/ai (실시간 AI 비서 / SSE 스트리밍)"]
   end
 
-  UI_Thread <-->|Comlink 비동기 통신| Worker_Thread
+  UI_Thread <-->|Worker postMessage / 동적 import| Worker_Thread
   SW -.->|오프라인 에셋 제공| UI_Thread
 
   UI_Thread -->|HTTPS REST 요청| Traefik
@@ -153,6 +153,7 @@ flowchart TD
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-24 | 0.1.4 | `pdf-lib` 지연 로딩 도입, `OffscreenCanvas` 기반 이미지 워커, Zero-dep PWA·마크다운(`marked`)·커스텀 훅/세션 가드 실제 구현 스택 현행화 | @bob (Keunhyeok Lim) |
 | 2026-11-22 | 0.1.3 | API·화면·검증 범위 계약 불일치 보완 | AI 에이전트 |
 | 2026-11-22 | 0.1.2 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
 | 2026-11-22 | 0.1.1 | DSN-004 확정 SCR 번호(SCR-051~066) 동기화 | @bob (Keunhyeok Lim) |
