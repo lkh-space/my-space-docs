@@ -4,9 +4,9 @@ title: 문서 인덱스
 part: operations
 tier: required
 status: approved
-version: 1.5.7
+version: 1.6.0
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: '2026-11-22'
+last_reviewed: '2026-11-23'
 depends_on: []
 related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, ADR-0008, ADR-0009, ADR-0010, FE-001, FE-002, FE-003, FE-005, FE-006, FE-008, FE-009, BE-001, BE-002, BE-003, BE-004, BE-005, BE-006, BE-013, INF-001, INF-002, INF-003, INF-005, INF-007]
 superseded_by: null
@@ -85,13 +85,13 @@ traces: []
 | BE-005 | [도메인 모델과 비즈니스 규칙](../backend/be-005-domain-model-rules.md) | 5대 핵심 도메인 상태 전이, 공통 날짜 3대 모델, 홈랩 전원 복구 Catch-up 소급 실행 비즈니스 규칙 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | BE-006 | [데이터베이스 설계와 ERD](../backend/be-006-database-erd.md) | PostgreSQL Prisma 스키마, RustFS S3 객체 매핑, OpenSearch 및 Qdrant 물리 스키마 정의 | 조건부(DB) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | BE-013 | [오류 처리](../backend/be-013-error-handling.md) | RFC 9457 Problem Details 표준 에러 응답 포맷 및 도메인별 표준 에러 코드(`ERR_*`) 체계 | 조건부(API) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
-| INF-001 | [인프라 아키텍처](../infrastructure/inf-001-infra-architecture.md) | v2 인프라 아키텍처 설계 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
-| INF-002 | [환경 분리와 구성 관리](../infrastructure/inf-002-environments-config.md) | v2 환경 분리와 구성 관리 설계 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
-| INF-003 | [네트워크와 접근 제어](../infrastructure/inf-003-network-access.md) | v2 네트워크와 접근 제어 설계 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
-| INF-005 | [CI/CD 파이프라인](../infrastructure/inf-005-ci-cd.md) | v2 CI/CD 파이프라인 설계 | 조건부(실무) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
-| INF-007 | [시크릿 관리](../infrastructure/inf-007-secrets.md) | v2 시크릿 관리 설계 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-001 | [인프라 아키텍처](../infrastructure/inf-001-infra-architecture.md) | v2 인프라 아키텍처 설계 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-002 | [환경 분리와 구성 관리](../infrastructure/inf-002-environments-config.md) | v2 환경 분리와 구성 관리 설계 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-003 | [네트워크와 접근 제어](../infrastructure/inf-003-network-access.md) | v2 네트워크와 접근 제어 설계 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-005 | [CI/CD 파이프라인](../infrastructure/inf-005-ci-cd.md) | v2 CI/CD 파이프라인 설계 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
+| INF-007 | [시크릿 관리](../infrastructure/inf-007-secrets.md) | v2 시크릿 관리 설계 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
 | OPS-001 | [용어집](ops-001-glossary.md) | 공간·도구, 공통 날짜 모델 3유형, Catch-up, 테스트 계정 격리 등 표준 용어와 코드 식별자 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
-| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
+| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
 
 ## 작성하지 않는 문서 [필수]
 
@@ -108,7 +108,7 @@ traces: []
 | v2 프론트엔드 디자인 시스템 (`DESIGN.md`) | `my-space-front/DESIGN.md` | 색상 토큰, 타이포그래피, 반응형 브레이크포인트 기준 | PRD-006, DSN-005 |
 | v1 프론트엔드 SDD 명세 및 ADR | `my-space-front/docs/` | v1에서 구현 완료된 마크다운 노트, AI, PDF, DBML 프론트엔드 사양 | PRD-002, PRD-005, ARC-004 |
 | v1 백엔드 SDD 명세 및 ADR | `my-space-backend/docs/` | v1에서 구현 완료된 백엔드 API 및 `qpdf`·AI 파이프라인 사양 | PRD-002, PRD-005, ARC-004, ARC-006 |
-| 홈랩 쿠버네티스 인프라 매니페스트 | `homelab-infra/` | k3s 클러스터, Traefik, Authelia, PostgreSQL, RustFS, Qdrant, RabbitMQ 구성 | ARC-001, ARC-003, ARC-004, ARC-007 |
+| 홈랩 쿠버네티스 인프라 매니페스트 및 v2 전환 가이드 | `homelab-infra/`, `homelab-infra/docs/my-space-v2-infra-guide.md` | k3s 클러스터, Traefik, Authelia, PostgreSQL, RustFS, Qdrant, RabbitMQ 구성 및 v2 일괄 컷오버 도해 가이드 | ARC-001, ARC-003, ARC-004, ARC-007, INF-001~007 |
 | v2 초기 기능 기획 메모 | `solution-docs-guide-main/temp-space.md` | 사용자 대화 기반 초기 아이디어 및 결정 스냅샷 | PRD-001, PRD-002, PRD-007 |
 
 ## 검토 체크리스트
@@ -137,6 +137,7 @@ traces: []
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-23 | 1.6.0 | v2 인프라 명세(INF-001·002·003·005·007) 수정 반영 및 approved 확정, homelab-infra v2 전환 가이드 연결 | @bob (Keunhyeok Lim) |
 | 2026-11-22 | 1.5.7 | DSN-004·PRD-006 계약 보완본의 review 상태 및 관련 문서 검토일 동기화 | AI 에이전트 |
 | 2026-11-22 | 1.5.6 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
 | 2026-11-22 | 1.5.5 | ARC-007 보안 보완본의 review 상태 반영 | AI 에이전트 |

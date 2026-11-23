@@ -4,8 +4,8 @@ title: 시크릿 관리
 part: infrastructure
 tier: conditional
 condition: 배포
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
 last_reviewed: '2026-11-23'
 depends_on: [INF-003]

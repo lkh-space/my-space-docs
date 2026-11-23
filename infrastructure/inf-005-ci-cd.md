@@ -4,8 +4,8 @@ title: CI/CD 파이프라인
 part: infrastructure
 tier: conditional
 condition: 실무
-status: review
-version: 0.1.0
+status: approved
+version: 1.0.0
 owner: "@bob (Keunhyeok Lim)"
 last_reviewed: '2026-11-23'
 depends_on: [INF-001]
