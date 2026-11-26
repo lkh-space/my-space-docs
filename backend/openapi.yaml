@@ -2511,6 +2511,7 @@ paths:
         error:
         - code
         - detail
+        - requestId
         - traceId
   /api/v1/ai/voice/stream:
     post:
@@ -2591,6 +2592,7 @@ paths:
         error:
         - code
         - detail
+        - requestId
         - traceId
   /api/v1/ai/chat/interrupt:
     post:

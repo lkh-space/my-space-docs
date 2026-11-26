@@ -82,7 +82,7 @@ v2 HTTP 계약의 검토안이다. [BE-003](be-003-api-spec.md)과 [openapi.yaml
 | audio | `chunk`(base64), `mimeType` |
 | done | 완료 `messageId`, `totalTokens` |
 | interrupt | 요청 중단 `requestId`, `reason` |
-| error | `code`, 안전한 `detail`, `requestId` |
+| error | `code`, 안전한 `detail`, 대화 요청의 `requestId`, HTTP 요청 추적 문맥의 `traceId` |
 
 `interruptChat`은 현재 사용자 소유 `requestId`만 중단한다. 이미 종료된 요청은 성공적으로 종료된 상태를 반환하며 다른 사용자의 요청은 노출하지 않는다. 연결 종료·사용자 중단은 추론/TTS에 취소를 전달하고 `INTERRUPTED`로 기록한다. 업스트림 장애는 `FAILED`다. 자동 재연결로 같은 추론을 시작하지 않는다. 저장된 메시지를 조회한 뒤 새 요청을 사용자가 시작한다. 중단은 오류 코드가 아닌 정상 상태다.
 

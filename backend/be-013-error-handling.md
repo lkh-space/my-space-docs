@@ -86,7 +86,7 @@ status는 실제 HTTP 상태와 같고 title은 상태의 안정적인 요약이
 - 커밋 후 OpenSearch/Qdrant 실패는 저장 API의 오류가 아니다. `ERR_NOTE_INDEXING_FAILED`를 저장 실패 500으로 사용하지 않는다. Outbox/search projection의 실패·재시도로 기록하고 검색 지연을 표시한다.
 - Readability 실패는 `contentStatus=FAILED`와 RSS 요약·원본 링크를 반환한다. 별도 422로 전체 글 조회를 실패시키지 않는다.
 - Catch-up 실패는 실행 감사 기록과 체크포인트 미전진으로 표현한다. 감사 목록 조회 자체가 성공하면 200이다. 외부 알림 실패는 Delivery 상태이며 인앱 알림 생성 성공을 취소하지 않는다.
-- SSE 시작 전에는 위 HTTP 오류를 반환한다. 시작 후에는 `event: error`의 `code/detail/requestId`를 보내고 생성 자원을 정리한다. 이미 보낸 HTTP 상태를 500으로 바꾸지 않는다. 중단은 `interrupt` 이벤트와 INTERRUPTED 상태이며 `ERR_AI_INTERRUPTED` 오류로 분류하지 않는다.
+- SSE 시작 전에는 위 HTTP 오류를 반환한다. 시작 후에는 `event: error`의 `code/detail/requestId/traceId`를 보내고 생성 자원을 정리한다. 이미 보낸 HTTP 상태를 500으로 바꾸지 않는다. 중단은 `interrupt` 이벤트와 INTERRUPTED 상태이며 `ERR_AI_INTERRUPTED` 오류로 분류하지 않는다.
 - 고정 만료 갱신은 정상 기능이다. 기존 `ERR_SCHEDULE_RENEWAL_MISMATCH`를 폐기하고 잘못된 새 날짜/유형만 `ERR_SCHEDULE_INVALID_RENEWAL`로 검증한다.
 
 ## 실제 구현과의 차이
