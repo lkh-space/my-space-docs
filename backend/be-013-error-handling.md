@@ -5,9 +5,9 @@ part: backend
 tier: conditional
 condition: API
 status: approved
-version: 1.1.1
+version: 1.1.2
 owner: '@bob (Keunhyeok Lim)'
-last_reviewed: '2026-11-22'
+last_reviewed: '2026-11-26'
 depends_on:
 - BE-002
 - BE-005
@@ -62,7 +62,7 @@ status는 실제 HTTP 상태와 같고 title은 상태의 안정적인 요약이
 | `ERR_FEED_INVALID_URL` | 400 | 유효하지 않거나 금지된 RSS URL | 주소 수정 |
 | `ERR_FEED_DUPLICATE_SOURCE` | 409 | 기존 출처 중복 | 기존 출처 확인 |
 | `ERR_FEED_FETCH_FAILED` | 502 | 외부 피드 수집 실패 | 기존 결과 유지·작업 재시도 |
-| `ERR_FEED_DUPLICATE_RULE` | 409 | 같은 종류·키워드 중복 | 기존 규칙 수정 |
+| `ERR_FEED_DUPLICATE_RULE` | 409 | 동일 소유자의 정규화 키워드 중복(포함·제외 규칙 공통) | 기존 규칙 수정 |
 | `ERR_SCHEDULE_INVALID_TYPE` | 400 | 지원하지 않는 날짜 유형 | 3유형 중 선택 |
 | `ERR_SCHEDULE_INVALID_RENEWAL` | 400 | 고정 만료 아님 또는 새 날짜가 기존 날짜 이후가 아님 | 유형·날짜 수정 |
 | `ERR_SCHEDULE_VERSION_CONFLICT` | 409 | 일정 버전 충돌 | 최신 일정 조회 |
@@ -103,6 +103,7 @@ HTTP 상태·Problem.status 일치, 선언된 code, 소유자/방문자 거부, 
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-26 | 1.1.2 | 피드 규칙 중복 조건을 BE-005 BR-011 및 BE-006의 고유 키와 일치시킴 | AI 에이전트 |
 | 2026-11-22 | 1.1.1 | CSRF 요청 출처 거부 오류 코드 추가 | AI 에이전트 |
 | 2026-11-12 | 1.0.0 | 최초 검토안 | @bob (Keunhyeok Lim) |
 | 2026-11-22 | 1.1.0 | 실제 기술 설정 및 승인된 PRD·ADR·ARC와 정합성 보완. 사용자 검토 대기 | AI 에이전트 |
