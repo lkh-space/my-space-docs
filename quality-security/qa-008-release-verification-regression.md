@@ -5,7 +5,7 @@ part: quality-security
 tier: conditional
 condition: 실무
 status: review
-version: 0.1.0
+version: 0.1.1
 owner: "@bob (Keunhyeok Lim)"
 last_reviewed: '2026-11-26'
 depends_on: [QA-001, INF-005, INF-011]
@@ -40,6 +40,7 @@ traces: [NFR-003, NFR-004, NFR-005, NFR-006, NFR-007]
 | 후보·환경 | 케이스/게이트 | 실행 시각·실행자 | 결과·실측 | 증거 링크·결함 | 최종 판정·판정자 |
 |---|---|---|---|---|---|
 | 백엔드 0eb6bcd · 로컬 | 단위·E2E·OpenAPI 대조 | 2026-11-26 · 개발 작업 기록 | 단위 342, E2E 62 통과. 계약 62개 일치 | [대상 테스트](../../my-space-backend/test) | 백엔드 로컬 결과 |
+| 프론트 d9b6dec (+로컬 워킹트리) · 로컬 | 타입검사·단위/통합·빌드·린트 | 2026-11-26 · 개발 작업 기록 | `pnpm typecheck`, `pnpm test`(84개 파일 504개 통과), `pnpm build`, `pnpm lint` 통과 | [대상 테스트](../../my-space-front/apps/web/src) | 프론트 로컬 결과 |
 | v2 통합 후보 · 스테이징 | 실제 인증·공급자·복원·경보 수신 | 미실행 | 증거 대기 | 실행 후 후보 digest와 로그 위치 등록 | 배포 판정 대기 |
 
 후보별 최종 결과는 진행·보류·복귀 중 하나와 사유로 남긴다. 이전 후보의 통과 건수는 새 후보의 증거로 재사용하지 않는다.
@@ -48,4 +49,5 @@ traces: [NFR-003, NFR-004, NFR-005, NFR-006, NFR-007]
 
 | 날짜 | 버전 | 변경 내용 |
 |---|---|---|
+| 2026-11-26 | 0.1.1 | `my-space-front` 로컬 4대 검증 결과(84파일 504테스트 통과) 기록 추가 |
 | 2026-11-26 | 0.1.0 | v2 검토 초안 작성 |

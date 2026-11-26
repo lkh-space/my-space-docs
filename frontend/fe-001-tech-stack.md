@@ -5,9 +5,9 @@ part: frontend
 tier: conditional
 condition: UI
 status: approved
-version: 0.1.4
+version: 0.1.5
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: '2026-11-24'
+last_reviewed: '2026-11-26'
 depends_on: [ARC-001]
 related: [ARC-002, ARC-004, ARC-006, DSN-005, ADR-0009, ADR-0007, PRD-006]
 superseded_by: null
@@ -59,7 +59,7 @@ traces: [REQ-001, REQ-012, REQ-014, REQ-026, REQ-029, REQ-030, NFR-001, NFR-002,
 
 | 페이지 유형 | 렌더링 방식 | 데이터 갱신 방식 | 이유 |
 |---|---|---|---|
-| 홈 대시보드 (`SCR-001`) | 클라이언트 렌더링 (CSR) | 화면 진입 시 병렬 갱신 + 5분 주기 백그라운드 재검증 | 4개 공간의 요약 정보를 개별 카드 단위로 비동기 로딩하여 빠른 첫 화면 렌더링 달성 |
+| 홈 대시보드 (`SCR-001`) | 클라이언트 렌더링 (CSR) | 화면 진입 시 단일 `GET /api/v1/home/summary` 조회 + 카드별 부분 재시도(`?sections=...`) + 활성 탭 5분 주기 백그라운드 재검증 | 4개 공간의 요약 정보를 통합 조회하고 실패 카드만 독립 재시도하며 빠른 첫 화면 렌더링 달성 |
 | 공간: 노트·피드·관리 (`SCR-010`~`SCR-030`) | 클라이언트 렌더링 (CSR) | 커스텀 비동기 훅 + 세션 세대 가드(백엔드 연동 시 캐시 재검증 연계) | 개인화 데이터의 즉각적인 UI 반영 및 세션 전환 시 스테일 응답 차단 |
 | 공간: AI 비서 (`SCR-040`) | 클라이언트 렌더링 (CSR) | Server-Sent Events (SSE) 실시간 누적 렌더링 | 음성 전사 텍스트 및 LLM 토큰의 즉각적인 스트리밍 출력 |
 | 도구: 계산기 5종 (`SCR-062`~`SCR-066`) | 클라이언트 렌더링 (CSR + PWA 오프라인) | 사용자 입력 즉시 로컬 연산 (서버 통신 0회) | 마트 현장이나 지하철 등 오프라인 환경에서도 100% 정상 계산 동작 보장 (`NFR-005`) |
@@ -127,14 +127,12 @@ flowchart TD
 
 ## 환경 설정 [선택]
 
-빌드 시점에 번들에 주입되는 환경 변수(`VITE_`)는 누구나 브라우저 개발자 도구에서 볼 수 있으므로 비밀 정보(Secret)를 절대 포함하지 않는다.
+프론트엔드 API 및 AI SSE 요청은 [BE-004](../backend/be-004-authn-authz.md)의 동일 출처 계약에 따라 **상대 경로(`/api/v1/*`)로 고정**하며, 별도 런타임 베이스 URL 오버라이드나 인증 우회용 데모 모드 환경 변수를 두지 않는다([FE-008](fe-008-auth-ui.md) 참고). 빌드 시점에 번들에 포함될 수 있는 `VITE_` 변수는 누구나 브라우저 개발자 도구에서 볼 수 있으므로 비밀 정보(Secret)를 절대 포함하지 않는다.
 
 | 설정 | 주입 시점 | 브라우저 노출 | 설명 / 출처 |
 |---|---|---|---|
-| `VITE_API_BASE_URL` | 빌드 / 실행 (런타임 주입) | 예 | 백엔드 메인 API 프록시 기본 엔드포인트 (기본값: `/api`) |
-| `VITE_AI_STREAM_URL` | 빌드 / 실행 (런타임 주입) | 예 | AI 텍스트 SSE 경로 (기본값: `/api/v1/ai/chat/stream`). 음성은 `/api/v1/ai/voice/stream`, 중단은 `/api/v1/ai/chat/interrupt`; 모두 동일 origin API |
-| `VITE_APP_VERSION` | 빌드 시점 | 예 | 앱 버전 및 빌드 타임스탬프 (`vite-plugin-version`) |
-| `VITE_DEMO_MODE` | 빌드 / 실행 | 예 | 외부 방문자용 테스트 계정 샌드박스 강제 활성화 여부 |
+| 동일 오리진 API·SSE 경로 (`/api/v1/*`) | 코드 고정 (로컬 개발 시 `vite.config.mts` 프록시) | 예 | 메인 API(`/api/v1/*`), 텍스트 SSE(`/api/v1/ai/chat/stream`), 음성 SSE(`/api/v1/ai/voice/stream`), 중단(`/api/v1/ai/chat/interrupt`) 모두 동일 오리진 상대 경로 사용 |
+| `VITE_APP_VERSION` (선택) | 빌드 시점 | 예 | 앱 버전 및 빌드 식별자 메타데이터 (없을 경우 기본 빌드 정보 사용) |
 
 ## 검토 체크리스트
 
@@ -153,6 +151,7 @@ flowchart TD
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-26 | 0.1.5 | 홈 요약 단일 초기 조회 및 동일 오리진 상대 경로(`/api/v1/*`) 계약 정렬, `VITE_DEMO_MODE` 제거 | @bob (Keunhyeok Lim) |
 | 2026-11-24 | 0.1.4 | `pdf-lib` 지연 로딩 도입, `OffscreenCanvas` 기반 이미지 워커, Zero-dep PWA·마크다운(`marked`)·커스텀 훅/세션 가드 실제 구현 스택 현행화 | @bob (Keunhyeok Lim) |
 | 2026-11-22 | 0.1.3 | API·화면·검증 범위 계약 불일치 보완 | AI 에이전트 |
 | 2026-11-22 | 0.1.2 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |

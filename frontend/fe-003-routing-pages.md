@@ -5,9 +5,9 @@ part: frontend
 tier: conditional
 condition: UI
 status: approved
-version: 0.2.1
+version: 0.2.2
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: '2026-11-22'
+last_reviewed: '2026-11-26'
 depends_on: [DSN-002, DSN-004, FE-001]
 related: [DSN-003, FE-002, FE-008, FE-009, ADR-0007]
 superseded_by: null
@@ -60,7 +60,7 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-006, REQ-011, REQ-012, REQ-014,
 | `/` | SCR-001 | 홈 대시보드 | 메인 셸 (L1 사이드바 + 상단바) | CSR | 공통 | — |
 | `/notifications` | SCR-002 | 알림함 | 메인 셸 | CSR | 공통 | `?filter=all\|unread` |
 | `/spaces/notes` | SCR-010 | 공간 › 노트 스튜디오 | 메인 셸 (3열 패널) | CSR | 공통 | `?noteId=:id`, `?view=editor\|split\|preview`, `?folder=:folderId` |
-| `/spaces/feeds` | SCR-020 | 공간 › 피드 리더 | 메인 셸 (2열 패널) | CSR | 공통 | `?feedId=:id`, `?filter=unread\|all`, `?tag=:tag` |
+| `/spaces/feeds` | SCR-020 | 공간 › 피드 리더 | 메인 셸 (2열 패널) | CSR | 공통 | `?feedId=:id`, `?filter=unread\|all\|starred`, `?view=default\|priority\|excluded`, `?tag=:tag` |
 | `/spaces/schedules` | SCR-030 | 공간 › 관리 (일정·결제) | 메인 셸 | CSR | 공통 | `?tab=subscription\|expiry\|dday`, `?year=:year` |
 | `/spaces/ai` | SCR-040 | 공간 › AI 비서 | 메인 셸 | CSR (SSE) | 공통 | `?session=:sessionId` |
 | `/tools` | SCR-050 | 도구 탐색 카탈로그 | 메인 셸 | CSR + 오프라인 | 공통 | `?category=documents\|images\|dev\|calc` |
@@ -105,7 +105,7 @@ traces: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-006, REQ-011, REQ-012, REQ-014,
 title: 프론트엔드 라우트 레이아웃 구조
 ---
 flowchart TD
-  RootLayout["RootLayout (글로벌 테마 토큰 주입, QueryClient, ToastProvider)"]
+  RootLayout["RootLayout (글로벌 테마 토큰 주입, AuthProvider, ToastProvider)"]
 
   MainShell["MainAppShell (L1 사이드바 240px + 상단 헤더 68px + 모바일 하단 탭 56px+34px)"]
   GuestNoticeBar["GuestNoticeBar (방문자 모드일 때만 상단 고정 노출)"]
@@ -135,6 +135,7 @@ flowchart TD
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-26 | 0.2.2 | 피드 쿼리(`filter=starred`, `view=default\|priority\|excluded`) 확장 및 `RootLayout` 프로바이더(`AuthProvider`) 현행화 | @bob (Keunhyeok Lim) |
 | 2026-11-22 | 0.2.1 | 현재 ADR 참조·설명 및 문서 인덱스 정합성 정리; 기존 결정 유지 | AI 에이전트 |
 | 2026-11-22 | 0.2.0 | DSN-004 확정 SCR-051~066 번호, 68px 상단바 및 피드 단일 키워드 필터 팝업 규격 동기화 | @bob (Keunhyeok Lim) |
 | 2026-11-12 | 0.1.0 | my-space v2 라우팅과 페이지 구성(FE-003) 최초 작성 | @bob (Keunhyeok Lim) |

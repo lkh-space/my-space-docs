@@ -4,9 +4,9 @@ title: 상태 관리
 part: frontend
 tier: optional
 status: approved
-version: 0.1.3
+version: 0.1.5
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: '2026-11-22'
+last_reviewed: '2026-11-26'
 depends_on: [FE-001, ARC-004]
 related: [FE-003, FE-006, ARC-005, ADR-0007]
 superseded_by: null
@@ -26,7 +26,7 @@ traces: [REQ-003, REQ-011, REQ-026, REQ-029]
 
 | 관계 | 문서 | 이유 |
 |---|---|---|
-| 선행 | [FE-001 프론트엔드 기술 구조](fe-001-tech-stack.md) | TanStack Query 및 React 19 상태 관리 기술 기준 |
+| 선행 | [FE-001 프론트엔드 기술 구조](fe-001-tech-stack.md) | 커스텀 비동기 훅·세션 세대 가드 및 React 19 상태 관리 기준 |
 | 선행 | [ARC-004 컨테이너와 주요 컴포넌트](../architecture/arc-004-containers-components.md) | 백엔드 `api`, `ai` 컨테이너 및 브라우저 컴포넌트 경계 |
 | 관련 | [FE-003 라우팅과 페이지 구성](fe-003-routing-pages.md) | URL 쿼리 파라미터 상태와의 동기화 |
 | 관련 | [ARC-005 데이터 흐름](../architecture/arc-005-data-flow.md) | 공간 데이터 영속 경로 및 테스트 계정 샌드박스 격리 경로(`DF-06`) |
@@ -38,13 +38,13 @@ traces: [REQ-003, REQ-011, REQ-026, REQ-029]
 |---|---|---|---|---|
 | 1. 서버 상태 (Server State) | 공간별 데이터: 노트 목록/본문, RSS 피드 목록/아티클, 관리 일정, 상단 알림함 목록 | 커스텀 비동기 훅 + `AbortController` + 세션 세대 가드(백엔드 v2 연동 시 TanStack Query v5 도입 가능) | 브라우저 메모리 (컴포넌트/스토어 상태) | 동일 `SessionScope`([username, role, generation]) 키 체계와 Stale/Invalidation 규약을 준수하며 세션 전환 시 즉시 폐기 |
 | 2. 로컬 UI 상태 (Local UI State) | 모달 열림 여부, 노트 3종 뷰 모드 토글(에디터/스플릿/프리뷰), 파일 드롭존 선택 파일 목록, 아코디언 접힘 | React `useState`, `useReducer` | 컴포넌트 인스턴스 | 해당 컴포넌트 마운트 중 유지, 언마운트 시 자동 파기 |
-| 3. 전역 세션 상태 (Global Session State) | 현재 접속자 권한 모드(`owner` vs `visitor`), 네트워크 온라인/오프라인 감지 상태, 토스트 알림 큐 | 경량 Store (Zustand 또는 React Context) | 브라우저 메모리 | 브라우저 탭 세션 동안 유지 (새로고침 시 재평가) |
-| 4. 실시간 스트리밍 상태 (Streaming State) | AI 음성 녹음 버퍼(PTT 오디오), SSE 수신 토큰 누적 버퍼, 실행 중인 요청 취소용 `AbortController` | `ActiveStreamRegistry` (클래스 인스턴스) | 브라우저 메모리 | 스트리밍 세션 연결 중 유지, 취소/완료 시 즉시 버퍼 해제 |
+| 3. 전역 세션 상태 (Global Session State) | 현재 접속자 권한 모드(`owner` vs `visitor`), 네트워크 온라인/오프라인 감지 상태, 토스트 알림 큐 | React Context (`AuthContext`, `ToastContext`) 및 경량 스토어 | 브라우저 메모리 | 브라우저 탭 세션 동안 유지 (새로고침 시 재평가) |
+| 4. 실시간 스트리밍 상태 (Streaming State) | AI 음성 녹음 버퍼(PTT 오디오), SSE 수신 토큰 누적 버퍼, 실행 중인 요청 취소용 `AbortController` | `useAiStream` 커스텀 훅 (`AbortController` + `sessionGeneration` 가드) | 브라우저 메모리 | 스트리밍 세션 연결 중 유지, 취소/완료 시 즉시 버퍼 해제 |
 | 5. 방문자 샌드박스 상태 (Sandbox State) | 외부 방문자용 샘플 노트, 피드, 일정의 인메모리 복제본 및 임시 변경분 | `GuestSandboxStore` (인메모리 CRUD 저장소) | 브라우저 메모리 (`window.__GUEST_SANDBOX__`) | 브라우저 탭 유지 동안만 유효, 새로고침 또는 '샘플 초기화' 시 즉시 리셋 |
 
 ## 서버 상태 캐시 및 무효화 규칙 [필수]
 
-TanStack Query의 쿼리 키는 일관된 배열 계층 구조를 따르며, 변경 작업(Mutation) 성공 시 관련 쿼리 키를 즉시 무효화(`invalidateQueries`)한다:
+현재 구현은 React 커스텀 비동기 훅과 `sessionGeneration` 가드로 서버 상태를 관리하며, 모든 조회·갱신 상태는 아래 `SessionScope`([username, role, generation]) 범위와 무효화 규약을 준수한다(추후 TanStack Query 도입 시에도 동일한 키 계층을 사용한다):
 
 ```typescript
 // 쿼리 키 표준 구조
@@ -111,9 +111,9 @@ export interface GuestSandboxState {
 - **초기화 지원**: 상단 헤더의 '샘플 데이터 초기화' 버튼을 누르면 초기 번들 시드 데이터로 즉각 재설정된다.
 - **영속화 금지**: `localStorage`나 `IndexedDB`에 저장하지 않고 순수 브라우저 메모리에만 유지하여 개인정보 잔존을 방지한다.
 
-## 실시간 AI 스트리밍 상태 (`ActiveStreamRegistry`) [필수]
+## 실시간 AI 스트리밍 상태 (`useAiStream`) [필수]
 
-AI 음성(PTT) 및 텍스트 채팅 스트리밍(`SCR-040`)은 빈번한 토큰 누적과 즉각적인 취소 제어가 필요하므로, React 상태 렌더링 루프와 분리된 레지스트리로 관리한다:
+AI 음성(PTT) 및 텍스트 채팅 스트리밍(`SCR-040`)은 빈번한 토큰 누적, 세션 세대(`sessionGeneration`) 검증 및 즉각적인 취소 제어가 필요하므로 `useAiStream` 커스텀 훅(`AbortController` + 세션 세대 가드)으로 관리한다:
 
 ```mermaid
 ---
@@ -122,35 +122,39 @@ title: AI 스트리밍 데이터 흐름과 상태 전이
 sequenceDiagram
   autonumber
   actor User as 사용자
-  participant UI as ChatWidget (React)
-  participant Reg as ActiveStreamRegistry
-  participant SSE as Server-Sent Events
+  participant UI as AiWorkspacePage (React)
+  participant Hook as useAiStream Hook
+  participant SSE as Server-Sent Events / REST
 
   User->>UI: PTT 버튼 릴리즈 (녹음 완료)
-  UI->>Reg: startStream(audioBlob, abortController)
-  Reg->>SSE: POST /api/v1/ai/voice/stream (Audio Payload)
+  UI->>Hook: startVoiceStream(audioBlob, sessionId)
+  Hook->>SSE: POST /api/v1/ai/voice/stream (Audio Payload)
   loop 토큰 스트리밍
-    SSE-->>Reg: event token/audio 및 JSON data
-    Reg->>UI: notifyChunk(accumulatedText)
+    SSE-->>Hook: event start/token/audio 및 JSON data
+    Hook->>UI: accumulatedText 누적 상태 갱신
     UI->>UI: 화면에 토큰 즉각 렌더링
   end
   alt 사용자가 취소(ESC 또는 중단 버튼) 클릭
     User->>UI: 중단 버튼 클릭
-    UI->>Reg: abortCurrentStream()
-    Reg->>SSE: requestId가 있으면 POST /api/v1/ai/chat/interrupt
-  Reg->>SSE: abortController.abort()
-    Reg-->>UI: 상태를 INTERRUPTED로 종료
+    UI->>Hook: interruptStream()
+    Hook->>SSE: requestId가 있으면 POST /api/v1/ai/chat/interrupt
+    Hook->>SSE: abortController.abort()
+    Hook-->>UI: 상태를 INTERRUPTED로 종료
   else 정상 완료
-  SSE-->>Reg: event: done 수신 (정상 완료 경로)
-  Reg->>UI: notifyComplete()
-  UI->>UI: 마크다운 노트 저장 버튼 활성화
+    SSE-->>Hook: event: done 수신 (정상 완료 경로)
+    Hook->>UI: 상태를 COMPLETED로 전환
+    UI->>UI: 마크다운 노트 저장 버튼 활성화
+  else 종료 이벤트 없는 비정상 EOF
+    SSE-->>Hook: 스트림 EOF (done/interrupt/error 없음)
+    Hook->>SSE: GET /api/v1/ai/sessions/{id}/messages 재조회
+    Hook-->>UI: 서버 최종 streamStatus 반영 (미확정 시 FAILED)
   end
 ```
 
 ## 검토 체크리스트
 
 - [x] 상태가 5대 영역(서버, UI, 전역 세션, 스트리밍, 샌드박스)으로 명확히 구분되어 있다
-- [x] TanStack Query 키 명명 규칙과 Stale/Cache 시간 및 무효화 트리거가 명시되어 있다
+- [x] `SessionScope` 기반 조회 키·세션 세대 가드 및 무효화 트리거가 명시되어 있다
 - [x] 방문자 샌드박스가 주 사용자 DB를 오염시키지 않도록 인메모리 격리 설계가 반영되어 있다
 - [x] AI SSE 스트리밍의 즉각 취소(`AbortController`) 및 상태 전이 흐름이 명시되어 있다
 - [x] 컴포넌트 언마운트 시 메모리 누수를 방지하는 가비지 컬렉션 정책이 정의되어 있다
@@ -164,10 +168,10 @@ sequenceDiagram
 로그아웃, 사용자 또는 역할 변경, 세션 만료(401), 인증 재확인 실패 시 다음 순서를 적용한다. 개별 리소스의 403/404만으로 다른 사용자 역할을 추정하지 않는다.
 
 1. 즉시 개인 화면을 가리고 개인 요청을 중지한 뒤 session generation을 증가시킨다. 인증 확인 중·실패 상태에서는 이전 데이터나 이전 화면을 표시하지 않는다.
-2. 이전 QueryClient의 쿼리를 취소하고 fetch·업로드·SSE·녹음·Worker에 취소/종료를 요청한다. 클라이언트 취소는 이미 서버에 커밋된 변경을 되돌린다는 뜻이 아니다.
-3. Query/Mutation 캐시와 이전 QueryClient를 폐기한다. 편집기 초안, AI 토큰·음성 버퍼, 선택 파일, 미리보기 object URL, GuestSandboxStore 및 전역 상태도 초기화한다. 이전 데이터로 새 캐시를 채우거나 사용자 간 placeholderData를 재사용하지 않는다.
+2. 진행 중인 커스텀 훅 요청(및 추후 `QueryClient` 도입 시 해당 쿼리)을 취소하고 fetch·업로드·SSE·녹음·Worker에 취소/종료를 요청한다. 클라이언트 취소는 이미 서버에 커밋된 변경을 되돌린다는 뜻이 아니다.
+3. 이전 세션의 메모리 상태(커스텀 훅/스토어·캐시), 편집기 초안, AI 토큰·음성 버퍼, 선택 파일, 미리보기 object URL, `GuestSandboxStore` 및 전역 상태를 `registerSessionCleanup` 콜백과 `PersonalSpaceGuard` React key 전환으로 즉시 폐기한다. 이전 데이터로 새 상태를 채우거나 사용자 간 placeholderData를 재사용하지 않는다.
 4. 모든 비동기 결과·mutation 콜백·Worker 메시지는 시작 당시 generation과 현재 값을 비교한다. 다르면 UI, 캐시, 토스트에 반영하지 않는다. AbortController만으로 늦은 응답 차단이 보장된다고 가정하지 않는다.
-5. 캐시하지 않는 auth/me로 신원을 확인한 후 새 QueryClient와 해당 scope를 생성한다. GUEST는 샘플 복제본으로 시작한다. 개인 데이터와 방문자 편집 상태를 localStorage/IndexedDB/Service Worker/영속 Query 캐시에 저장하지 않는다.
+5. 캐시하지 않는 auth/me로 신원을 확인한 후 새 세션 세대와 해당 scope를 시작한다. GUEST는 샘플 복제본으로 시작한다. 개인 데이터와 방문자 편집 상태를 localStorage/IndexedDB/Service Worker/영속 캐시에 저장하지 않는다.
 
 앱 진입·페이지 복귀(pageshow)·탭 활성화 시 신원을 재확인하는 동안 개인 화면을 잠근다. 탭 간 로그아웃/신원 변경 신호에는 데이터나 인증값을 싣지 않으며 수신 탭도 같은 폐기 절차를 수행한다. 서버는 매 요청 인증·인가를 계속 검증한다.
 
@@ -175,20 +179,21 @@ sequenceDiagram
 
 ## AI SSE 종료·중단 계약
 
-텍스트는 POST `/api/v1/ai/chat/stream`, PTT는 POST `/api/v1/ai/voice/stream`을 사용한다. event 이름과 JSON data는 BE-002/OpenAPI를 따른다. start의 requestId를 보관하고 token/audio를 누적하며 done만 COMPLETED로 처리한다. interrupt는 INTERRUPTED, error 또는 종료 이벤트 없는 EOF는 FAILED다. IDLE은 요청 시작 전 UI 상태일 뿐 중단 결과를 덮어쓰지 않는다.
+텍스트는 POST `/api/v1/ai/chat/stream`, PTT는 POST `/api/v1/ai/voice/stream`을 사용한다. event 이름과 JSON data는 BE-002/OpenAPI를 따른다. start의 requestId를 보관하고 token/audio를 누적하며 done만 COMPLETED로 처리한다. interrupt는 INTERRUPTED, error는 FAILED로 처리하며, 종료 이벤트 없는 비정상 EOF는 `GET /api/v1/ai/sessions/{id}/messages`를 재조회해 서버가 확정한 최종 `streamStatus`(`COMPLETED`/`INTERRUPTED`/`FAILED`)로 복구한다(재조회 실패 시 `FAILED`로 폴백). IDLE은 요청 시작 전 UI 상태일 뿐 중단 결과를 덮어쓰지 않는다.
 
 취소 시 requestId가 있으면 POST `/api/v1/ai/chat/interrupt`에 전달하고 즉시 로컬 스트림·음성 재생을 중지한다. requestId 수신 전이면 연결을 취소하며 서버 연결 종료 처리로 추론을 중단한다. 중단 요청 실패 시 서버 중단 완료를 단정하지 않는다. 완료·중단 경합의 최종 상태는 메시지 재조회로 확인한다. 이전 세션 generation의 결과는 반영하지 않는다. COMPLETED인 본인 메시지만 노트 저장을 허용한다.
 
 ## 피드·홈 캐시와 API 연결
 
-피드 URL `filter=unread`는 API `isRead=false`, `filter=all`은 isRead 생략으로 매핑한다. feedId는 sourceId, tag는 정규화한 매칭 관심 키워드이며 노트 태그와 별개다. 필터 변경 시 cursor·snapshotAt을 초기화하고 첫 응답의 snapshotAt을 다음 페이지 및 모두 읽음 요청에 재사용한다. POST `/api/v1/feed-items/read-all`은 현재 필터의 전체 결과를 처리하며 화면에 로드된 ID만 반복 호출하지 않는다. 성공 시 피드 목록·홈 미읽음 요약을 무효화한다. 실패 시 기존 상태를 유지한다.
+피드 URL `filter=unread`는 API `isRead=false`, `filter=starred`는 `isStarred=true`, `filter=all`은 해당 파라미터 생략으로 매핑한다. `view=default|priority|excluded`는 각각 기본·`PRIORITY`·`EXCLUDED` 분류(`classification`) 필터와 매핑한다. feedId는 sourceId, tag는 정규화한 매칭 관심 키워드이며 노트 태그와 별개다. 필터 변경 시 cursor·snapshotAt을 초기화하고 첫 응답의 snapshotAt을 다음 페이지 및 모두 읽음 요청에 재사용한다. POST `/api/v1/feed-items/read-all`은 현재 필터의 전체 결과를 처리하며 화면에 로드된 ID만 반복 호출하지 않는다. 성공 시 피드 목록·홈 미읽음 요약을 무효화한다. 실패 시 기존 상태를 유지한다.
 
-홈은 GET `/api/v1/home/summary?sections=카드이름`으로 카드별 조회하며 같은 세션 scope 아래 카드 이름별 Query Key로 관리한다. 초기 요청을 병렬 실행하고 5분마다 재검증한다. HTTP 오류와 응답 내 ERROR를 모두 해당 카드 오류로 처리한다. SUCCESS/data만 캐시에 저장하고 개별 재시도는 실패 카드만 요청한다. 인증 실패 시 전체 개인 캐시 폐기 규칙이 우선한다.
+홈은 초기 진입 시 단일 `GET /api/v1/home/summary`로 전체 섹션을 조회하고, 실패한 카드의 개별 재시도 시에만 `GET /api/v1/home/summary?sections=카드이름`으로 부분 요청한다. 활성 탭(`visibilityState !== 'hidden'`)·온라인 상태에서는 5분 주기로 사일런트 백그라운드 재검증을 수행한다. HTTP 오류와 응답 내 ERROR를 모두 해당 카드 오류로 처리하고 SUCCESS/data만 상태에 반영하며 개별 재시도 시 다른 성공 카드의 데이터는 유지한다. 인증 실패 시 전체 개인 상태 폐기 규칙이 우선한다.
 
 ## 변경 이력
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-26 | 0.1.5 | `useAiStream`·EOF 메시지 재조회 복구, 피드 `filter=starred`/`view`, 홈 단일 초기 조회·부분 재시도·5분 재검증, 커스텀 훅/세션 가드 현행화 | @bob (Keunhyeok Lim) |
 | 2026-11-24 | 0.1.4 | 프론트엔드 단독 단계 커스텀 비동기 훅·세션 세대 가드 현행화 및 백엔드 v2 연동 시 TanStack Query v5 선택 도입 기준 명시 | @bob (Keunhyeok Lim) |
 | 2026-11-22 | 0.1.3 | API·화면·검증 범위 계약 불일치 보완 | AI 에이전트 |
 | 2026-11-22 | 0.1.2 | 사용자·역할·세션별 캐시 격리와 늦은 응답 폐기, 방문자 판정 정합성 보완 | AI 에이전트 |

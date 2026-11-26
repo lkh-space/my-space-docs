@@ -5,9 +5,9 @@ part: frontend
 tier: conditional
 condition: UI·인증
 status: approved
-version: 0.1.2
+version: 0.1.3
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: '2026-11-22'
+last_reviewed: '2026-11-26'
 depends_on: [FE-001, ARC-007, ADR-0007]
 related: [FE-003, FE-005, PRD-001]
 superseded_by: null
@@ -53,48 +53,51 @@ traces: [REQ-026, REQ-030, NFR-006]
 
 ## 방문자 모드 안내 컴포넌트 (`GuestNoticeBar.tsx`)
 
-상단 헤더 바로 아래에 얇은 배너 형태로 고정 노출되며, 방문자가 자신이 테스트 계정임을 명확히 인지하게 돕는다:
+상단 헤더 바로 아래에 얇은 배너 형태로 고정 노출되며, 방문자가 자신이 테스트 계정임을 명확히 인지하고 시드 데이터를 초기화할 수 있게 돕는다. 색상은 `DESIGN.md` 시맨틱 경고 토큰(`--color-status-warning-bg`, `--color-status-warning-fg`, `--color-status-warning-border` 등 `.guest-notice-bar` 스타일)을 사용한다:
 
 ```typescript
-// GuestNoticeBar 시각 규격
-export const GuestNoticeBar = () => {
-  const { isGuest, resetSandbox } = useAuthStore();
+// GuestNoticeBar 구조 규격 (apps/web/src/widgets/layout/GuestNoticeBar.tsx)
+export const GuestNoticeBar: React.FC = () => {
+  const { t } = useTranslation();
+  const { isGuest } = useCurrentUser();
+  const toast = useOptionalToast();
+  const location = useLocation();
+
   if (!isGuest) return null;
 
+  const handleResetSandbox = () => {
+    guestSandboxStore.resetToInitialSeed();
+    resetInMemoryRecentTasks();
+    window.dispatchEvent(new CustomEvent(GUEST_SANDBOX_RESET_EVENT));
+    toast?.showToast({
+      message: t('guest.resetSuccess'),
+      variant: 'success',
+    });
+  };
+
   return (
-    <aside 
-      role="status" 
-      aria-label="체험 모드 안내"
-      style={{
-        backgroundColor: '#FEF3C7',
-        color: '#92400E',
-        padding: '8px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: '13px',
-        borderBottom: '1px solid #FCD34D',
-      }}
+    <aside
+      role="status"
+      aria-label={t('guest.noticeAria')}
+      className="guest-notice-bar"
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span aria-hidden="true">💡</span>
-        <span>외부 방문자 체험 모드로 둘러보는 중입니다. 입력한 데이터는 서버에 저장되지 않습니다.</span>
+      <div className="guest-notice-content">
+        <span className="material-symbols-outlined guest-notice-icon" aria-hidden="true">
+          info
+        </span>
+        <span className="guest-notice-message">{t('guest.noticeMessage')}</span>
       </div>
-      <button 
-        type="button" 
-        onClick={resetSandbox}
-        style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #D97706',
-          borderRadius: '4px',
-          padding: '4px 8px',
-          fontSize: '12px',
-          fontWeight: 600,
-          cursor: 'pointer',
-        }}
-      >
-        샘플 데이터 초기화
-      </button>
+      <div className="guest-notice-actions">
+        {location.pathname !== '/guest' && (
+          <Link to="/guest" className="guest-guide-link">
+            {t('guest.guideLink')}
+          </Link>
+        )}
+        <button type="button" className="guest-reset-btn" onClick={handleResetSandbox}>
+          <span className="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+          <span>{t('guest.resetBtn')}</span>
+        </button>
+      </div>
     </aside>
   );
 };
@@ -119,7 +122,7 @@ export const GuestNoticeBar = () => {
 
 ## 세션 변경 시 화면 잠금과 초기화
 
-로그아웃·세션 만료·계정/역할 변경 시 [FE-005의 세션 폐기 절차](fe-005-state-management.md)를 수행한다. auth/me 확인 중에는 개인 화면을 렌더링하지 않으며, 이전 Query 캐시나 편집 초안을 새 역할 화면으로 넘기지 않는다. 탭 활성화·페이지 복귀와 다른 탭 로그아웃에서도 재확인한다. `/guest` 경로나 환경변수는 인증 우회 수단이 아니다.
+로그아웃·세션 만료·계정/역할 변경 시 [FE-005의 세션 폐기 절차](fe-005-state-management.md)를 수행한다. auth/me 확인 중에는 개인 화면을 렌더링하지 않으며, 이전 비동기 응답·캐시나 편집 초안을 새 역할 화면으로 넘기지 않는다. 탭 활성화·페이지 복귀와 다른 탭 로그아웃에서도 재확인한다. `/guest` 경로나 환경변수는 인증 우회 수단이 아니다.
 
 브라우저 API는 [BE-004](../backend/be-004-authn-authz.md)의 동일 출처 계약을 따른다. `ERR_AUTH_ORIGIN_REJECTED`는 요청 출처 오류로 표시하고 자동 재시도·데모 모드 전환으로 우회하지 않는다. 로그인 쿠키는 Authelia가 관리하며 앱이 복사하거나 직접 검증하지 않는다.
 
@@ -127,7 +130,7 @@ export const GuestNoticeBar = () => {
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-26 | 0.1.3 | `GuestNoticeBar` 예시를 `useCurrentUser`·`GuestSandboxStore`·`DESIGN.md` 시맨틱 토큰 기준으로 현행화 및 표 정렬 | @bob (Keunhyeok Lim) |
 | 2026-11-22 | 0.1.2 | 세션 전환 화면 잠금·초기화 및 요청 출처 오류 처리 명시 | AI 에이전트 |
-| 2026-11-12 | 0.1.0 | my-space v2 인증·권한에 따른 UI(FE-008) 최초 작성 | @bob (Keunhyeok Lim) |
-
 | 2026-11-22 | 0.1.1 | BE-004와 신원 API·401 처리·방문자 판정 정합성 반영 | AI 에이전트 |
+| 2026-11-12 | 0.1.0 | my-space v2 인증·권한에 따른 UI(FE-008) 최초 작성 | @bob (Keunhyeok Lim) |
