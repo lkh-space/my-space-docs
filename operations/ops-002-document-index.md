@@ -4,11 +4,11 @@ title: 문서 인덱스
 part: operations
 tier: required
 status: approved
-version: 1.7.1
+version: 1.7.2
 owner: "@bob (Keunhyeok Lim)"
-last_reviewed: '2026-11-24'
+last_reviewed: '2026-11-26'
 depends_on: []
-related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, ADR-0008, ADR-0009, ADR-0010, FE-001, FE-002, FE-003, FE-005, FE-006, FE-008, FE-009, BE-001, BE-002, BE-003, BE-004, BE-005, BE-006, BE-013, INF-001, INF-002, INF-003, INF-005, INF-007, INF-009, INF-010, INF-011]
+related: [OPS-001, PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, DSN-001, DSN-002, DSN-003, DSN-004, DSN-005, DSN-006, DSN-007, DSN-008, DSN-009, ARC-001, ARC-002, ARC-003, ARC-004, ARC-005, ARC-006, ARC-007, ARC-008, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, ADR-0008, ADR-0009, ADR-0010, FE-001, FE-002, FE-003, FE-005, FE-006, FE-008, FE-009, BE-001, BE-002, BE-003, BE-004, BE-005, BE-006, BE-013, INF-001, INF-002, INF-003, INF-005, INF-007, INF-009, INF-010, INF-011, QA-001, QA-005, QA-006, QA-007, QA-008]
 superseded_by: null
 traces: []
 ---
@@ -93,8 +93,13 @@ traces: []
 | INF-009 | [백업과 복구](../infrastructure/inf-009-backup-recovery.md) | PostgreSQL·RustFS 공동 복원 지점과 격리 복원 기준 | 조건부(운영) | approved | @bob (Keunhyeok Lim) | 2026-11-24 |
 | INF-010 | [모니터링·로그·추적·알림](../infrastructure/inf-010-observability.md) | 가동 중 수집 신호, NFR 판정, 운영 경보와 수신 경로 | 조건부(운영) | approved | @bob (Keunhyeok Lim) | 2026-11-24 |
 | INF-011 | [인프라 운영 절차](../infrastructure/inf-011-ops-procedures.md) | 재기동·원본 복구·재색인·롤백·관측 점검 절차 | 조건부(운영) | approved | @bob (Keunhyeok Lim) | 2026-11-24 |
+| QA-001 | [테스트 전략](../quality-security/qa-001-test-strategy.md) | v2 테스트 전략 검증 기준 | 조건부(실무) | review | @bob (Keunhyeok Lim) | 2026-11-26 |
+| QA-005 | [보안 요구사항과 위협 검증](../quality-security/qa-005-security-requirements-threat-model.md) | v2 보안 요구사항과 위협 검증 검증 기준 | 조건부(배포) | review | @bob (Keunhyeok Lim) | 2026-11-26 |
+| QA-006 | [취약점 관리](../quality-security/qa-006-vulnerability-management.md) | v2 취약점 관리 검증 기준 | 조건부(운영) | review | @bob (Keunhyeok Lim) | 2026-11-26 |
+| QA-007 | [개인정보와 데이터 보존](../quality-security/qa-007-privacy-retention.md) | v2 개인정보와 데이터 보존 검증 기준 | 조건부(개인정보) | review | @bob (Keunhyeok Lim) | 2026-11-26 |
+| QA-008 | [릴리스 검증과 회귀 테스트](../quality-security/qa-008-release-verification-regression.md) | v2 릴리스 검증과 회귀 테스트 검증 기준 | 조건부(실무) | review | @bob (Keunhyeok Lim) | 2026-11-26 |
 | OPS-001 | [용어집](ops-001-glossary.md) | 공간·도구, 공통 날짜 모델 3유형, Catch-up, 테스트 계정 격리 등 표준 용어와 코드 식별자 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-01 |
-| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-24 |
+| OPS-002 | [문서 인덱스](ops-002-document-index.md) | `my-space-docs` 전체 문서 목록과 작성 현황 | 필수 | approved | @bob (Keunhyeok Lim) | 2026-11-26 |
 
 ## 작성하지 않는 문서 [필수]
 
@@ -140,6 +145,7 @@ traces: []
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-26 | 1.7.2 | QA 검토 초안 5종 등록 | AI 에이전트 |
 | 2026-11-24 | 1.7.1 | 인프라 운영 명세 INF-009~011 SRE 검토 반영 및 approved 확정 | @bob (Keunhyeok Lim) |
 | 2026-11-23 | 1.7.0 | 인프라 운영 명세 INF-009~011 검토본과 대응 절차 등록 | AI 에이전트 |
 | 2026-11-23 | 1.6.0 | v2 인프라 명세(INF-001·002·003·005·007) 수정 반영 및 approved 확정, homelab-infra v2 전환 가이드 연결 | @bob (Keunhyeok Lim) |

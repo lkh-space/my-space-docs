@@ -97,6 +97,14 @@ AI에게 기능 구현, 버그 수정, 아키텍처 질문 등 작업을 지시�
 
 ---
 
+### 7. 품질·보안 검증
+
+- [QA-001 테스트 전략](quality-security/qa-001-test-strategy.md)
+- [QA-005 보안 요구사항과 위협 검증](quality-security/qa-005-security-requirements-threat-model.md)
+- [QA-006 취약점 관리](quality-security/qa-006-vulnerability-management.md)
+- [QA-007 개인정보와 데이터 보존](quality-security/qa-007-privacy-retention.md)
+- [QA-008 릴리스 검증과 회귀 테스트](quality-security/qa-008-release-verification-regression.md)
+
 ## 🔗 연계 Repository와의 관계
 
 `my-space` 프로젝트는 역할별로 독립된 Repository로 분리되어 있으며, 상위 기획과 세부 구현이 일관되게 연결됩니다.
