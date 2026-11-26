@@ -54,7 +54,7 @@ v2 HTTP 계약의 검토안이다. [BE-003](be-003-api-spec.md)과 [openapi.yaml
 
 ## 노트 저장의 멱등성과 동시 수정
 
-기준은 [ADR-0008](../architecture/adr/adr-0008-note-write-consistency.md)이다. `createDocument`, `updateDocument`, `restoreDocRevision`, `saveChatMessageToNote`, 내부 `saveMarkdownInternal`은 `Idempotency-Key`를 요구한다. 키는 UUID, 범위는 `(ownerId, operationId, key)`다. 재생 보관 기간은 완료 후 24시간으로 제안하며 사용자 검토 대상이다.
+기준은 [ADR-0008](../architecture/adr/adr-0008-note-write-consistency.md)이다. `createDocument`, `updateDocument`, `restoreDocRevision`, `saveChatMessageToNote`, 내부 `saveMarkdownInternal`은 `Idempotency-Key`를 요구한다. 키는 UUID, 범위는 `(ownerId, operationId, key)`다. 서버는 저장 완료 시점부터 24시간 동안 같은 키·같은 입력의 요청에 기존 상태 코드와 결과를 반환한다.
 
 1. 동일 키·동일 입력의 완료 요청은 기존 상태 코드와 결과를 반환한다. 재시도 시 리비전·이벤트를 다시 만들지 않는다.
 2. 동일 키·다른 입력은 `409 ERR_IDEMPOTENCY_MISMATCH`, 처리 중인 요청은 `409 ERR_REQUEST_IN_PROGRESS`다. 클라이언트는 처리 중 오류에 같은 키로 재시도한다.
