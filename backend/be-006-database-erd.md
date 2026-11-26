@@ -5,9 +5,9 @@ part: backend
 tier: conditional
 condition: DB
 status: approved
-version: 1.1.2
+version: 1.1.3
 owner: '@bob (Keunhyeok Lim)'
-last_reviewed: '2026-11-22'
+last_reviewed: '2026-11-26'
 depends_on:
 - BE-005
 - ARC-005
@@ -178,6 +178,7 @@ UNIQUE(owner_id, normalized_url), INDEX(owner_id, status). 삭제와 수집 결�
 | dedup_key / title / url | TEXT | NOT NULL |
 | summary / content | TEXT | NULL |
 | content_status | TEXT | NOT NULL, SUMMARY/EXTRACTED/FAILED |
+| content_classified | BOOLEAN | NOT NULL, DEFAULT true. 상세 조회가 새 본문을 캐시하면 false. 수집·규칙 변경에서 본문 분류를 반영하면 true |
 | classification | TEXT | NOT NULL, BE-005 분류 |
 | score | INT | NOT NULL, >=0 |
 | is_read / is_starred | BOOLEAN | NOT NULL, DEFAULT false |
@@ -440,6 +441,7 @@ ENT-007의 matchedKeywords API 값은 ENT-008 활성 관심 규칙과 제목·�
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |---|---|---|---|
+| 2026-11-26 | 1.1.3 | 상세 조회의 본문 캐시와 목록 분류 반영 시점 명시 | AI 에이전트 |
 | 2026-11-22 | 1.1.2 | API·화면·검증 범위 계약 불일치 보완 | AI 에이전트 |
 | 2026-11-22 | 1.1.1 | 리비전 첨부 연결 ENT-022·GC 상태·실행권 generation·버전별 색인 키 추가 | AI 에이전트 |
 | 2026-11-12 | 1.0.0 | 최초 검토안 | @bob (Keunhyeok Lim) |

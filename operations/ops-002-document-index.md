@@ -82,8 +82,8 @@ traces: []
 | BE-002 | [API 설계 가이드](../backend/be-002-api-design-guide.md) | REST API 경로 규칙, 버전 관리, 페이지네이션, SSE 스트리밍 및 멱등성 규약 | 조건부(API) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | BE-003 | [API 명세](../backend/be-003-api-spec.md) | v2 OpenAPI 계약 및 공간·도구의 operationId 추적 목록 | 조건부(API) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
 | BE-004 | [인증과 인가](../backend/be-004-authn-authz.md) | Authelia ForwardAuth 헤더 검증·주 사용자 데이터 보호· 방문자 브라우저 메모리 체험 격리 | 조건부(인증) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
-| BE-005 | [도메인 모델과 비즈니스 규칙](../backend/be-005-domain-model-rules.md) | 5대 핵심 도메인 상태 전이, 공통 날짜 3대 모델, 홈랩 전원 복구 Catch-up 소급 실행 비즈니스 규칙 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
-| BE-006 | [데이터베이스 설계와 ERD](../backend/be-006-database-erd.md) | PostgreSQL Prisma 스키마, RustFS S3 객체 매핑, OpenSearch 및 Qdrant 물리 스키마 정의 | 조건부(DB) | approved | @bob (Keunhyeok Lim) | 2026-11-22 |
+| BE-005 | [도메인 모델과 비즈니스 규칙](../backend/be-005-domain-model-rules.md) | 5대 핵심 도메인 상태 전이, 공통 날짜 3대 모델, 홈랩 전원 복구 Catch-up 소급 실행 비즈니스 규칙 | 조건부(실무) | approved | @bob (Keunhyeok Lim) | 2026-11-26 |
+| BE-006 | [데이터베이스 설계와 ERD](../backend/be-006-database-erd.md) | PostgreSQL Prisma 스키마, RustFS S3 객체 매핑, OpenSearch 및 Qdrant 물리 스키마 정의 | 조건부(DB) | approved | @bob (Keunhyeok Lim) | 2026-11-26 |
 | BE-013 | [오류 처리](../backend/be-013-error-handling.md) | RFC 9457 Problem Details 표준 에러 응답 포맷 및 도메인별 표준 에러 코드(`ERR_*`) 체계 | 조건부(API) | approved | @bob (Keunhyeok Lim) | 2026-11-26 |
 | INF-001 | [인프라 아키텍처](../infrastructure/inf-001-infra-architecture.md) | v2 인프라 아키텍처 설계 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
 | INF-002 | [환경 분리와 구성 관리](../infrastructure/inf-002-environments-config.md) | v2 환경 분리와 구성 관리 설계 | 조건부(배포) | approved | @bob (Keunhyeok Lim) | 2026-11-23 |
